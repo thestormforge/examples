@@ -22,7 +22,7 @@ spec:
             spec:
               containers:
                 - name: benchmark-cli
-                  # This image is built from /examples/simple/benchmark-cli
+                  # This image is built from /simple/benchmark-cli
                   image: gcr.io/redskyops/benchmark-cli:6.7.0
                   envFrom:
                     - configMapRef:
