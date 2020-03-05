@@ -1,9 +1,10 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: rally-helm-jvm
+  name: elasticsearch-example
 spec:
   budget: 160
+  # bunrIn: 160
   parameters:
   - name: data_memory
     min: 2000
