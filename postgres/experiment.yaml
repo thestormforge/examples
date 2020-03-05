@@ -1,8 +1,9 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: postgres-example-experiment
+  name: postgres-example-test
 spec:
+  budget: 40
   parameters:
   - name: memory
     min: 500

@@ -1,8 +1,9 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: simple
+  name: simple-example
 spec:
+  budget: 40
   parameters:
     - name: batchSize
       min: 128

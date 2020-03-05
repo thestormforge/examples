@@ -1,10 +1,9 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: example-voting-app
+  name: voting-app-example
 spec:
-  parallelism: 4
-  budget: 400
+  budget: 260
   parameters:
   - name: worker_memory
     min: 200
