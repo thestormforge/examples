@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: rally-helm-jvm
+  name: elasticsearch-example
 spec:
   parameters:
   - name: data_memory
