@@ -3,7 +3,6 @@ kind: Experiment
 metadata:
   name: rally-helm-jvm
 spec:
-  budget: 160
   parameters:
   - name: data_memory
     min: 2000

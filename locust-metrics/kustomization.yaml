@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../voting-webapp/application
+- ../voting-webapp/locust-config
+- locust.yaml
+- experiment.yaml
+
+configMapGenerator:
+- name: locust-entrypoint
+  files:
+  - entrypoint.sh
+
+generatorOptions:
+  disableNameSuffixHash: true
