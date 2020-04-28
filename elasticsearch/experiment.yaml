@@ -95,7 +95,7 @@ spec:
       setupTasks:
       - name: elasticsearch
         helmChart: stable/elasticsearch
-        helmChartVersion: "1.31.1"
+        helmChartVersion: "1.32.4"
         helmValues:
         - name: cluster.name
           value: rally-demo
