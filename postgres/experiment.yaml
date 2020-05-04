@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: postgres-example-test
+  name: postgres-example
 spec:
   parameters:
   - name: memory
@@ -37,6 +37,7 @@ spec:
                   memory: "{{ .Values.memory }}Mi"
   template: # trial
     spec:
+      initialDelaySeconds: 15
       template: # job
         spec:
           template: # pod
