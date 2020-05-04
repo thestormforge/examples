@@ -3,8 +3,6 @@ kind: Experiment
 metadata:
   name: elasticsearch-example
 spec:
-  budget: 160
-  # bunrIn: 160
   parameters:
   - name: data_memory
     min: 2000
@@ -95,7 +93,7 @@ spec:
       setupTasks:
       - name: elasticsearch
         helmChart: stable/elasticsearch
-        helmChartVersion: "1.31.1"
+        helmChartVersion: "1.32.4"
         helmValues:
         - name: cluster.name
           value: rally-demo
