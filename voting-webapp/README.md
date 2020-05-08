@@ -6,11 +6,11 @@ This application allows users to vote on "cats" vs. "dogs", and serves the resul
 
 From the Docker example-voting-app documentation:
 The application architecture is made of 5 components (see diagram below):
-* A front-end web app in [Python](/vote) or [ASP.NET Core](/vote/dotnet) which lets you vote between two options
+* A front-end web app in [Python](https://github.com/dockersamples/example-voting-app/tree/master/vote) or [ASP.NET Core](https://github.com/dockersamples/example-voting-app/tree/master/vote/dotnet) which lets you vote between two options
 * A [Redis](https://hub.docker.com/_/redis/) or [NATS](https://hub.docker.com/_/nats/) queue which collects new votes
-* A [.NET Core](/worker/src/Worker), [Java](/worker/src/main) or [.NET Core 2.1](/worker/dotnet) worker which consumes votes and stores them in…
+* A [.NET Core](https://github.com/dockersamples/example-voting-app/tree/master/worker/src/Worker), [Java](https://github.com/dockersamples/example-voting-app/tree/master/worker/src/main/java/worker) or [.NET Core 2.1](https://github.com/dockersamples/example-voting-app/tree/master/worker/dotnet) worker which consumes votes and stores them in…
 * A [Postgres](https://hub.docker.com/_/postgres/) or [TiDB](https://hub.docker.com/r/dockersamples/tidb/tags/) database backed by a Docker volume
-* A [Node.js](/result) or [ASP.NET Core SignalR](/result/dotnet) webapp which shows the results of the voting in real time
+* A [Node.js](https://github.com/dockersamples/example-voting-app/tree/master/result) or [ASP.NET Core SignalR](https://github.com/dockersamples/example-voting-app/tree/master/result/dotnet) webapp which shows the results of the voting in real time
 
 ![Architecture diagram](architecture.png)
 
@@ -22,11 +22,11 @@ You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 1
 
 A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
-Additionally, you will to initialize Red Sky Ops in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/k8s-experiment/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://github.com/redskyops/k8s-experiment/blob/master/docs/install.md).
+Additionally, you will to initialize Red Sky Ops in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
 
 ## Example Resources
 
-The resources for this tutorial can be found in the [`/examples/voting-web-app/`](https://github.com/redskyops/k8s-experiment/tree/master/examples/voting-web-app) directory of the `k8s-experiment` source repository.
+The resources for this tutorial can be found in the [`/voting-webapp`](https://github.com/redskyops/redskyops-recipes/tree/master/voting-webapp) directory of the `redskyops-recipes` source repository.
 
 `experiment.yaml`
 : The actual experiment object manifest; this includes the definition of the experiment itself (in terms of assignable parameters and observable metrics) and the instructions for carrying out the experiment (in terms of load generation and metric queries). Here is where you may change parameter ranges and the experiment name (to avoid experiment name conflicts in the cluster).
@@ -72,4 +72,4 @@ For every trial, several pods will come up, corresponding to the five services o
 5. `results-service`
 6. `results-exporter`
 
-For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://github.com/redskyops/k8s-experiment/blob/master/docs/quickstart.md) and [experiment lifecycle](https://github.com/gramLabs/k8s-experiment/blob/master/docs/lifecycle.md) documentation.
+For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://redskyops.dev/docs/quickstart/) and [experiment lifecycle](https://redskyops.dev/docs/lifecycle/) documentation.

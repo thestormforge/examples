@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: postgres-example-test
+  name: parallel-postgres
 spec:
   parameters:
   - name: memory
@@ -35,6 +35,10 @@ spec:
                 requests:
                   cpu: "{{ .Values.cpu }}m"
                   memory: "{{ .Values.memory }}Mi"
+  namespaceSelector:
+    matchLabels:
+      experiment: parallel-postgres
+  replicas: 4
   template: # trial
     spec:
       template: # job

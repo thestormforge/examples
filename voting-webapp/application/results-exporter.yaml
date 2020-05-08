@@ -29,10 +29,10 @@ spec:
     spec:
       containers:
       - name: result-exporter
-        image: gcr.io/redskyops/result-exporter:1.0.0
+        image: gcr.io/redskyops/result-exporter:1.1.0
         env:
-        - name: RESULTS_HOST
-          value: "http://result-service"
+        - name: DB_HOST
+          value: db
         ports:
         - containerPort: 5000
         resources:

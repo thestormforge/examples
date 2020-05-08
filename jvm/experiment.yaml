@@ -1,15 +1,31 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: postgres-example-test
+  name:  jvm-reactors
 spec:
   parameters:
-  - name: memory
-    min: 500
-    max: 4000
+  - name: heap_size
+    min: 512
+    max: 12288
+  - name: parallel_gc_threads
+    min: 10
+    max: 30
+  - name: con_gc_threads
+    min: 0
+    max: 8
+  - name: initiating_heap_occ_pct
+    min: 20
+    max: 80
   - name: cpu
+    min: 200
+    max: 2000
+  - name: memory
     min: 100
-    max: 4000
+    max: 12288
+  constraints:
+  - order:
+      lowerParameter: heap_size
+      upperParameter: memory
   metrics:
   - name: duration
     minimize: true
@@ -19,15 +35,15 @@ spec:
     query: "{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}"
   patches:
   - targetRef:
-      kind: Deployment
-      apiVersion: apps/v1
-      name: postgres
+      kind: Job
+      apiVersion: batch/v1
+      name:  jvm-reactors
     patch: |
       spec:
         template:
           spec:
             containers:
-            - name: postgres
+            - name: renaissance
               resources:
                 limits:
                   cpu: "{{ .Values.cpu }}m"
@@ -41,9 +57,8 @@ spec:
         spec:
           template: # pod
             spec:
+              activeDeadlineSeconds: 1800
               containers:
-              - image: crunchydata/crunchy-pgbench:centos7-11.4-2.4.1
-                name: pgbench
-                envFrom:
-                - secretRef:
-                    name: postgres-secret
+              - image: gcr.io/redskyops/renaissance:0.10.0
+                name: renaissance
+                args: ["reactors"]

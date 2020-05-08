@@ -5,11 +5,11 @@
 
 ## Prerequisites
 
-You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 40vCPUs (10 on each node) and 80GB of memory (20 on each node). Additionally, you will need a local configured copy of `kubectl` and to initialize Red Sky Ops in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/k8s-experiment/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](install.md).
+You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 40vCPUs (10 on each node) and 80GB of memory (20 on each node). Additionally, you will need a local configured copy of `kubectl` and to initialize Red Sky Ops in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
 
 ## Example Resources
 
-The resources for this tutorial can be found in the [`/examples/elasticsearch/`](https://github.com/redskyops/k8s-experiment/tree/master/examples/elasticseach) directory of the `k8s-experiment` source repository.
+The resources for this tutorial can be found in the [`/elasticsearch`](https://github.com/redskyops/redskyops-recipes/tree/master/elasticsearch) directory of the `redskyops-recipes` source repository.
 
 * `experiment.yaml`
 : The actual experiment object manifest. In this experiment we vary the number of replicas for the Elasticsearch data nodes, and the CPU and memory assigned to each. The experiment aims to minimize both the time take to run the load tests and the cost of running the Elasticsearch cluster. The integration with Helm is in the setupTask in the trial template spec and in the patches section of the experiment spec. An empty patch tells the controller to wait until this object is ready before starting the trial. The maximum length a trial can run before being considered a failed trial is controlled by setting activeDeadlineSeconds in the pod spec in the trial template.
@@ -30,7 +30,7 @@ For every trial you will see the following:
 3. The trial pod named similarly to `rally-helm-v2gp8-lwmmh` that contains Rally and runs the load tests against the Elasticsearch cluster.
 4. A setup task pod named similarly to `rally-helm-v2gp8-delete-whrfh` that cleans up the Helm chart.
 
-For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://github.com/redskyops/k8s-experiment/blob/master/docs/quickstart.md) and [experiment lifecycle](https://github.com/gramLabs/k8s-experiment/blob/master/docs/lifecycle.md) documentation.
+For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://redskyops.dev/docs/quickstart/) and [experiment lifecycle](https://redskyops.dev/docs/lifecycle/) documentation.
 
 ## Customization
 
