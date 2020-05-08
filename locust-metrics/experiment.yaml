@@ -45,9 +45,18 @@ spec:
       matchLabels:
         component: result-exporter
   - name: latency
-    minimize: false
+    minimize: true
     type: jsonpath
     query: '{.current_response_time_percentile_95}'
+    path: '/stats/requests'
+    port: 8089
+    selector:
+      matchLabels:
+        component: locust
+  - name: failure-rate
+    minimize: true
+    type: jsonpath
+    query: '{.fail_ratio}'
     path: '/stats/requests'
     port: 8089
     selector:
@@ -134,6 +143,7 @@ spec:
                   memory: "{{ .Values.redis_memory }}Mi"
   template: # trial
     spec:
+      initialDelaySeconds: 15
       template: # job
         spec:
           template: # pod
