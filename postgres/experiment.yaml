@@ -3,6 +3,9 @@ kind: Experiment
 metadata:
   name: postgres-example
 spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "40" #number of trials 
   parameters:
   - name: memory
     min: 500

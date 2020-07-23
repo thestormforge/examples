@@ -3,6 +3,9 @@ kind: Experiment
 metadata:
   name: voting-app-example
 spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "200"
   parameters:
   - name: worker_memory
     min: 200
