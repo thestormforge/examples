@@ -3,6 +3,9 @@ kind: Experiment
 metadata:
   name: elasticsearch-example
 spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "160"
   parameters:
   - name: data_memory
     min: 2000

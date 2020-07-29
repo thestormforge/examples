@@ -3,6 +3,9 @@ kind: Experiment
 metadata:
   name: locust-metrics
 spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "200"
   parameters:
   - name: worker_memory
     min: 200

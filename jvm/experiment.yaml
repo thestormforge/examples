@@ -3,6 +3,9 @@ kind: Experiment
 metadata:
   name:  jvm-reactors
 spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "120"
   parameters:
   - name: heap_size
     min: 512
