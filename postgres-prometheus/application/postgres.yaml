@@ -1,0 +1,107 @@
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/port: "9187"
+    prometheus.io/scrape: "true"
+  name: postgres
+  labels:
+    component: postgres
+spec:
+  ports:
+    - port: 5432
+      name: db
+    - port: 9187
+      name: metrics
+  selector:
+    component: postgres
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    component: postgres
+spec:
+  selector:
+    matchLabels:
+      component: postgres
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      containers:
+      - image: bitnami/postgres-exporter:0.8.0-debian-10-r28
+        name: postgres-exporter
+        env:
+          - name: DATA_SOURCE_URI
+            value: "localhost/test_db?sslmode=disable"
+          - name: DATA_SOURCE_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: PG_USERNAME
+          - name: DATA_SOURCE_PASS
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: PG_PASSWORD
+        ports:
+          - name: http-metrics
+            containerPort: 9187
+      - image: bitnami/postgresql:12-debian-10
+        name: postgres
+        resources:
+          limits:
+            memory: 2000Mi
+            cpu: 1.0
+          requests:
+            memory: 2000Mi
+            cpu: 1.0
+        env:
+          - name: PGDATA
+            value: "/var/lib/postgresql/data/pgdata"
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: PG_DATABASE
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: PG_USERNAME
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: PG_PASSWORD
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+          - name: postgres-storage
+            mountPath: /var/lib/postgresql/data
+        readinessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - test_user
+            - -d
+            - test_db
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+        - name: postgres-storage
+          emptyDir: {}
