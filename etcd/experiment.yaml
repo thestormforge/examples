@@ -1,0 +1,149 @@
+apiVersion: redskyops.dev/v1beta1
+kind: Experiment
+metadata:
+  name: etcd-prom
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "80" #number of trials
+  parameters:
+  - name: memory
+    min: 500
+    max: 4000
+  - name: cpu
+    min: 100
+    max: 4000
+  metrics:
+  - name: slow apply
+    minimize: true
+    type: prometheus
+    url: http://prometheus-server:9090
+    query: |
+      scalar(
+        sum(
+          etcd_server_slow_apply_total
+        ) by (instance)
+        +
+        on (instance) group_left
+        topk(1,sort_desc(timestamp(etcd_server_slow_apply_total)))*0
+      )
+  - name: be commit duration
+    minimize: true
+    type: prometheus
+    url: http://prometheus-server:9090
+    query: |
+      scalar(
+        sum(
+          etcd_disk_backend_commit_duration_seconds_sum
+        ) by (instance)
+        +
+        on (instance) group_left
+        topk(1,sort_desc(timestamp(etcd_disk_backend_commit_duration_seconds_sum)))*0
+      )
+  - name: cpu seconds
+    minimize: true
+    type: prometheus
+    url: http://prometheus-server:9090
+    query: |
+      scalar(
+        sum(
+          process_cpu_seconds_total
+        ) by (instance)
+        +
+        on (instance) group_left
+        topk(1,sort_desc(timestamp(etcd_cluster_version)))*0
+      )
+  patches:
+  - targetRef:
+      kind: Deployment
+      apiVersion: apps/v1
+      name: etcd
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: etcd
+              resources:
+                limits:
+                  cpu: "{{ .Values.cpu }}m"
+                  memory: "{{ .Values.memory }}Mi"
+                requests:
+                  cpu: "{{ .Values.cpu }}m"
+                  memory: "{{ .Values.memory }}Mi"
+  trialTemplate:
+    spec:
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+              - image: bradbeam/etcd:v3.4.10
+                name: etcd-put
+                command:
+                - /usr/local/bin/benchmark
+                args:
+                - put
+                - --cacert=/etc/kubernetes/pki/etcd/ca.crt
+                - --cert=/etc/kubernetes/pki/etcd/server.crt
+                - --key=/etc/kubernetes/pki/etcd/server.key
+                - --endpoints=https://etcd:2379
+                volumeMounts:
+                  - name: certificates
+                    mountPath: /etc/kubernetes/pki/etcd
+              - image: bradbeam/etcd:v3.4.10
+                name: etcd-txn-put
+                command:
+                - /usr/local/bin/benchmark
+                args:
+                - txn-put
+                - --cacert=/etc/kubernetes/pki/etcd/ca.crt
+                - --cert=/etc/kubernetes/pki/etcd/server.crt
+                - --key=/etc/kubernetes/pki/etcd/server.key
+                - --endpoints=https://etcd:2379
+                volumeMounts:
+                  - name: certificates
+                    mountPath: /etc/kubernetes/pki/etcd
+              - image: bradbeam/etcd:v3.4.10
+                name: etcd-watch
+                command:
+                - /usr/local/bin/benchmark
+                args:
+                - watch
+                - --cacert=/etc/kubernetes/pki/etcd/ca.crt
+                - --cert=/etc/kubernetes/pki/etcd/server.crt
+                - --key=/etc/kubernetes/pki/etcd/server.key
+                - --endpoints=https://etcd:2379
+                volumeMounts:
+                  - name: certificates
+                    mountPath: /etc/kubernetes/pki/etcd
+              - image: bradbeam/etcd:v3.4.10
+                name: etcd-watch-get
+                command:
+                - /usr/local/bin/benchmark
+                args:
+                - watch-get
+                - --cacert=/etc/kubernetes/pki/etcd/ca.crt
+                - --cert=/etc/kubernetes/pki/etcd/server.crt
+                - --key=/etc/kubernetes/pki/etcd/server.key
+                - --endpoints=https://etcd:2379
+                volumeMounts:
+                  - name: certificates
+                    mountPath: /etc/kubernetes/pki/etcd
+              - image: bradbeam/etcd:v3.4.10
+                name: etcd-watch-latency
+                command:
+                - /usr/local/bin/benchmark
+                args:
+                - watch-latency
+                - --cacert=/etc/kubernetes/pki/etcd/ca.crt
+                - --cert=/etc/kubernetes/pki/etcd/server.crt
+                - --key=/etc/kubernetes/pki/etcd/server.key
+                - --endpoints=https://etcd:2379
+                volumeMounts:
+                  - name: certificates
+                    mountPath: /etc/kubernetes/pki/etcd
+              volumes:
+                - name: certificates
+                  secret:
+                    secretName: etcd-certs

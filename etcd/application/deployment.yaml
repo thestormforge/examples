@@ -1,0 +1,93 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etcd
+  labels:
+    app: etcd
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: etcd
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/etcd
+        args:
+        - --name
+        - etcd
+        - --initial-cluster-state=new
+        - --snapshot-count=10000
+        - --initial-cluster=etcd=https://etcd:2380
+        - --listen-metrics-urls=http://0.0.0.0:2381
+        - --initial-advertise-peer-urls=https://etcd:2380
+        - --listen-peer-urls=https://0.0.0.0:2380
+        - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+        - --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+        - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+        - --peer-client-cert-auth=true
+        - --listen-client-urls=https://0.0.0.0:2379
+        - --advertise-client-urls=https://etcd:2379
+        - --cert-file=/etc/kubernetes/pki/etcd/server.crt
+        - --key-file=/etc/kubernetes/pki/etcd/server.key
+        - --client-cert-auth=true
+        - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+        image: gcr.io/etcd-development/etcd:v3.4.10
+        name: etcd
+        ports:
+        - containerPort: 2379
+          name: client
+          protocol: TCP
+        - containerPort: 2380
+          name: server
+          protocol: TCP
+        - containerPort: 2381
+          name: metrics
+          protocol: TCP
+        livenessProbe:
+          failureThreshold: 8
+          httpGet:
+            host: 127.0.0.1
+            path: /health
+            port: 2381
+            scheme: HTTP
+          initialDelaySeconds: 15
+          timeoutSeconds: 15
+        volumeMounts:
+          - name: certificates
+            mountPath: /etc/kubernetes/pki/etcd
+      volumes:
+        - name: certificates
+          secret:
+            secretName: etcd-certs
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/port: "2381"
+    prometheus.io/scrape: "true"
+  name: etcd
+spec:
+  ports:
+  - name: client
+    port: 2379
+    protocol: TCP
+    targetPort: 2379
+  - name: server
+    port: 2380
+    protocol: TCP
+    targetPort: 2380
+  - name: metrics
+    port: 2381
+    protocol: TCP
+    targetPort: 2381
+  selector:
+    app: etcd
