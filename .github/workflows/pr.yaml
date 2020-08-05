@@ -1,0 +1,40 @@
+name: Pull Request workflow
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        experiment:
+          - locust-metrics
+          #- voting-webapp
+          #- jvm
+          #- parallel-trials
+          #- postgres
+          #- elasticsearch
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: KinD (Kubernetes in Docker) Initialization
+        uses: helm/kind-action@v1.0.0-rc.1
+        with:
+          version: v0.8.1
+      - name: Download and Setup redskyctl
+        run: |
+          .ci/setup_redskyctl.sh
+      - name: Install kustomize
+        run: |
+          .ci/install_kustomize.sh
+      - name: Run sample trial for ${{ matrix.experiment }}
+        run: |
+          .ci/${{ matrix.experiment }}/ci.sh
+      - name: The job has failed
+        if: ${{ failure() }}
+        run: |
+          kubectl get trial,experiment,svc,pod -o wide
+          kubectl get pods -o wide
+
