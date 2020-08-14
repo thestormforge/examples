@@ -1,0 +1,12 @@
+[
+  {
+   "op": "remove",
+   "path": "/spec/template/spec/containers/0/resources"
+  },
+  {
+   "op": "replace",
+   "path": "/spec/strategy",
+   "value": { "type": "Recreate" }
+  }
+]
+
