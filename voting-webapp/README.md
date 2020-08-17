@@ -31,8 +31,11 @@ The resources for this tutorial can be found in the [`/voting-webapp`](https://g
 `experiment.yaml`
 : The actual experiment object manifest; this includes the definition of the experiment itself (in terms of assignable parameters and observable metrics) and the instructions for carrying out the experiment (in terms of load generation and metric queries). Here is where you may change parameter ranges and the experiment name (to avoid experiment name conflicts in the cluster).
 
+`experiment_free_tier.yaml`
+: This is a modified experiment file for users of the free tier. When running this experiment on the free tier, be sure to change your kustomization file to point to the correct experiment file.
+
 `kustomization.yaml`
-: The input to Kustomize used to build the Kubernetes object manifests for this example.
+: The input to Kustomize used to build the Kubernetes object manifests for this example. Change "experiment.yaml" to "experiment_free_tier.yaml" if you are using our free tier plan.
 
 `locust-config.yaml`
 : Configuration for the Locust load test.
