@@ -54,6 +54,15 @@ spec:
                 requests:
                   cpu: "{{ .Values.cpu }}m"
                   memory: "{{ .Values.memory }}Mi"
+              env:
+              - name: HEAP_SIZE
+                value: {{ .Values.heap_size }}
+              - name: CON_GC_THREADS
+                value: {{ .Values.con_gc_threads }}
+              - name: PARALLEL_GC_THREADS
+                value: {{ .Values.parallel_gc_threads }}
+              - name: INITIATING_HEAP_OCC_PCT
+                value: {{ .Values.initiating_heap_occ_pct }}
   template: # trial
     spec:
       template: # job
