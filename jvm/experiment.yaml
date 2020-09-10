@@ -5,7 +5,7 @@ metadata:
 spec:
   optimization:
   - name: "experimentBudget"
-    value: "120"
+    value: "80"
   parameters:
   - name: heap_size
     min: 512
@@ -16,9 +16,6 @@ spec:
   - name: con_gc_threads
     min: 0
     max: 8
-  - name: initiating_heap_occ_pct
-    min: 20
-    max: 80
   - name: cpu
     min: 200
     max: 2000
@@ -54,6 +51,13 @@ spec:
                 requests:
                   cpu: "{{ .Values.cpu }}m"
                   memory: "{{ .Values.memory }}Mi"
+              env:
+              - name: HEAP_SIZE
+                value: {{ .Values.heap_size }}
+              - name: CON_GC_THREADS
+                value: {{ .Values.con_gc_threads }}
+              - name: PARALLEL_GC_THREADS
+                value: {{ .Values.parallel_gc_threads }}
   template: # trial
     spec:
       template: # job
