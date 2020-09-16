@@ -35,11 +35,11 @@ spec:
           allowPrivilegeEscalation: false
         resources:
           limits:
-            memory: 2000Mi
-            cpu: 1.0
+            memory: 4000Mi
+            cpu: 4.0
           requests:
-            memory: 2000Mi
-            cpu: 1.0
+            memory: 4000Mi
+            cpu: 4.0
         env:
           - name: PGDATA
             value: "/var/lib/postgresql/data/pgdata"
