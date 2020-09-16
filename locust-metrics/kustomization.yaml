@@ -3,14 +3,5 @@ kind: Kustomization
 
 resources:
 - ../voting-webapp/application
-- ../voting-webapp/locust-config
-- locust.yaml
+- locust
 - experiment.yaml
-
-configMapGenerator:
-- name: locust-entrypoint
-  files:
-  - entrypoint.sh
-
-generatorOptions:
-  disableNameSuffixHash: true
