@@ -10,5 +10,5 @@ patchesJson6902:
     group: redskyops.dev
     version: v1alpha1
     kind: Experiment
-    name: elasticsearch-example-free-tier
+    name: elasticsearch-example
   path: add-patches.yaml

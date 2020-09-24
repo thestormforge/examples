@@ -1,8 +1,7 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: elasticsearch-example-sr
-spec:
+  name: elasticsearch-example
   optimization:
   - name: "experimentBudget"
     value: "100"
@@ -92,6 +91,10 @@ spec:
           value: "{{ .Values.client_cpu }}m"
         - name: client.resources.requests.cpu
           value: "{{ .Values.client_cpu }}m"
+        - name: client.resources.limits.memory
+          value: "{{ .Values.client_memory }}Mi"
+        - name: client.resources.requests.memory
+          value: "{{ .Values.client_memory }}Mi"
         - name: data.terminationGracePeriodSeconds
           value: "5"
         - name: data.podManagementPolicy
