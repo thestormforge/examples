@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: voting-app-example-free-tier
+  name: voting-app-example
 spec:
   optimization:
   - name: "experimentBudget"
