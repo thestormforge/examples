@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: voting-app-example
+  name: locust-metrics
 spec:
   optimization:
   - name: "experimentBudget"
@@ -23,23 +23,24 @@ spec:
     min: 200
     max: 2000
   metrics:
-  - name: throughput
-    minimize: false
-    type: jsonpath
-    query: '{.total}'
-    path: '/metrics'
-    port: 5000
-    selector:
-      matchLabels:
-        component: result-exporter
-  - name: cost
+  - name: latency
     minimize: true
-    type: pods
-    # Note that these cost weights are specific to GKE and represent $22/month/cpu and $3/month/GB
-    query: '{{resourceRequests .Pods "cpu=0.022,memory=0.000000000003"}}'
+    type: jsonpath
+    query: '{.current_response_time_percentile_95}'
+    path: '/stats/requests'
+    port: 8089
     selector:
       matchLabels:
-        app: voting-app
+        component: locust
+  - name: failure-rate
+    minimize: true
+    type: jsonpath
+    query: '{.fail_ratio}'
+    path: '/stats/requests'
+    port: 8089
+    selector:
+      matchLabels:
+        component: locust
   patches:
   - targetRef:
       kind: Deployment
@@ -91,26 +92,20 @@ spec:
                   memory: "{{ .Values.db_memory }}Mi"
   template: # trial
     spec:
+      initialDelaySeconds: 15
       template: # job
         spec:
           template: # pod
             spec:
               containers:
-              - name: locust
-                image: grubykarol/locust:0.12.0-python3.7-alpine3.10
-                command: ["/usr/local/bin/locust"]
-                args: ["--locustfile=/locust-tasks/locustfile.py",
-                       "--no-web",
-                       "--host=http://voting-service",
-                       "--clients=200",
-                       "--hatch-rate=20",
-                       "--run-time=300",
-                       "--exit-code-on-error=0"]
+              - name: curl
+                image: byrnedo/alpine-curl
+                command: ["sh", "/home/entrypoint.sh"]
                 volumeMounts:
-                - name: locust
-                  mountPath: /locust-tasks/locustfile.py
-                  subPath: locustfile.py
+                - name: locust-entrypoint
+                  mountPath: /home/entrypoint.sh
+                  subPath: entrypoint.sh
               volumes:
-              - name: locust
+              - name: locust-entrypoint
                 configMap:
-                  name: locust
+                  name: locust-entrypoint
