@@ -9,5 +9,5 @@ patchesJson6902:
     group: redskyops.dev
     version: v1alpha1
     kind: Experiment
-    name: elasticsearch-example
+    name: elasticsearch-example-sep28
   path: add-patches.yaml
