@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: elasticsearch-example-sep28
+  name: elasticsearch-example
   optimization:
   - name: "experimentBudget"
     value: "100"
