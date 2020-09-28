@@ -1,0 +1,129 @@
+apiVersion: redskyops.dev/v1alpha1
+kind: Experiment
+metadata:
+  name: hpa-recipe
+spec:
+  parameters:
+  - name: voting_cpu
+    min: 200
+    max: 2000
+  - name: min_replicas
+    min: 1
+    max: 5
+  - name: max_replicas
+    min: 6
+    max: 10
+  - name: avg_utilization
+    min: 10
+    max: 80
+  metrics:
+  - name: latency
+    minimize: true
+    type: jsonpath
+    query: '{.stats[0].avg_response_time}'
+    path: '/stats/requests'
+    port: 8089
+    selector:
+      matchLabels:
+        component: locust
+  - name: cost
+    type: prometheus
+    minimize: true
+    # Note that these cost weights are specific to GKE and represent $22/month/cpu and $3/month/GB
+    query: '({{cpuRequests . "app=voting-app"}} * 22) + ({{memoryRequests . "app=voting-app" | GB }} * 3)'
+    selector:
+      matchLabels:
+        app: prometheus
+  patches:
+  - targetRef:
+      kind: Deployment
+      apiVersion: apps/v1
+      name: voting-service
+    patch: |
+      spec:
+        replicas: {{ .Values.min_replicas }}
+        template:
+          spec:
+            containers:
+            - name: voting-service
+              resources:
+                limits:
+                  cpu: "{{ .Values.voting_cpu }}m"
+                  memory: "250Mi"
+                requests:
+                  cpu: "{{ .Values.voting_cpu }}m"
+                  memory: "250Mi"
+  - targetRef:
+      kind: HorizontalPodAutoscaler
+      apiVersion: autoscaling/v2beta2
+      name: voting-hpa
+    patch: |
+      spec:
+        maxReplicas: {{ .Values.max_replicas }}
+        minReplicas: {{ .Values.min_replicas }}
+        metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: {{ .Values.avg_utilization }}
+  template: # trial
+    spec:
+      initialDelaySeconds: 15
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+      setupServiceAccountName: promsetup
+      template: # job
+        spec:
+          template: # pod
+            spec:
+              containers:
+              - name: locust-trial-job
+                image: broadinstitute/python-requests
+                command: ["python", "/home/load_test.py"]
+                env:
+                - name: LOCUST_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: locust_host
+                - name: N_CLIENTS
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: n_clients
+                - name: HATCH_RATE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: hatch_rate
+                - name: RUN_TIME
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: run_time
+                - name: MAX_LATENCY # max avg latency in ms
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: max_latency
+                - name: MAX_ERROR_RATE # max error rate in %
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: max_error_rate
+                volumeMounts:
+                - name: locust-load-test
+                  mountPath: /home/load_test.py
+                  subPath: load_test.py
+              volumes:
+              - name: locust-load-test
+                configMap:
+                  name: locust-load-test
+              - name: trialjob-env
+                configMap:
+                  name: trialjob-env
