@@ -1,0 +1,263 @@
+{
+    "errors": [
+        0
+    ],
+    "end": "2020-09-26T12:48:07.695Z",
+    "results": [
+        {
+            "name": "Insert.Empty",
+            "results": {
+                "1": {
+                    "ops_per_sec": 3230.2349834468705,
+                    "ops_per_sec_values": [
+                        3230.2349834468705
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:46:51.787Z",
+                "end": "2020-09-26T12:46:56.863Z"
+            }
+        },
+        {
+            "name": "Insert.EmptyCapped",
+            "results": {
+                "1": {
+                    "ops_per_sec": 2983.031893864297,
+                    "ops_per_sec_values": [
+                        2983.031893864297
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:46:56.863Z",
+                "end": "2020-09-26T12:47:01.917Z"
+            }
+        },
+        {
+            "name": "Insert.EmptyCapped.SeqIntID",
+            "results": {
+                "1": {
+                    "ops_per_sec": 2950.5980779920897,
+                    "ops_per_sec_values": [
+                        2950.5980779920897
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:01.917Z",
+                "end": "2020-09-26T12:47:06.965Z"
+            }
+        },
+        {
+            "name": "Insert.JustID",
+            "results": {
+                "1": {
+                    "ops_per_sec": 3226.2921213970385,
+                    "ops_per_sec_values": [
+                        3226.2921213970385
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:06.965Z",
+                "end": "2020-09-26T12:47:12.014Z"
+            }
+        },
+        {
+            "name": "Insert.IntVector",
+            "results": {
+                "1": {
+                    "ops_per_sec": 1411.3377734416945,
+                    "ops_per_sec_values": [
+                        1411.3377734416945
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:12.014Z",
+                "end": "2020-09-26T12:47:17.067Z"
+            }
+        },
+        {
+            "name": "Insert.SeqIntID.Indexed",
+            "results": {
+                "1": {
+                    "ops_per_sec": 3210.601885366215,
+                    "ops_per_sec_values": [
+                        3210.601885366215
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:17.067Z",
+                "end": "2020-09-26T12:47:22.125Z"
+            }
+        },
+        {
+            "name": "Insert.IntIDUpsert",
+            "results": {
+                "1": {
+                    "ops_per_sec": 2785.0774880268864,
+                    "ops_per_sec_values": [
+                        2785.0774880268864
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:22.125Z",
+                "end": "2020-09-26T12:47:27.181Z"
+            }
+        },
+        {
+            "name": "Insert.JustNum",
+            "results": {
+                "1": {
+                    "ops_per_sec": 3229.629238563413,
+                    "ops_per_sec_values": [
+                        3229.629238563413
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:27.181Z",
+                "end": "2020-09-26T12:47:32.228Z"
+            }
+        },
+        {
+            "name": "Insert.JustNumIndexed",
+            "results": {
+                "1": {
+                    "ops_per_sec": 3093.2547927651276,
+                    "ops_per_sec_values": [
+                        3093.2547927651276
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:32.228Z",
+                "end": "2020-09-26T12:47:37.297Z"
+            }
+        },
+        {
+            "name": "InsertIndexedStringsSimpleCollation",
+            "results": {
+                "1": {
+                    "ops_per_sec": 3085.1835002274693,
+                    "ops_per_sec_values": [
+                        3085.1835002274693
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:37.297Z",
+                "end": "2020-09-26T12:47:42.360Z"
+            }
+        },
+        {
+            "name": "InsertIndexedStringsNonSimpleCollation",
+            "results": {
+                "1": {
+                    "ops_per_sec": 2972.361873859793,
+                    "ops_per_sec_values": [
+                        2972.361873859793
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:42.360Z",
+                "end": "2020-09-26T12:47:47.432Z"
+            }
+        },
+        {
+            "name": "Insert.UniqueIndex",
+            "results": {
+                "1": {
+                    "ops_per_sec": 3034.7396193406607,
+                    "ops_per_sec_values": [
+                        3034.7396193406607
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:47.432Z",
+                "end": "2020-09-26T12:47:52.500Z"
+            }
+        },
+        {
+            "name": "Insert.UniqueIndexCompound",
+            "results": {
+                "1": {
+                    "ops_per_sec": 3017.1763884350635,
+                    "ops_per_sec_values": [
+                        3017.1763884350635
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:52.500Z",
+                "end": "2020-09-26T12:47:57.573Z"
+            }
+        },
+        {
+            "name": "Insert.UniqueIndexCompoundReverse",
+            "results": {
+                "1": {
+                    "ops_per_sec": 2985.023886990239,
+                    "ops_per_sec_values": [
+                        2985.023886990239
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:47:57.573Z",
+                "end": "2020-09-26T12:48:02.634Z"
+            }
+        },
+        {
+            "name": "Insert.LargeDocVector",
+            "results": {
+                "1": {
+                    "ops_per_sec": 954.0544112968361,
+                    "ops_per_sec_values": [
+                        954.0544112968361
+                    ],
+                    "error_values": [
+                        0
+                    ]
+                },
+                "start": "2020-09-26T12:48:02.634Z",
+                "end": "2020-09-26T12:48:07.695Z"
+            }
+        }
+    ],
+    "start": "2020-09-26T12:46:51.787Z",
+    "storageEngine": "wiredTiger",
+    "basicFields": {
+        "crudOptions": {
+            "writeCmdMode": "true",
+            "safeGLE": "false",
+            "readCmdMode": "false",
+            "writeConcern": {
+                "j": false
+            }
+        },
+        "commit": "563487e100c4215e2dce98d0af2a6a5a2d67c5cf",
+        "version": "4.4.0",
+        "platform": "deprecated"
+    }
+}

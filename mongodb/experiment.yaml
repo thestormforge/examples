@@ -1,0 +1,77 @@
+apiVersion: redskyops.dev/v1alpha1
+kind: Experiment
+metadata:
+  name: mongodb-exp-bascar
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "40"
+  parameters:
+    - name: db_memory
+      min: 400
+      max: 2000   
+    - name: db_cpu
+      min: 250
+      max: 2000        
+  metrics:
+  - name: req_per_second
+    minimize: false
+    type: jsonpath
+    query: '{.results[1].results.4.ops_per_sec}'
+    path: '/payload'
+    port: 5000
+    selector:
+      matchLabels:
+        component: result-exporter
+  - name: cost
+    minimize: true
+    type: pods
+    # Note that these cost weights are specific to GKE and represent $22/month/cpu and $3/month/GB
+    query: '{{resourceRequests .Pods "cpu=0.022,memory=0.000000000003"}}'
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: mongodb
+        app.kubernetes.io/instance: mongodb-experiment
+        app.kubernetes.io/name: mongodb
+  template: # trial
+    spec:
+      setupTasks:
+      - name: mongodb-experiment
+        helmRepository: https://charts.bitnami.com/bitnami
+        helmChart: mongodb
+        helmChartVersion: "9.2.1"
+        helmValues:
+        - name: auth.enabled
+          value: "false"
+        - name: resources.limits.cpu
+          value: "{{ .Values.db_cpu }}m"
+        - name: resources.limits.memory
+          value: "{{ .Values.db_memory }}Mi"
+        - name: resources.requests.cpu
+          value: "{{ .Values.db_cpu }}m"
+        - name: resources.requests.memory  
+          value: "{{ .Values.db_memory }}Mi"
+      setupServiceAccountName: redsky
+      ttlSecondsAfterFinished: 1800
+      template: # job
+        spec:
+          template: # pod
+            spec:
+              activeDeadlineSeconds: 1800
+              containers:
+              - name: mongo-perf
+                image: bascar/mongo-perf:latest
+                command: ["/usr/bin/python", "benchrun.py" ]
+                args:
+                    - "-f"
+                    - "testcases/complex_update.js"
+                    - "-t"
+                    - "4"
+                    - "--trialTime"
+                    - "30"
+                    - "--host"
+                    - "mongodb-experiment"
+              initContainers:
+              - name: my-init-container-1
+                image: busybox
+                command: ['sh', '-c', 'echo my-init-container-1 start; sleep 30;echo my-init-container-1 complete;']
