@@ -66,7 +66,7 @@ The configuration for the load test is in `trialjob_configmap.yaml`. The load te
 
 `MAX_LATENCY` is the maximum latency (in milliseconds) we want a trial to report. If locust measures an average latency over the length of the load test (aka trial) higher than this value, we will report this trial as failed. Similarly, `MAX_ERROR_RATE` is the maximum error rate (reported as %) we want a trial to report. An error rate higher than this value will fail the trial. You can see the logic for this in `load_test.py`.
 
-Create a dedicated namespace and insert that namespace in `kustomization.yaml`, then run the experiment using.
+Create a dedicated namespace and insert that namespace in the `kustomization.yaml`, then run the experiment using:
 `kustomize build . | kubect apply -n <my-namespace> -f -`
 
 You can visualize the progress of the experiment using
