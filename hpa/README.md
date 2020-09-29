@@ -12,7 +12,7 @@ A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/rele
 
 Additionally, you will to initialize Red Sky Ops (v1.6.4+) in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
 
-To allow the controller to patch the deployments and the HPA during the experiment, run
+To allow the controller to patch the deployments and the HPA during the experiment, generate the proper RBAC permissions by running the following:
 `redskyctl generate rbac -f experiment.yaml | kubectl apply -f -`
 to generate the proper RBAC permissions.
 
