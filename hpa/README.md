@@ -64,7 +64,7 @@ For each trial, we create a locust load test for the configuration tested using 
 The configuration for the load test is in `trialjob_configmap.yaml`. The load test is 180 seconds long, uses 100 clients that are added at a rate of 1 client/second. You can increase this rate to make sure that your HPA scales fast enough to increase in load.
 [However, with a kubernetes version lower than `v1.18` you cannot change the scaling policies through the `v2beta2` API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/). In this experiment, we are going to optimize for the `target CPU utilization` that the HPA uses to scale the `voting-service`  deployment.
 
-`MAX_LATENCY` is the maximum latency in ms we want a trial to report. If locust measures an average latency over the length of the load test (aka trial) higher than this value, we will report this trial as failed. `MAX_ERROR_RATE` is the maximum error rate in % measured by locust for which we don't report the trial as failed. You can see the logic for this in `load_test.py`.
+`MAX_LATENCY` is the maximum latency (in milliseconds) we want a trial to report. If locust measures an average latency over the length of the load test (aka trial) higher than this value, we will report this trial as failed. Similarly, `MAX_ERROR_RATE` is the maximum error rate (reported as %) we want a trial to report. An error rate higher than this value will fail the trial. You can see the logic for this in `load_test.py`.
 
 Create a dedicated namespace and insert that namespace in `kustomization.yaml`, then run the experiment using.
 `kustomize build . | kubect apply -n <my-namespace> -f -`
