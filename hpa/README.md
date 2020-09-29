@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The goal of this recipe is to optimize the [voting webapp](https://github.com/redskyops/redskyops-recipes/tree/master/voting-webapp) using a Horizontal Pod Autoscaler (HPA) for scaling up and down the `voting-service` deployment during a trial (load test).
+The goal of this recipe is to optimize the [voting webapp](https://github.com/redskyops/redskyops-recipes/tree/master/voting-webapp) using a [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) for scaling up and down the `voting-service` deployment during a trial (load test).
 
 ## Prerequisites
 
