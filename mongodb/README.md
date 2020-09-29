@@ -31,23 +31,17 @@ The resources for this tutorial can be found in the [`/mongodb`](https://github.
 `service-account.yaml`
 : The manifest for the service account used by the controller to create and manage all of the assets in the experiment. This is applied just once to create the kubernetes user, role, and rolebinding.
 
-`worker.yaml`
-: The manifest for the .NET worker.
-
 `mongo-perf/`
 : This directory contains files required to run the lightly modified mongo-perf container. There is *no need to build* the image; the folder is only included for reference.  
 
 `mongo-perf/benchrun.py`
 :The modification of this file is simply allowing the results JSON files to be kept and persisted in the result-exporter(below).
 
-`result-exporter/app.py`  
-: Contains the exporter application, `requirements.txt` are the python library requirements and `Dockerfile` contains the Docker commands to run the exporter container. There is *no need to build* the image; the folder is only included for reference.
+`result-exporter/app.py` :Contains the exporter application, `requirements.txt` are the python library requirements and `Dockerfile` contains the Docker commands to run the exporter container. There is *no need to build* the image; the folder is only included for reference.
 
-`result-exporter/`
-: This directory contains files required to run the results exporter. The exporter's role is to expose the throughput metric over HTTP (in contrast to the original websocket implementation in the results service) so that it can be collected by the jsonpath metric collector.
+`result-exporter/` : This directory contains files required to run the results exporter. The exporter's role is to expose the throughput metric over HTTP (in contrast to the original websocket implementation in the results service) so that it can be collected by the jsonpath metric collector.
 
-`result-exporter/app.py`  
-: Contains the exporter application, `requirements.txt` are the python library requirements and `Dockerfile` contains the Docker commands to run the exporter container. There is *no need to build* the image; the folder is only included for reference.
+`result-exporter/app.py` : Contains the exporter application, `requirements.txt` are the python library requirements and `Dockerfile` contains the Docker commands to run the exporter container. There is *no need to build* the image; the folder is only included for reference.
 
 ## Experiment Lifecycle
 
