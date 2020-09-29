@@ -9,4 +9,4 @@ This experiment builds upon our [Voting Web App Recipe](https://github.com/redsk
 
 
 ## Prerequisites
-In order to run this experiment you most have a paid version of Red Sky Ops. To upgrade visit our [pricing page](https://www.carbonrelay.com/pricing/).
+In order to run this experiment you must have a paid version of Red Sky Ops. To upgrade visit our [pricing page](https://www.carbonrelay.com/pricing/).
