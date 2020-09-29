@@ -14,7 +14,6 @@ Additionally, you will to initialize Red Sky Ops (v1.6.4+) in your cluster. You 
 
 To allow the controller to patch the deployments and the HPA during the experiment, generate the proper RBAC permissions by running the following:
 `redskyctl generate rbac -f experiment.yaml | kubectl apply -f -`
-to generate the proper RBAC permissions.
 
 The `experiment.yaml` file is the actual experiment object manifest; this includes the definition of the experiment itself (in terms of assignable parameters and observable metrics) and the instructions for carrying out the experiment (in terms of load generation, configured in `trialjob_configmap.yaml`, and metric queries). Here is where you may change parameter ranges and the experiment name (to avoid experiment name conflicts in the cluster).
 
