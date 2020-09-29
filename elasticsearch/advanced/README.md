@@ -7,4 +7,4 @@ This experiment builds upon our [Elasticsearch Recipe](https://github.com/redsky
 * client_heap_percent
 
 ## Prerequisites
-In order to run this experiment you most have a paid version of Red Sky Ops. To upgrade visit our [pricing page](https://www.carbonrelay.com/pricing/).
+In order to run this experiment you must have a paid version of Red Sky Ops. To upgrade visit our [pricing page](https://www.carbonrelay.com/pricing/).
