@@ -23,7 +23,7 @@ data:
 
     [reporting]
     datastore.type = elasticsearch
-    datastore.host = elasticsearch-client
+    datastore.host = elasticsearch-master
     datastore.port = 9200
     datastore.secure = False
     datastore.user =
