@@ -5,17 +5,11 @@ metadata:
 spec:
   optimization:
   - name: "experimentBudget"
-    value: "200"
+    value: "100"
   parameters:
-  - name: worker_memory
-    min: 200
-    max: 2000
   - name: worker_cpu
     min: 100
     max: 1000
-  - name: worker_replicas
-    min: 1
-    max: 4
   - name: voting_memory
     min: 200
     max: 2000
@@ -28,15 +22,6 @@ spec:
   - name: db_memory
     min: 200
     max: 2000
-  - name: db_cpu
-    min: 100
-    max: 1000
-  - name: redis_memory
-    min: 200
-    max: 2000
-  - name: redis_cpu
-    min: 100
-    max: 1000
   metrics:
   - name: throughput
     minimize: false
@@ -62,7 +47,6 @@ spec:
       name: worker
     patch: |
       spec:
-        replicas: {{ .Values.worker_replicas }}
         template:
           spec:
             containers:
@@ -70,10 +54,8 @@ spec:
               resources:
                 limits:
                   cpu: "{{ .Values.worker_cpu }}m"
-                  memory: "{{ .Values.worker_memory }}Mi"
                 requests:
                   cpu: "{{ .Values.worker_cpu }}m"
-                  memory: "{{ .Values.worker_memory }}Mi"
   - targetRef:
       kind: Deployment
       apiVersion: apps/v1
@@ -104,28 +86,9 @@ spec:
             - name: db
               resources:
                 limits:
-                  cpu: "{{ .Values.db_cpu }}m"
                   memory: "{{ .Values.db_memory }}Mi"
                 requests:
-                  cpu: "{{ .Values.db_cpu }}m"
                   memory: "{{ .Values.db_memory }}Mi"
-  - targetRef:
-      kind: Deployment
-      apiVersion: apps/v1
-      name: redis
-    patch: |
-      spec:
-        template:
-          spec:
-            containers:
-            - name: redis
-              resources:
-                limits:
-                  cpu: "{{ .Values.redis_cpu }}m"
-                  memory: "{{ .Values.redis_memory }}Mi"
-                requests:
-                  cpu: "{{ .Values.redis_cpu }}m"
-                  memory: "{{ .Values.redis_memory }}Mi"
   template: # trial
     spec:
       template: # job

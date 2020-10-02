@@ -2,10 +2,9 @@ apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
   name: elasticsearch-example
-spec:
   optimization:
   - name: "experimentBudget"
-    value: "160"
+    value: "100"
   parameters:
   - name: data_memory
     min: 2000
@@ -13,9 +12,6 @@ spec:
   - name: data_cpu
     min: 500
     max: 6000
-  - name: data_replicas
-    min: 1
-    max: 3
   - name: data_heap_percent
     min: 20
     max: 80
@@ -25,12 +21,6 @@ spec:
   - name: client_cpu
     min: 500
     max: 6000
-  - name: client_replicas
-    min: 1
-    max: 3
-  - name: client_heap_percent
-    min: 20
-    max: 80
   metrics:
   - name: duration
     minimize: true
@@ -55,14 +45,10 @@ spec:
       name: elasticsearch-client
     patch: |
       spec:
-        replicas: {{ .Values.client_replicas }}
         template:
           spec:
             containers:
             - name: elasticsearch
-              env:
-              - name: ES_JAVA_OPTS
-                value: "-Djava.net.preferIPv4Stack=true -Xms{{ percent .Values.client_memory .Values.client_heap_percent }}m -Xmx{{ percent .Values.client_memory .Values.client_heap_percent }}m"
               resources:
                 limits:
                   cpu: "{{ .Values.client_cpu }}m"
@@ -76,7 +62,6 @@ spec:
       name: elasticsearch-data
     patch: |
       spec:
-        replicas: {{ .Values.data_replicas }}
         template:
           spec:
             containers:
@@ -101,23 +86,21 @@ spec:
         - name: cluster.name
           value: rally-demo
         - name: client.replicas
-          value: "{{ .Values.client_replicas }}"
+          value: "2"
         - name: client.resources.limits.cpu
+          value: "{{ .Values.client_cpu }}m"
+        - name: client.resources.requests.cpu
           value: "{{ .Values.client_cpu }}m"
         - name: client.resources.limits.memory
           value: "{{ .Values.client_memory }}Mi"
-        - name: client.resources.requests.cpu
-          value: "{{ .Values.client_cpu }}m"
         - name: client.resources.requests.memory
           value: "{{ .Values.client_memory }}Mi"
-        - name: client.heapSize
-          value: "{{ percent .Values.client_memory .Values.client_heap_percent }}m"
         - name: data.terminationGracePeriodSeconds
           value: "5"
         - name: data.podManagementPolicy
           value: Parallel
         - name: data.replicas
-          value: "{{ .Values.data_replicas }}"
+          value: "2"
         - name: data.resources.limits.cpu
           value: "{{ .Values.data_cpu }}m"
         - name: data.resources.limits.memory

@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- https://github.com/redskyops/redskyops-recipes/locust-metrics
+
+patchesJson6902:
+- target:
+    group: redskyops.dev
+    version: v1alpha1
+    kind: Experiment
+    name: locust-metrics
+  path: add-patches.yaml
