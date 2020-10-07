@@ -3,3 +3,11 @@ kind: Kustomization
 
 resources:
 - ../../elasticsearch
+
+# Need to drop the cpu down to 300m per so we can fit in github runner
+patches:
+- path: ./resources_patch.json
+  target:
+    group: redskyops.dev
+    version: v1alpha1
+    kind: Experiment

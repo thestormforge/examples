@@ -1,0 +1,13 @@
+[
+  {
+   "op": "replace",
+   "path": "/spec/parameters/1/min",
+   "value": 300
+  },
+  {
+   "op": "replace",
+   "path": "/spec/template/spec/template/spec/template/spec/activeDeadlineSeconds",
+   "value": 2700
+  }
+]
+

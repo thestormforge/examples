@@ -3,26 +3,52 @@ on:
   pull_request:
     branches:
       - master
+
 jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: "${{ steps.outputter.outputs.needed }}"
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Check if any changes for elasticsearch
+        id: elasticsearch
+        run: |
+          git diff HEAD origin/master --exit-code -- elasticsearch || \
+          echo "::set-output name=needed::elasticsearch"
+      - name: Check if any changes for locust-metrics
+        id: locust-metrics
+        run: |
+          git diff HEAD origin/master --exit-code -- locust-metrics || \
+          echo "::set-output name=needed::locust-metrics"
+      - name: Make output
+        id: outputter
+        run: |
+          echo "${{ steps.elasticsearch.outputs.needed }}
+          ${{ steps.locust-metrics.outputs.needed }}" | \
+          jq --slurp --raw-output --raw-input -c '
+            split("\n")[:-1] |
+            map(select(length > 0)) |
+            "::set-output name=needed::\(.)"'
+
   test:
     name: Tests
     runs-on: ubuntu-latest
+    needs: check
     strategy:
       matrix:
-        experiment:
-          - locust-metrics
-          #- voting-webapp
-          #- jvm
-          #- parallel-trials
-          #- postgres
-          #- elasticsearch
+        experiment: ${{ fromJson(needs.check.outputs.matrix) }}
     steps:
       - name: Check out code
         uses: actions/checkout@v2
       - name: KinD (Kubernetes in Docker) Initialization
-        uses: helm/kind-action@v1.0.0-rc.1
+        uses: helm/kind-action@v1.0.0
         with:
-          version: v0.8.1
+          version: v0.9.0
       - name: Download and Setup redskyctl
         run: |
           .ci/setup_redskyctl.sh
@@ -35,6 +61,6 @@ jobs:
       - name: The job has failed
         if: ${{ failure() }}
         run: |
-          kubectl get trial,experiment,svc,pod -o wide
-          kubectl get pods -o wide
+          kubectl get trial,experiment,svc,pod -o wide || :
+          kubectl get pods -o wide || :
 
