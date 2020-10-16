@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: hpa-example
+  name: hpa-recipe
 spec:
   parameters:
   - name: voting_cpu
@@ -9,13 +9,17 @@ spec:
     max: 2000
   - name: min_replicas
     min: 1
-    max: 5
+    max: 8
   - name: max_replicas
-    min: 6
-    max: 10
+    min: 1
+    max: 8
   - name: avg_utilization
     min: 10
     max: 80
+  constraints:
+    - order:
+        lowerParameter: min_replicas
+        upperParameter: max_replicas
   metrics:
   - name: latency
     minimize: true
