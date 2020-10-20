@@ -3,7 +3,10 @@
 BENCHMARK="${1:-dummy}"
 # Use a fixed heap size
 # Defaults for heap from https://github.com/renaissance-benchmarks/measurements#measurement-information
-JAVA_OPTS="-Xms${HEAP_SIZE:-12288}m -Xmx${HEAP_SIZE:-12288}m -XX:+UseG1GC"
+JAVA_OPTS="-Xms${HEAP_SIZE:-12288}m -Xmx${HEAP_SIZE:-12288}m"
+if [ -n "$GC_COLLECTOR" ]; then
+	JAVA_OPTS="$JAVA_OPTS -XX:+Use${GC_COLLECTOR}GC"
+fi
 # Survivor Space Sizing
 if [ -n "$NEW_RATIO" ]; then
 	JAVA_OPTS="$JAVA_OPTS -XX:NewRatio=${NEW_RATIO}"
@@ -18,7 +21,7 @@ if [ -n "$SURVIVOR_RATIO" ]; then
 	JAVA_OPTS="$JAVA_OPTS -XX:SurvivorRatio=${SURVIVOR_RATIO}"
 fi
 if [ -n "$PARALLEL_GC_THREADS" ]; then
-	JAVA_OPTS="$JAVA_OPTS -XX:ParallelGCThreads=${PARALLEL_GC_THREADS}"
+	JAVA_OPTS="$JAVA_OPTS -XX:ParallelGCThreads=${PARALLEL_GC_THREADS}" # unused unless we set -XX:+UseParallelGC
 fi
 if [ -n "$CON_GC_THREADS" ]; then
 	JAVA_OPTS="$JAVA_OPTS -XX:ConcGCThreads=${CON_GC_THREADS}"

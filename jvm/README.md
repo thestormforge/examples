@@ -1,8 +1,7 @@
-
 # JVM Example
 
 ## Introduction
-The  Java Virtual Machine(JVM) is a widely used portable execution environment for running java-based applications. In this example, we demonstrate how to tune the JVM using the benchmarking suite, [Renaissance](https://github.com/renaissance-benchmarks/renaissance/). Renaissance  provides a variety of benchmarks that can be used to load test many aspects of the JVM such as just-in-time compilers, interpreters, and garbage collectors. This example shows how to i) patch individual trials and ii) tune JVM parameters alongside the Kubernetes resources.
+The Java Virtual Machine(JVM) is a widely used portable execution environment for running java-based applications. In this example, we demonstrate how to tune the JVM using the benchmarking suite [Renaissance](https://github.com/renaissance-benchmarks/renaissance/). Renaissance provides a variety of benchmarks that can be used to load test many aspects of the JVM such as just-in-time compilers, interpreters, and garbage collectors. This example shows how to i) patch individual trials and ii) tune JVM parameters alongside the Kubernetes resources.
 
 ## Prerequisites
 

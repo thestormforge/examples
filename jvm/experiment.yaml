@@ -1,44 +1,41 @@
-apiVersion: redskyops.dev/v1alpha1
+apiVersion: redskyops.dev/v1beta1
 kind: Experiment
 metadata:
-  name:  jvm-reactors
+  name: jvm-reactors
 spec:
-  optimization:
-  - name: "experimentBudget"
-    value: "80"
-  parameters:
-  - name: heap_size
-    min: 512
-    max: 12288
-  - name: parallel_gc_threads
-    min: 10
-    max: 30
-  - name: con_gc_threads
-    min: 0
-    max: 8
-  - name: cpu
-    min: 200
-    max: 2000
-  - name: memory
-    min: 100
-    max: 12288
   constraints:
   - order:
       lowerParameter: heap_size
       upperParameter: memory
   metrics:
-  - name: duration
-    minimize: true
-    query: "{{duration .StartTime .CompletionTime}}"
-  - name: cost
-    minimize: true
-    query: "{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}"
+  - minimize: true
+    name: duration
+    port: 0
+    query: '{{duration .StartTime .CompletionTime}}'
+  - minimize: true
+    name: cost
+    port: 0
+    query: '{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}'
+  optimization:
+  - name: experimentBudget
+    value: "80"
+  parameters:
+  - max: 12288
+    min: 512
+    name: heap_size
+  - max: 30
+    min: 10
+    name: parallel_gc_threads
+  - max: 8
+    name: con_gc_threads
+  - max: 2000
+    min: 200
+    name: cpu
+  - max: 12288
+    min: 100
+    name: memory
   patches:
-  - targetRef:
-      kind: Job
-      apiVersion: batch/v1
-      name:  jvm-reactors
-    patch: |
+  - patch: |
       spec:
         template:
           spec:
@@ -58,14 +55,18 @@ spec:
                 value: {{ .Values.con_gc_threads }}
               - name: PARALLEL_GC_THREADS
                 value: {{ .Values.parallel_gc_threads }}
-  template: # trial
+    targetRef:
+      apiVersion: batch/v1
+      kind: Job
+      name: jvm-reactors
+  trialTemplate:
     spec:
-      template: # job
+      jobTemplate:
         spec:
           template: # pod
             spec:
               activeDeadlineSeconds: 1800
               containers:
-              - image: gcr.io/redskyops/renaissance:0.10.0
+              - args: ["reactors"]
+                image: gcr.io/redskyops/renaissance:0.10.0
                 name: renaissance
-                args: ["reactors"]
