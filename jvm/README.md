@@ -9,7 +9,7 @@ You must have a Kubernetes cluster. We recommend using a cluster with 2 nodes, 8
 
 A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
-Additionally, you will need a local configured copy of `kubectl` and to initialize Red Sky Ops in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
+Additionally, you will need a local configured copy of `kubectl` and to initialize Red Sky Ops v1.6.0 or later in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
 
 ## Example Resources
 

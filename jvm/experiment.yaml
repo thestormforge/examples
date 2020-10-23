@@ -29,11 +29,9 @@ spec:
   metrics:
   - minimize: true
     name: duration
-    port: 0
     query: '{{duration .StartTime .CompletionTime}}'
   - minimize: true
     name: cost
-    port: 0
     query: '{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}'
   patches:
   - patch: |

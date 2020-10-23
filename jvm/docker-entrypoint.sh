@@ -5,7 +5,7 @@ BENCHMARK="${1:-dummy}"
 # Defaults for heap from https://github.com/renaissance-benchmarks/measurements#measurement-information
 JAVA_OPTS="-Xms${HEAP_SIZE:-12288}m -Xmx${HEAP_SIZE:-12288}m"
 if [ -n "$GC_COLLECTOR" ]; then
-	JAVA_OPTS="$JAVA_OPTS -XX:+Use${GC_COLLECTOR}GC"
+	JAVA_OPTS="$JAVA_OPTS -XX:+Use${GC_COLLECTOR:-G1}GC"
 fi
 # Survivor Space Sizing
 if [ -n "$NEW_RATIO" ]; then
