@@ -3,6 +3,25 @@ kind: Experiment
 metadata:
   name: jvm-reactors
 spec:
+  optimization:
+  - name: experimentBudget
+    value: "80"
+  parameters:
+  - name: heap_size
+    min: 512
+    max: 12288
+  - name: parallel_gc_threads
+    min: 10
+    max: 30
+  - name: con_gc_threads
+    min: 0
+    max: 8
+  - name: cpu
+    min: 200
+    max: 2000
+  - name: memory
+    min: 100
+    max: 12288
   constraints:
   - order:
       lowerParameter: heap_size
@@ -16,24 +35,6 @@ spec:
     name: cost
     port: 0
     query: '{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}'
-  optimization:
-  - name: experimentBudget
-    value: "80"
-  parameters:
-  - max: 12288
-    min: 512
-    name: heap_size
-  - max: 30
-    min: 10
-    name: parallel_gc_threads
-  - max: 8
-    name: con_gc_threads
-  - max: 2000
-    min: 200
-    name: cpu
-  - max: 12288
-    min: 100
-    name: memory
   patches:
   - patch: |
       spec:
