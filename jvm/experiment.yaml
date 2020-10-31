@@ -1,10 +1,10 @@
-apiVersion: redskyops.dev/v1alpha1
+apiVersion: redskyops.dev/v1beta1
 kind: Experiment
 metadata:
-  name:  jvm-reactors
+  name: jvm-reactors
 spec:
   optimization:
-  - name: "experimentBudget"
+  - name: experimentBudget
     value: "80"
   parameters:
   - name: heap_size
@@ -34,11 +34,7 @@ spec:
     minimize: true
     query: "{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}"
   patches:
-  - targetRef:
-      kind: Job
-      apiVersion: batch/v1
-      name:  jvm-reactors
-    patch: |
+  - patch: |
       spec:
         template:
           spec:
@@ -58,14 +54,18 @@ spec:
                 value: {{ .Values.con_gc_threads }}
               - name: PARALLEL_GC_THREADS
                 value: {{ .Values.parallel_gc_threads }}
-  template: # trial
+    targetRef:
+      apiVersion: batch/v1
+      kind: Job
+      name: jvm-reactors
+  trialTemplate:
     spec:
-      template: # job
+      jobTemplate:
         spec:
           template: # pod
             spec:
               activeDeadlineSeconds: 1800
               containers:
-              - image: gcr.io/redskyops/renaissance:0.10.0
+              - args: ["reactors"]
+                image: gcr.io/redskyops/renaissance:0.10.0
                 name: renaissance
-                args: ["reactors"]

@@ -1,0 +1,39 @@
+- op: replace
+  path: /spec/optimization/0
+  value:
+    name: "experimentBudget"
+    value: "100"
+- op: add
+  path: /spec/parameters/-
+  value:
+      name: gc_collector
+      values:
+      - G1
+      - ConcMarkSweep
+      - Serial
+      - Parallel
+- op: replace
+  path: /spec/patches/0/patch
+  value:
+    |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: renaissance
+              resources:
+                limits:
+                  cpu: "{{ .Values.cpu }}m"
+                  memory: "{{ .Values.memory }}Mi"
+                requests:
+                  cpu: "{{ .Values.cpu }}m"
+                  memory: "{{ .Values.memory }}Mi"
+              env:
+              - name: HEAP_SIZE
+                value: {{ .Values.heap_size }}
+              - name: CON_GC_THREADS
+                value: {{ .Values.con_gc_threads }}
+              - name: PARALLEL_GC_THREADS
+                value: {{ .Values.parallel_gc_threads }}
+              - name: GC_COLLECTOR
+                value: {{ .Values.gc_collector }}

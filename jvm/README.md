@@ -1,8 +1,7 @@
-
 # JVM Example
 
 ## Introduction
-The  Java Virtual Machine(JVM) is a widely used portable execution environment for running java-based applications. In this example, we demonstrate how to tune the JVM using the benchmarking suite, [Renaissance](https://github.com/renaissance-benchmarks/renaissance/). Renaissance  provides a variety of benchmarks that can be used to load test many aspects of the JVM such as just-in-time compilers, interpreters, and garbage collectors. This example shows how to i) patch individual trials and ii) tune JVM parameters alongside the Kubernetes resources.
+The Java Virtual Machine(JVM) is a widely used portable execution environment for running java-based applications. In this example, we demonstrate how to tune the JVM using the benchmarking suite [Renaissance](https://github.com/renaissance-benchmarks/renaissance/). Renaissance provides a variety of benchmarks that can be used to load test many aspects of the JVM such as just-in-time compilers, interpreters, and garbage collectors. This example shows how to i) patch individual trials and ii) tune JVM parameters alongside the Kubernetes resources.
 
 ## Prerequisites
 
@@ -10,7 +9,7 @@ You must have a Kubernetes cluster. We recommend using a cluster with 2 nodes, 8
 
 A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
-Additionally, you will need a local configured copy of `kubectl` and to initialize Red Sky Ops in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
+Additionally, you will need a local configured copy of `kubectl` and to initialize Red Sky Ops v1.6.0 or later in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
 
 ## Example Resources
 
