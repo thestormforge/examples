@@ -5,14 +5,16 @@ metadata:
 spec:
   optimization:
   - name: "experimentBudget"
-    value: "40" #number of trials 
+    value: "40" #number of trials
   parameters:
   - name: memory
     min: 500
     max: 4000
+    baseline: 4000
   - name: cpu
     min: 100
     max: 4000
+    baseline: 4000
   metrics:
   - name: duration
     minimize: true
