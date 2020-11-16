@@ -1,6 +1,6 @@
 # Recipes
 
-This repository contains example recipes to be used with the [RedSkyOps Controller][controller].
+This repository contains example recipes to be used with the [StormForge Optimize Controller][controller].
 
 Each example contains additional documentation for usage and describing how it works.
 
@@ -29,5 +29,5 @@ issue][issues], especially for more ambitious contributions. This gives other
 contributors a chance to point you in the right direction, give you feedback on
 your design, and help you find out if someone else is working on the same thing.
 
-[issues]: https://github.com/redskyops/redskyops-recipes/issues
-[controller]: https://github.com/redskyops/redskyops-controller
+[issues]: https://github.com/thestormforge/examples/issues
+[controller]: https://github.com/thestormforge/optimize-controller

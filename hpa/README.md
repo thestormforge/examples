@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The goal of this recipe is to optimize the [voting webapp](https://github.com/redskyops/redskyops-recipes/tree/master/voting-webapp) using a [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) for scaling up and down the `voting-service` deployment during a trial (load test).
+The goal of this example is to optimize the [voting webapp](https://github.com/thestormforge/examples/tree/master/voting-webapp) using a [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) for scaling up and down the `voting-service` deployment during a trial (load test).
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 1
 
 A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
-Additionally, you will to initialize Red Sky Ops (v1.6.4+) in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
+Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](hhttps://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
 
 To allow the controller to patch the deployments and the HPA during the experiment, generate the proper RBAC permissions by running the following:
 `redskyctl generate rbac -f experiment.yaml | kubectl apply -f -`

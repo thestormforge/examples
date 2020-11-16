@@ -22,11 +22,11 @@ You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 1
 
 A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
-Additionally, you will to initialize Red Sky Ops in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
+Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](hhttps://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
 
 ## Example Resources
 
-The resources for this tutorial can be found in the [`/voting-webapp`](https://github.com/redskyops/redskyops-recipes/tree/master/voting-webapp) directory of the `redskyops-recipes` source repository.
+The resources for this tutorial can be found in the [`/voting-webapp`](https://github.com/thestormforge/examples/tree/master/voting-webapp) directory of the `examples` source repository.
 
 `experiment.yaml`
 : The actual experiment object manifest; this includes the definition of the experiment itself (in terms of assignable parameters and observable metrics) and the instructions for carrying out the experiment (in terms of load generation and metric queries). Here is where you may change parameter ranges and the experiment name (to avoid experiment name conflicts in the cluster).
@@ -75,4 +75,4 @@ For every trial, several pods will come up, corresponding to the five services o
 5. `results-service`
 6. `results-exporter`
 
-For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://redskyops.dev/docs/quickstart/) and [experiment lifecycle](https://redskyops.dev/docs/lifecycle/) documentation.
+For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://docs.stormforge.io/getting-started/quickstart/) and [experiment lifecycle](https://docs.stormforge.io/lifecycle/) documentation.
