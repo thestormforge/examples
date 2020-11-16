@@ -22,7 +22,7 @@ You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 1
 
 A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
-Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](hhttps://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
+Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
 
 ## Example Resources
 
