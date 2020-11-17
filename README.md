@@ -1,6 +1,6 @@
-# Recipes
+# StormForge - Examples
 
-This repository contains example recipes to be used with the [StormForge Optimize Controller][controller].
+This repository contains examples to be used with the [StormForge Optimize Controller][controller].
 
 Each example contains additional documentation for usage and describing how it works.
 
