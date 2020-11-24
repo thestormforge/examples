@@ -24,10 +24,12 @@ rules:
   resources:
   - deployments
   verbs:
+  - list
   - get
   - create
   - delete
   - patch
+  - watch
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
