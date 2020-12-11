@@ -39,7 +39,7 @@ redskyctl generate experiment -f app.yaml > experiment.yaml
 ```
 Generate the RBAC permission that allow the controller to patch the deployment:
 ```
-redskyctl generate rbac -f experiment.yaml
+redskyctl generate rbac -f experiment.yaml | kubectl apply -f -
 ```
 Run the experiment
 ```
