@@ -1,11 +1,11 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: postgres-example-test-cost-metric
+  name: postgres-example
 spec:
   optimization:
   - name: "experimentBudget"
-    value: "100" #number of trials
+    value: "40" #number of trials
   parameters:
   - name: memory
     min: 500
