@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         experiment:
-          - locust-metrics
+          # - locust-metrics
           #- voting-webapp
           #- jvm
           #- parallel-trials
