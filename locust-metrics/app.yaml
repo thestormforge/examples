@@ -14,7 +14,6 @@ resources:
 objectives:
 - name: cost-gcp # Also "cost", "cost-aws", "cpu", ...
 - name: p95-latency
-  latency: p95
 
 # Control over the discovery of parameters, also optional
 # The default is to generate patches for all deployments and stateful sets
