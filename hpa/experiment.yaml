@@ -96,7 +96,9 @@ spec:
                   value: "180"
                 image: thestormforge/optimize-trials:v0.0.1-locust
                 name: locust
-                resources: {}
+                resources:
+                  requests:
+                    cpu: "1"
                 volumeMounts:
                 - mountPath: /mnt/locust
                   name: locustfile
@@ -112,7 +114,6 @@ metadata:
   labels:
     redskyops.dev/application: votingapp
   name: redsky-setup
-  namespace: example
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -182,5 +183,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: redsky-setup
-  namespace: example
 ---
