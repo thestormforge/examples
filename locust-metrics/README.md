@@ -20,7 +20,7 @@ The `app.yaml` file defines the experiment to be generated. In this experiment w
 scenarios:
 - name: 100-clients
   locust:
-    users: 400
+    users: 100
     spawnRate: 20
     locustfile: locustfile.py
 ```
@@ -30,7 +30,6 @@ We optimize for cost and p95 latency as provided by Locust:
 objectives:
 - name: cost-gcp # Also "cost", "cost-aws", "cpu", ...
 - name: p95-latency
-  latency: p95
 ```
 
 Generate the `experiment.yaml` file using
