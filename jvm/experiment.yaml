@@ -14,7 +14,7 @@ spec:
     min: 10
     max: 30
   - name: con_gc_threads
-    min: 0
+    min: 1
     max: 8
   - name: cpu
     min: 200
@@ -57,7 +57,7 @@ spec:
     targetRef:
       apiVersion: batch/v1
       kind: Job
-      name: jvm-reactors
+      name: ""
   trialTemplate:
     spec:
       jobTemplate:
