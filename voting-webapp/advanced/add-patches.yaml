@@ -9,24 +9,28 @@
       name: worker_memory
       min: 200
       max: 2000
+      baseline: 2000
 - op: add
   path: /spec/parameters/-
   value:
       name: worker_replicas
       min: 1
       max: 4
+      baseline: 3
 - op: add
   path: /spec/parameters/-
   value:
       name: redis_memory
       min: 200
       max: 2000
+      baseline: 2000
 - op: add
   path: /spec/parameters/-
   value:
       name: redis_cpu
       min: 100
       max: 1000
+      baseline: 1000
 - op: replace
   path: /spec/patches/0/patch
   value:

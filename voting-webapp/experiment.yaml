@@ -10,18 +10,23 @@ spec:
   - name: worker_cpu
     min: 100
     max: 1000
+    baseline: 1000
   - name: voting_memory
     min: 200
     max: 2000
+    baseline: 2000
   - name: voting_cpu
     min: 100
     max: 1000
+    baseline: 1000
   - name: voting_replicas
     min: 1
     max: 4
+    baseline: 3
   - name: db_memory
     min: 200
     max: 2000
+    baseline: 2000
   metrics:
   - name: throughput
     minimize: false
