@@ -9,5 +9,5 @@ patchesJson6902:
     group: redskyops.dev
     version: v1beta1
     kind: Experiment
-    name: jvm-reactors
+    name: jvm-reactors-testing
   path: add-patches.yaml

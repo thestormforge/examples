@@ -12,6 +12,7 @@
       - ConcMarkSweep
       - Serial
       - Parallel
+      baseline: G1
 - op: replace
   path: /spec/patches/0/patch
   value:
