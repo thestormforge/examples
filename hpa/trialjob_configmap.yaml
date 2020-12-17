@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trialjob-env 
+data:
+  locust_host: "http://locust:8089"
+  n_clients: "100"
+  hatch_rate: "1"
+  run_time: "180"
+  # Maximum values allowed to consider the trial completed (i.e., not failed)
+  max_latency: "500" # max avg latency in ms
+  max_error_rate: "0.1" # max error rate allowed in %

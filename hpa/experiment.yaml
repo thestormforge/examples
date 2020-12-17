@@ -1,18 +1,18 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: hpa-example-2
+  name: hpa-example
 spec:
   parameters:
   - name: voting_cpu
-    min: 100
-    max: 1000
+    min: 200
+    max: 2000
   - name: min_replicas
     min: 1
-    max: 4
+    max: 8
   - name: max_replicas
     min: 1
-    max: 4
+    max: 8
   - name: avg_utilization
     min: 10
     max: 80
@@ -21,23 +21,23 @@ spec:
         lowerParameter: min_replicas
         upperParameter: max_replicas
   metrics:
-  - minimize: true
-    name: p95-latency
-    port: 9090
-    query: scalar(p95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: latency
+    minimize: true
+    type: jsonpath
+    query: '{.stats[0].avg_response_time}'
+    path: '/stats/requests'
+    port: 8089
+    selector:
+      matchLabels:
+        component: locust
+  - name: cost
     type: prometheus
-    max: "500"
-  - minimize: true
-    name: cost-gcp
-    port: 9090
-    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 2)
-    type: prometheus
-  - minimize: true
-    name: failures_per_s
-    optimize: false
-    port: 9090
-    query: scalar(failures_per_s{job="trialRun",instance="{{ .Trial.Name }}"})
-    type: prometheus
+    minimize: true
+    # Note that these cost weights are specific to GKE and represent $22/month/cpu and $3/month/GB
+    query: '({{cpuRequests . "app=voting-app"}} * 22) + ({{memoryRequests . "app=voting-app" | GB }} * 3)'
+    selector:
+      matchLabels:
+        app: prometheus
   patches:
   - targetRef:
       kind: Deployment
@@ -74,113 +74,60 @@ spec:
               averageUtilization: {{ .Values.avg_utilization }}
   template: # trial
     spec:
-      setupServiceAccountName: redsky-setup
+      initialDelaySeconds: 15
       setupTasks:
-      - args:
+      - name: monitoring
+        args:
         - prometheus
         - $(MODE)
-        name: monitoring
+      setupServiceAccountName: promsetup
       template: # job
         spec:
           template: # pod
             spec:
               containers:
-              - env:
-                - name: HOST
-                  value: http://voting-service
-                - name: NUM_USERS
-                  value: "500"
-                - name: SPAWN_RATE
-                  value: "50"
+              - name: locust-trial-job
+                image: broadinstitute/python-requests
+                command: ["python", "/home/load_test.py"]
+                env:
+                - name: LOCUST_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: locust_host
+                - name: N_CLIENTS
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: n_clients
+                - name: HATCH_RATE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: hatch_rate
                 - name: RUN_TIME
-                  value: "180"
-                image: thestormforge/optimize-trials:v0.0.1-locust
-                name: locust
-                resources:
-                  requests:
-                    cpu: "1"
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: run_time
+                - name: MAX_LATENCY # max avg latency in ms
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: max_latency
+                - name: MAX_ERROR_RATE # max error rate in %
+                  valueFrom:
+                    configMapKeyRef:
+                      name: trialjob-env
+                      key: max_error_rate
                 volumeMounts:
-                - mountPath: /mnt/locust
-                  name: locustfile
-                  readOnly: true
+                - name: locust-load-test
+                  mountPath: /home/load_test.py
+                  subPath: load_test.py
               volumes:
-              - configMap:
-                  name: locustfile
-                name: locustfile
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    redskyops.dev/application: votingapp
-  name: redsky-setup
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  labels:
-    redskyops.dev/application: votingapp
-  name: redsky-prometheus
-rules:
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - clusterroles
-  - clusterrolebindings
-  verbs:
-  - get
-  - create
-  - delete
-- apiGroups:
-  - ""
-  resources:
-  - serviceaccounts
-  - services
-  - configmaps
-  verbs:
-  - get
-  - create
-  - delete
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  verbs:
-  - get
-  - create
-  - delete
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - nodes
-  - nodes/metrics
-  - nodes/proxy
-  - services
-  verbs:
-  - list
-  - watch
-  - get
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-    redskyops.dev/application: votingapp
-  name: redsky-setup-prometheus
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: redsky-prometheus
-subjects:
-- kind: ServiceAccount
-  name: redsky-setup
----
+              - name: locust-load-test
+                configMap:
+                  name: locust-load-test
+              - name: trialjob-env
+                configMap:
+                  name: trialjob-env

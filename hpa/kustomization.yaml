@@ -1,17 +1,20 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: recipe
+namespace: example
 
 resources:
   - github.com/thestormforge/examples/voting-webapp/application
+  - github.com/thestormforge/examples/locust-metrics/locust?ref=package_locust
   - hpa.yaml
   - experiment.yaml
+  - prometheus-sa.yaml
+  - trialjob_configmap.yaml
 
 configMapGenerator:
-- name: locustfile
+- name: locust-load-test
   files:
-  - locustfile.py
+  - load_test.py
 
 generatorOptions:
   disableNameSuffixHash: true
