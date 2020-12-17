@@ -1,4 +1,4 @@
-definition.setTarget("my-url.example.com");
+definition.setTarget($target);
 
 definition.setArrivalPhases([
     {

@@ -1,13 +1,13 @@
 apiVersion: apps.redskyops.dev/v1alpha1
 kind: Application
 metadata:
-  name: votingapp-sf
+  name: voting-sf-example
 
 resources:
 - application
 
 ingress:
-  url: "http://35.244.198.192"
+  url: "my-url.example.com"
 
 parameters:
   containerResources:
@@ -19,7 +19,8 @@ parameters:
 scenarios:
 - name: standard
   stormforger:
-    testCaseFile: experiment.js
+    testCaseFile: testcase.js
+    # testCase: sf_sandbox/votingapp # if the test case is already created
 stormForger:
   org: sf_sandbox
   # accessToken:
