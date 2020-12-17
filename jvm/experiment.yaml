@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1beta1
 kind: Experiment
 metadata:
-  name: jvm-reactors-testing
+  name: jvm-reactors
 spec:
   optimization:
   - name: experimentBudget
