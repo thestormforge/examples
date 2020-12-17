@@ -35,12 +35,6 @@ spec:
     selector:
       matchLabels:
         app: elasticsearch-master
-  patches:
-  - targetRef:
-      kind: StatefulSet
-      apiVersion: apps/v1
-      name: elasticsearch-master
-    patch: ""
   template: # trial
     spec:
       setupTasks:
