@@ -1,21 +1,25 @@
 apiVersion: redskyops.dev/v1alpha1
 kind: Experiment
 metadata:
-  name: hpa-example-2
+  name: hpa-example
 spec:
   parameters:
   - name: voting_cpu
     min: 100
     max: 1000
+    baseline: 400
   - name: min_replicas
     min: 1
     max: 4
+    baseline: 1
   - name: max_replicas
     min: 1
     max: 4
+    baseline: 2
   - name: avg_utilization
     min: 10
     max: 80
+    baseline: 50
   constraints:
     - order:
         lowerParameter: min_replicas
