@@ -1,0 +1,186 @@
+apiVersion: redskyops.dev/v1alpha1
+kind: Experiment
+metadata:
+  name: hpa-example-2
+spec:
+  parameters:
+  - name: voting_cpu
+    min: 100
+    max: 1000
+  - name: min_replicas
+    min: 1
+    max: 4
+  - name: max_replicas
+    min: 1
+    max: 4
+  - name: avg_utilization
+    min: 10
+    max: 80
+  constraints:
+    - order:
+        lowerParameter: min_replicas
+        upperParameter: max_replicas
+  metrics:
+  - minimize: true
+    name: p95-latency
+    port: 9090
+    query: scalar(p95{job="trialRun",instance="{{ .Trial.Name }}"})
+    type: prometheus
+    max: "500"
+  - minimize: true
+    name: cost-gcp
+    port: 9090
+    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 2)
+    type: prometheus
+  - minimize: true
+    name: failures_per_s
+    optimize: false
+    port: 9090
+    query: scalar(failures_per_s{job="trialRun",instance="{{ .Trial.Name }}"})
+    type: prometheus
+  patches:
+  - targetRef:
+      kind: Deployment
+      apiVersion: apps/v1
+      name: voting-service
+    patch: |
+      spec:
+        replicas: {{ .Values.min_replicas }}
+        template:
+          spec:
+            containers:
+            - name: voting-service
+              resources:
+                limits:
+                  cpu: "{{ .Values.voting_cpu }}m"
+                  memory: "250Mi"
+                requests:
+                  cpu: "{{ .Values.voting_cpu }}m"
+                  memory: "250Mi"
+  - targetRef:
+      kind: HorizontalPodAutoscaler
+      apiVersion: autoscaling/v2beta2
+      name: voting-hpa
+    patch: |
+      spec:
+        maxReplicas: {{ .Values.max_replicas }}
+        minReplicas: {{ .Values.min_replicas }}
+        metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: {{ .Values.avg_utilization }}
+  template: # trial
+    spec:
+      setupServiceAccountName: redsky-setup
+      setupTasks:
+      - args:
+        - prometheus
+        - $(MODE)
+        name: monitoring
+      template: # job
+        spec:
+          template: # pod
+            spec:
+              containers:
+              - env:
+                - name: HOST
+                  value: http://voting-service
+                - name: NUM_USERS
+                  value: "500"
+                - name: SPAWN_RATE
+                  value: "50"
+                - name: RUN_TIME
+                  value: "180"
+                image: thestormforge/optimize-trials:v0.0.1-locust
+                name: locust
+                resources:
+                  requests:
+                    cpu: "1"
+                volumeMounts:
+                - mountPath: /mnt/locust
+                  name: locustfile
+                  readOnly: true
+              volumes:
+              - configMap:
+                  name: locustfile
+                name: locustfile
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    redskyops.dev/application: votingapp
+  name: redsky-setup
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    redskyops.dev/application: votingapp
+  name: redsky-prometheus
+rules:
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  - clusterrolebindings
+  verbs:
+  - get
+  - create
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  verbs:
+  - get
+  - create
+  - delete
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  verbs:
+  - list
+  - watch
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    redskyops.dev/application: votingapp
+  name: redsky-setup-prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: redsky-prometheus
+subjects:
+- kind: ServiceAccount
+  name: redsky-setup
+---
