@@ -4,7 +4,7 @@ metadata:
   labels:
     redskyops.dev/application: hpa-sf
     redskyops.dev/scenario: standard
-  name: hpa-sf-3
+  name: hpa-sf
 spec:
   metrics:
   - minimize: true
@@ -23,7 +23,6 @@ spec:
     port: 9090
     query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
     type: prometheus
-    max: "150"
   - minimize: true
     name: p50-latency
     optimize: false
@@ -31,6 +30,7 @@ spec:
     query: scalar(median{job="trialRun",instance="{{ .Trial.Name }}"})
     type: prometheus
   - minimize: true
+    max: "1000"
     name: p99-latency
     optimize: false
     port: 9090
