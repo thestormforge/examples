@@ -2,6 +2,9 @@ apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: voting-hpa
+  labels:
+    app: voting-app
+    component: hpa
 spec:
   maxReplicas: 10
   minReplicas: 3
