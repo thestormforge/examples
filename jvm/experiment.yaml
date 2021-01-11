@@ -10,18 +10,23 @@ spec:
   - name: heap_size
     min: 512
     max: 12288
+    baseline: 1024
   - name: parallel_gc_threads
     min: 10
     max: 30
+    baseline: 20
   - name: con_gc_threads
     min: 0
     max: 8
+    baseline: 8
   - name: cpu
     min: 200
     max: 2000
+    baseline: 1000
   - name: memory
     min: 100
     max: 12288
+    baseline: 2048
   constraints:
   - order:
       lowerParameter: heap_size
