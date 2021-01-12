@@ -32,15 +32,7 @@ objectives:
 - name: p95-latency
 ```
 
-Generate the `experiment.yaml` file using
+Generate an experiment and launch it using:
 ```
-redskyctl generate experiment -f app.yaml > experiment.yaml
-```
-Generate the RBAC permission that allow the controller to patch the deployment:
-```
-redskyctl generate rbac -f experiment.yaml | kubectl apply -f -
-```
-Run the experiment
-```
-kubectl apply -f experiment.yaml
+redskyctl generate experiment -f app.yaml | kubectl apply -f -
 ```

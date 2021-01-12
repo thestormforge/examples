@@ -20,9 +20,5 @@ ingress:
 
 ## Create an experiment
 
-Generate an experiment file using
-`redskyctl generate experiment -f app.yaml > experiment.yaml`
-Create and apply the RBAC permission for the controller to patch the application resources:
-`redskyctl generate rbac -f experiment.yaml | kubectl apply -f -`
-Launch the experiment
-`kubectl apply -f experiment.yaml`
+Generate an experiment and launch it using
+`redskyctl generate experiment -f app.yaml | kubectl apply -f -`
