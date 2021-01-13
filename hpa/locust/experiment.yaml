@@ -30,7 +30,7 @@ spec:
   metrics:
   - name: p95-latency
     type: prometheus
-    max: "500"
+    max: "1300"
     minimize: true
     query: scalar(p95{job="trialRun",instance="{{ .Trial.Name }}"})
   - name: cost-gcp
