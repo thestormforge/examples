@@ -1,0 +1,123 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sparky-sa
+  namespace: spark
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spark-watch-role
+  namespace: spark
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/log
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - sparkoperator.k8s.io
+  resources:
+  - sparkapplications
+  verbs:
+  - create
+  - delete
+  - patch
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: redsky-patching-spark-rolebinding
+  namespace: spark
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: spark-watch-role
+subjects:
+- kind: ServiceAccount
+  name: sparky-sa
+  namespace: spark
+- kind: ServiceAccount
+  name: promsetup
+  namespace: spark
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: promsetup
+  namespace: spark
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: redsky-promsetup-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  verbs:
+  - get
+  - create
+  - delete
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - list
+  - get
+  - create
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  - clusterrolebindings
+  verbs:
+  - get
+  - create
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  verbs:
+  - list
+  - watch
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: redsky-promsetup-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: redsky-promsetup-role
+subjects:
+- kind: ServiceAccount
+  name: promsetup
+  namespace: spark
