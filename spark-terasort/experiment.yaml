@@ -1,0 +1,164 @@
+apiVersion: redskyops.dev/v1beta1
+kind: Experiment
+metadata:
+  name: spark-terasort
+  namespace: spark
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "250"
+  parameters:
+  - name: driverCores
+    min: 500
+    max: 3000
+    baseline: 3000
+  - name: driverMemory
+    min: 2000
+    max: 15000
+    baseline: 4000
+  - name: executorCores
+    min: 500
+    max: 3000
+    baseline: 2000
+  - name: executorMemory
+    min: 1000
+    # Need to account for 10% memory overhead
+    # because of "spark.kubernetes.memoryOverheadFactor": "0.1"
+    max: 25000
+    baseline: 7000
+  - name: executorInstances
+    min: 1
+    max: 14
+    baseline: 9
+  - name: memoryFraction
+    min: 50
+    max: 900
+    baseline: 100
+  - name: reducerMaxSize
+    min: 16
+    max: 1024
+    baseline: 48
+  - name: shuffleFileBuffer
+    min: 16
+    max: 1024
+    baseline: 32
+  - name: shufflePartitions
+    min: 100
+    max: 2000
+    baseline: 200
+  metrics:
+  - name: usage
+    type: prometheus
+    minimize: true
+    query: |
+      ({{cpuRequests . "app=sparky"}} * 14 * {{ duration .StartTime .CompletionTime }}) +
+      ({{memoryRequests . "app=sparky" | GB }} * 4 * {{ duration .StartTime .CompletionTime }})
+    selector:
+      matchLabels:
+        app: prometheus
+  - name: cpurequests
+    type: prometheus
+    optimize: false
+    query: '({{cpuRequests . "app=sparky"}} * {{ duration .StartTime .CompletionTime }} )'
+    selector:
+      matchLabels:
+        app: prometheus
+  - name: memoryrequests
+    type: prometheus
+    optimize: false
+    query: '({{memoryRequests . "app=sparky" | GB }} * {{ duration .StartTime .CompletionTime }} )'
+    selector:
+      matchLabels:
+        app: prometheus
+  - name: duration
+    optimize: false
+    query: '{{ duration .StartTime .CompletionTime }}'
+  trialTemplate:
+    spec:
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+      - name: sparkapp
+        # Using this because we disallow overriding the command if the setup tools image is the default
+        image: ghcr.io/thestormforge/setuptools:edge
+        command:
+        - /bin/sh
+        # We are handling the creation of the resources in the trial job
+        # So we do not need to do anything for MODE == create
+        args:
+        - -c
+        - |
+          case ${MODE} in
+          delete)
+            kubectl delete -f /tmp/sparkapp/terasort.yaml
+          ;;
+          esac
+        volumeMounts:
+        - name: sparkapp
+          mountPath: /tmp/sparkapp
+      setupVolumes:
+      - name: sparkapp
+        configMap:
+          name: sparkapp
+      setupServiceAccountName: promsetup
+      jobTemplate:
+        spec:
+          activeDeadlineSeconds: 4800
+          template:
+            spec:
+              serviceAccount: sparky-sa
+              containers:
+              - name: waiter
+                image: ghcr.io/thestormforge/setuptools:edge
+                command:
+                - /bin/sh
+                args:
+                - -c
+                - |
+                  set -x
+                  kubectl patch --type=json --patch \
+                  '[
+                    { "op": "replace", "path": "/spec/sparkConf/spark.kubernetes.driver.request.cores", "value": "'${DRIVERCORES}'m" },
+                    { "op": "replace", "path": "/spec/sparkConf/spark.kubernetes.driver.limit.cores", "value": "'${DRIVERCORES}'m" },
+                    { "op": "replace", "path": "/spec/driver/memory", "value": "'${DRIVERMEMORY}'m" },
+                    { "op": "replace", "path": "/spec/sparkConf/spark.kubernetes.executor.request.cores", "value": "'${EXECUTORCORES}'m" },
+                    { "op": "replace", "path": "/spec/sparkConf/spark.kubernetes.executor.limit.cores", "value": "'${EXECUTORCORES}'m" },
+                    { "op": "replace", "path": "/spec/executor/memory", "value": "'${EXECUTORMEMORY}'m"  },
+                    { "op": "replace", "path": "/spec/executor/instances", "value": '${EXECUTORINSTANCES}' },
+                    { "op": "replace", "path": "/spec/arguments/1", "value": "s3a://my-bucket/spark-terasort-sorted-'$(date +%s)'" },
+                    { "op": "replace", "path": "/spec/sparkConf/spark.reducer.maxSizeInFlight", "value": "'${REDUCERMAXSIZE}'m" },
+                    { "op": "replace", "path": "/spec/sparkConf/spark.sql.shuffle.partitions", "value": "'${SHUFFLEPARTITIONS}'" },
+                    { "op": "replace", "path": "/spec/sparkConf/spark.shuffle.file.buffer", "value": "'${SHUFFLEFILEBUFFER}'k" },
+                    # using bc and printf to get our floats
+                    { "op": "replace", "path": "/spec/sparkConf/spark.memory.fraction", "value": "'$(printf "%0.4f\n" 0$(echo "scale=4; ${MEMORYFRACTION}/1000" | bc))'" },
+                    # By doing 0f we get rounding; we could get more fancy and do an actual ceil function, but this should be appropriate
+                    { "op": "replace", "path": "/spec/sparkConf/spark.executor.cores", "value": "'$(printf "%0.0f\n" 0$(echo "scale=4; ${EXECUTORCORES}/1000" | bc))'" }
+                  ]' \
+                  -o yaml \
+                  --dry-run=true \
+                  -f /tmp/sparkapp/terasort.yaml > /tmp/patched_spark_app.yaml
+
+                  kubectl create -f /tmp/patched_spark_app.yaml
+
+                  state=$(kubectl get sparkapplication terasort -o jsonpath='{.status.applicationState.state}')
+                  while [ "${state}" != "COMPLETED" ] && [ "${state}" != "FAILED" ]; do
+                    sleep 1;
+
+                    state=$(kubectl get sparkapplication terasort -o jsonpath='{.status.applicationState.state}');
+                  done
+
+                  # Handle failures, try to provide some info/context around the failure
+                  if [ ${state}  == "FAILED" ]; then
+                    kubectl logs terasort-driver
+                    kubectl get po terasort-driver -o yaml
+                    exit 1
+                  fi
+                volumeMounts:
+                - name: sparkapp
+                  mountPath: /tmp/sparkapp
+              volumes:
+              - name: sparkapp
+                configMap:
+                  name: sparkapp
