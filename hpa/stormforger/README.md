@@ -5,7 +5,7 @@ In this experiment the load test is performed by [Stormforger](stormforger.com).
 
 ## Deploy the voting webapp with ingress
 
-In this case the load test resides outside of the cluster. The voting webapp needs to expose an endpoint for in&out cluster traffic.
+Because the load test resides outside of the cluster, the voting webapp needs to be exposed publicly.
 
 Run:
 `kustomize build application | kubectl apply -f -`
