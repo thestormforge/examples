@@ -49,7 +49,6 @@ An error rate higher than this value will fail the trial.
 Launch the experiment using:
 `kustomize build . | kubect apply -n <my-namespace> -f -`
 
-You can visualize the progress of the experiment using
-`redskyctl results`. You should see something similar to this:
+You can visualize the progress of the experiment at `https://app.stormforge.io`. You should see something similar to this:
 
 ![](hpa-results.png)
