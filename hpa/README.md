@@ -1,5 +1,13 @@
 # HPA Example
 
+## TL;DR
+
+Run
+`redskyctl generate rbac -f experiment.yaml | kubectl apply -f -`
+and then
+`kustomize build . | kubect apply -n <my-namespace> -f -`
+
+
 ## Introduction
 
 The goal of this example is to optimize the [voting webapp](https://github.com/thestormforge/examples/tree/master/voting-webapp) using a [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) for scaling up and down the `voting-service` deployment during a trial (load test).

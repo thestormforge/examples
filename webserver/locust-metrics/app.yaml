@@ -14,7 +14,9 @@ resources:
 objectives:
 - name: cost-gcp # Also "cost", "cost-aws", "cpu", ...
 - name: p95-latency
-  latency: p95
+  optimize: false
+- name: p99-latency
+  max: 500
 
 # Control over the discovery of parameters, also optional
 # The default is to generate patches for all deployments and stateful sets
@@ -29,7 +31,7 @@ parameters:
 scenarios:
 - name: 100-clients
   locust:
-    users: 400
+    users: 100
     spawnRate: 20
     locustfile: locustfile.py
 
