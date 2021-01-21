@@ -36,7 +36,5 @@ objectives:
   optimize: false
 - name: cost
   requests:
-    labels:
-      app: voting-app
-
+    metricSelector: app="voting-app"
 
