@@ -10,7 +10,8 @@ Because the load test resides outside of the cluster, the voting webapp needs to
 Run:
 `kustomize build application | kubectl apply -f -`
 
-Once the ip address for the ingress is available you can test the website by accessing the IP address in a web browser or using curl.
+Once the IP address for the ingress is available you can test the website by accessing the IP address in a web browser or using curl.
+Write
 
 Once the external IP address for the voting-service is ready insert it in the `sf-experiment/experiment.yaml` as the value for the `TARGET` env variable.
 
