@@ -32,7 +32,6 @@ We optimize (minimization) for `cost` and `p95-latency`. We also track `failures
 ```
 - minimize: true
   name: p95-latency
-  port: 9090
   query: scalar(p95{job="trialRun",instance="{{ .Trial.Name }}"})
   type: prometheus
   max: "500"
@@ -42,7 +41,6 @@ If locust measures an p95 latency over the length of the load test (aka trial) h
 - minimize: true
   name: failures_per_s
   optimize: false
-  port: 9090
   query: scalar(failures_per_s{job="trialRun",instance="{{ .Trial.Name }}"})
   type: prometheus
 ```
