@@ -9,11 +9,11 @@ You must have a Kubernetes cluster. We recommend using a cluster with 2 nodes, 8
 
 A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
-Additionally, you will need a local configured copy of `kubectl` and to initialize Red Sky Ops v1.6.0 or later in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
+Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize v1.6.0 or later in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
 
 ## Example Resources
 
-The resources for this tutorial can be found in the [`/jvm/`](https://github.com/redskyops/redskyops-recipes/jvm) directory of the `redskyops-recipes` source repository.
+The resources for this tutorial can be found in the [`/jvm/`](https://github.com/thestormforge/examples/jvm) directory of the `examples` source repository.
 
 * `kustomization.yaml`
 : The input to Kustomize used to build the Kubernetes object manifests for this example.
@@ -35,7 +35,7 @@ For every trial, one pod will come up:
 
 A trial pod named similarly to `jvm-reactors-000-57vk8` which runs the renaissance benchmarking load test on the JVM.
 
-For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://redskyops.dev/docs/quickstart/) and [experiment lifecycle](https://redskyops.dev/docs/lifecycle/) documentation.
+For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://docs.stormforge.io/getting-started/quickstart/) and [experiment lifecycle](https://docs.stormforge.io/lifecycle/) documentation.
 
 ## Customization
 

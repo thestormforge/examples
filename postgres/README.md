@@ -11,11 +11,10 @@ You must have a Kubernetes cluster. While this example will run on Minikube, we 
 
 A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
-Additionally, you will to initialize Red Sky Ops in your cluster. You can download a binary for your platform from the [releases page](https://github.com/redskyops/redskyops-controller/releases) and run `redskyctl init` (while connected to your cluster). For more details, see [the installation guide](https://redskyops.dev/docs/install/).
-
+Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
 ## Example Resources
 
-The resources for this tutorial can be found in the [`/postgres`](https://github.com/redskyops/redskyops-recipes/tree/master/postgres) directory of the `redskyops-recipes` source repository. The following manifest define how to run Postgres:
+The resources for this tutorial can be found in the [`/postgres`](https://github.com/thestormforge/examples/tree/master/postgres) directory of the `examples` source repository. The following manifest define how to run Postgres:
 
 * `postgres.yaml`
   : The manifest for the Postgres application.
@@ -40,4 +39,4 @@ For every trial, two pods will come up:
 1. A `postgres` pod that contains the database that trial will run against and get patched accordingly
 2. An `<experiment-name>` pod which runs `pgbench` against the database - this is the actual trial pod
 
-For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://redskyops.dev/docs/quickstart/) and [experiment lifecycle](https://redskyops.dev/docs/lifecycle/) documentation.
+For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://docs.stormforge.io/getting-started/quickstart/) and [experiment lifecycle](https://docs.stormforge.io/lifecycle/) documentation.
