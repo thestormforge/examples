@@ -1,6 +1,8 @@
 # StormForge optimize experiment using StormForger for the load test
 
-The goal of this recipe is to optimize the voting webapp using StormForger for the load test. This allows to generate much heavier load on the website than with locust. You need to have a [StormForger](stormforger.com) account for that
+The goal of this recipe is to optimize the voting webapp using [StormForger](storm forger.com) for the load test. 
+This will allow us to generate much heavier load on the website than with locust. 
+You need to have a [StormForger](stormforger.com) account for this.
 
 ## Deploy the voting webapp with ingress
 
