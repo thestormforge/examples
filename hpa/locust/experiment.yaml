@@ -27,19 +27,16 @@ spec:
   metrics:
   - minimize: true
     name: p95-latency
-    port: 9090
     query: scalar(p95{job="trialRun",instance="{{ .Trial.Name }}"})
     type: prometheus
     max: "500"
   - minimize: true
     name: cost-gcp
-    port: 9090
     query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 2)
     type: prometheus
   - minimize: true
     name: failures_per_s
     optimize: false
-    port: 9090
     query: scalar(failures_per_s{job="trialRun",instance="{{ .Trial.Name }}"})
     type: prometheus
   patches:
