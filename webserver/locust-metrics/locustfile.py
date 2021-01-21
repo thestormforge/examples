@@ -5,7 +5,7 @@ import random
 from locust import HttpUser, task, between
 
 
-CAT_FRACTION = os.getenv("CAT_FRACTION", 0.75)
+CAT_FRACTION = os.getenv("CAT_FRACTION", 0.25)
 
 
 class MyUser(HttpUser):

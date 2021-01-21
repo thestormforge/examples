@@ -10,15 +10,19 @@ spec:
   - name: memory
     min: 1000
     max: 2000
+    baseline: 2000
   - name: cpu
     min: 500
     max: 1000
+    baseline: 1000
   - name: heap_percent
     min: 20
     max: 80
+    baseline: 50
   - name: replicas
     min: 3
     max: 5
+    baseline: 3
   metrics:
   - name: duration
     minimize: true
@@ -31,12 +35,6 @@ spec:
     selector:
       matchLabels:
         app: elasticsearch-master
-  patches:
-  - targetRef:
-      kind: StatefulSet
-      apiVersion: apps/v1
-      name: elasticsearch-master
-    patch: ""
   template: # trial
     spec:
       setupTasks:

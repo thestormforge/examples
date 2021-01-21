@@ -1,0 +1,40 @@
+apiVersion: apps.redskyops.dev/v1alpha1
+kind: Application
+metadata:
+  name: voting-sf-example
+
+resources:
+- application
+
+ingress:
+  url: "my-url.example.com"
+
+parameters:
+  containerResources:
+    labelSelector: component=voting-service
+  replicas:
+    labelSelector: component=voting-service
+
+
+scenarios:
+- name: standard
+  stormforger:
+    testCaseFile: testcase.js
+    # testCase: sf_sandbox/votingapp # if the test case is already created
+stormForger:
+  org: sf_sandbox
+  # accessToken:
+  #   file: sf-jwt # otherwise jwt from forge config is used
+
+
+objectives:
+- name: p50-latency
+  optimize: false
+- name: p95-latency
+  max: 500
+- name: p99-latency
+  optimize: false
+- name: cost
+  requests:
+    metricSelector: app="voting-app"
+
