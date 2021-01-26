@@ -62,7 +62,6 @@ spec:
     targetRef:
       apiVersion: batch/v1
       kind: Job
-      name: ""
   trialTemplate:
     spec:
       jobTemplate:
