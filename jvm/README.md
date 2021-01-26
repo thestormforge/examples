@@ -47,4 +47,4 @@ One such example is the philosophers benchmark. We recommend checking the logs o
 
 For this example, we are using the [Garbage First Garbage Collector (G1GC)](https://docs.oracle.com/javase/9/gctuning/garbage-first-garbage-collector.htm#JSGCT-GUID-F1BE86FA-3EDC-4D4F-BDB4-4B044AD83180) in the docker-entrypoint.sh file. Learn how to include the garbage collection algorithm in your experiment by visiting our [advanced JVM tutorial](https://github.com/thestormforge/examples/tree/master/jvm/advanced).
 
-To add more JAVA opts parameters to tune you can (1) Add any additional optional parameters in the docker-entrypoint.sh file, (2) Create a new image using the Dockerfile to be referenced in the pod template spec and (3) add your new parameters to the experiment spec.
+To add more JAVA_OPTS parameters to tune you can (1) Add any additional optional parameters in the docker-entrypoint.sh file, (2) Create a new image using the Dockerfile to be referenced in the pod template spec and (3) add your new parameters to the experiment spec.
