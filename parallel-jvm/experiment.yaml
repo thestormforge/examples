@@ -1,0 +1,80 @@
+apiVersion: redskyops.dev/v1beta1
+kind: Experiment
+metadata:
+  name: parallel-jvm
+spec:
+  optimization:
+  - name: experimentBudget
+    value: "80"
+  parameters:
+  - name: heap_size
+    min: 512
+    max: 12288
+    baseline: 1024
+  - name: parallel_gc_threads
+    min: 10
+    max: 30
+    baseline: 20
+  - name: con_gc_threads
+    min: 0
+    max: 8
+    baseline: 8
+  - name: cpu
+    min: 200
+    max: 2000
+    baseline: 1000
+  - name: memory
+    min: 100
+    max: 12288
+    baseline: 2048
+  constraints:
+  - order:
+      lowerParameter: heap_size
+      upperParameter: memory
+  metrics:
+  - name: duration
+    minimize: true
+    query: "{{duration .StartTime .CompletionTime}}"
+  - name: cost
+    minimize: true
+    query: "{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}"
+  patches:
+  - patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: renaissance
+              resources:
+                limits:
+                  cpu: "{{ .Values.cpu }}m"
+                  memory: "{{ .Values.memory }}Mi"
+                requests:
+                  cpu: "{{ .Values.cpu }}m"
+                  memory: "{{ .Values.memory }}Mi"
+              env:
+              - name: HEAP_SIZE
+                value: {{ .Values.heap_size }}
+              - name: CON_GC_THREADS
+                value: {{ .Values.con_gc_threads }}
+              - name: PARALLEL_GC_THREADS
+                value: {{ .Values.parallel_gc_threads }}
+    targetRef:
+      apiVersion: batch/v1
+      kind: Job
+      name: jvm-reactors
+  namespaceSelector:
+    matchLabels:
+      experiment: parallel-jvm
+  replicas: 2
+  trialTemplate:
+    spec:
+      jobTemplate:
+        spec:
+          template: # pod
+            spec:
+              activeDeadlineSeconds: 1800
+              containers:
+              - args: ["reactors"]
+                image: gcr.io/redskyops/renaissance:0.10.0
+                name: renaissance
