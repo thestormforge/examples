@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
 - ./namespace.yaml
 
-namespace: jvm-trial-0
+namespace: jvm-exp-0

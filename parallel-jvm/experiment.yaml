@@ -1,7 +1,7 @@
 apiVersion: redskyops.dev/v1beta1
 kind: Experiment
 metadata:
-  name: parallel-jvm
+  name: jvm-reactors
 spec:
   optimization:
   - name: experimentBudget
@@ -65,7 +65,7 @@ spec:
       name: jvm-reactors
   namespaceSelector:
     matchLabels:
-      experiment: parallel-jvm
+      experiment: jvm-reactors
   replicas: 2
   trialTemplate:
     spec:
