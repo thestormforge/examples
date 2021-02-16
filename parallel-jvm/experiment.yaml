@@ -62,7 +62,6 @@ spec:
     targetRef:
       apiVersion: batch/v1
       kind: Job
-      name: jvm-reactors
   namespaceSelector:
     matchLabels:
       experiment: jvm-reactors
@@ -78,3 +77,17 @@ spec:
               - args: ["reactors"]
                 image: gcr.io/redskyops/renaissance:0.10.0
                 name: renaissance
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jvm-exp-0
+  labels:
+    experiment: jvm-reactors
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jvm-exp-1
+  labels:
+    experiment: jvm-reactors
