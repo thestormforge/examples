@@ -5,6 +5,12 @@ if [ ! -f "${HAR_FILE}" ]; then
 	exit 1
 fi
 
+apt-get update && \
+apt-get install -y --no-install-recommends \
+sed \
+jq \
+&& rm -rf /var/lib/apt/lists/*
+
 cat ${HAR_FILE} | \
 jq -c -f /har/harshrinker.jq --arg limit ${HAR_LIMIT} | \
 forge har - | \
