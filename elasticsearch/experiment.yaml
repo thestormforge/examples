@@ -37,6 +37,15 @@ spec:
         app: elasticsearch-master
   template: # trial
     spec:
+      readinessGates:
+      - kind: StatefulSet
+        apiVersion: apps/v1
+        name: elasticsearch-master
+        conditionTypes:
+        - redskyops.dev/app-ready
+        InitialDelaySeconds: 5
+        periodSeconds: 5
+        failureThreshold: 30
       setupTasks:
       - name: elasticsearch
         helmChart: elasticsearch
