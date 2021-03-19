@@ -2,7 +2,9 @@
 
 The goal of this recipe is to optimize the voting webapp using [StormForger](https://stormforger.com) for the load test. 
 This will allow us to generate much heavier load on the website than with locust. 
-You need to have a [StormForger](https://stormforger.com) account for this.
+You need:
+    - the [StormForge Optimize Controller][controller] v1.11+
+    - a [StormForger](https://stormforger.com) account
 
 ## Deploy the voting webapp with ingress
 

@@ -12,11 +12,12 @@ resources:
 # This section configures the objectives of optimization
 # We want to minimize both cost and latency
 objectives:
-- name: cost-gcp # Also "cost", "cost-aws", "cpu", ...
-- name: p95-latency
-  optimize: false
-- name: p99-latency
-  max: 500
+- goals:
+  - name: cost-gcp # Also "cost", "cost-aws", "cpu", ...
+  - name: p95-latency
+    optimize: false
+  - name: p99-latency
+    max: 500
 
 # Control over the discovery of parameters, also optional
 # The default is to generate patches for all deployments and stateful sets
