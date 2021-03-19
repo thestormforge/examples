@@ -62,7 +62,6 @@ spec:
     targetRef:
       apiVersion: batch/v1
       kind: Job
-      name: jvm-reactors
   trialTemplate:
     spec:
       jobTemplate:
