@@ -23,10 +23,10 @@ objectives:
 # The default is to generate patches for all deployments and stateful sets
 # Here we decide to only optimize the voting service respon
 parameters:
-  containerResources:
-    labelSelector: component=voting-service
-  replicas:
-    labelSelector: component=voting-service
+- containerResources:
+    selector: component=voting-service
+- replicas:
+    selector: component=voting-service
 
 # This section configures the scenarios of load generation
 scenarios:
