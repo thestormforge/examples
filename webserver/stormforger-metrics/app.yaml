@@ -10,10 +10,10 @@ ingress:
   url: "my-url.example.com"
 
 parameters:
-  containerResources:
-    labelSelector: component=voting-service
-  replicas:
-    labelSelector: component=voting-service
+- containerResources:
+    selector: component=voting-service
+- replicas:
+    selector: component=voting-service
 
 
 scenarios:
@@ -37,5 +37,5 @@ objectives:
     optimize: false
   - name: cost
     requests:
-      metricSelector: app="voting-app"
+      selector: app=voting-app
 
