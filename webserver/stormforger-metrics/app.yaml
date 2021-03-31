@@ -28,13 +28,14 @@ stormForger:
 
 
 objectives:
-- name: p50-latency
-  optimize: false
-- name: p95-latency
-  max: 500
-- name: p99-latency
-  optimize: false
-- name: cost
-  requests:
-    metricSelector: app="voting-app"
+- goals:
+  - name: p50-latency
+    optimize: false
+  - name: p95-latency
+    max: 500
+  - name: p99-latency
+    optimize: false
+  - name: cost
+    requests:
+      metricSelector: app="voting-app"
 
