@@ -43,7 +43,7 @@ spec:
         name: elasticsearch-master
         conditionTypes:
         - redskyops.dev/app-ready
-        InitialDelaySeconds: 5
+        initialDelaySeconds: 5
         periodSeconds: 5
         failureThreshold: 30
       setupTasks:
