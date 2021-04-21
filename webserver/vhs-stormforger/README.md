@@ -1,22 +1,19 @@
 # VHS to Stormforger Demonstration
 
-# Overview
+This example demonstrates a workflow optimizing a web application using a load test that is automatically generated from recorded HTTP traffic. This HTTP traffic is captured in the application to be optimized using [VHS](https://github.com/rename-this/vhs), the load test is generated using StormForge Performance Testing, and the application is optimized using StormForge Optimize. This workflow has three main phases:
 
-The purpose of this document is to capture the steps necessary to record data from a cluster using VHS and then use that captured data as the bases for a Stormforger load test. This process uses an HTTP Archive (HAR) file as an intermediate data format between VHS and Stormforger. There are three phases to this process:
+1. Record HTTP traffic using VHS.
+2. Configure load test generation container and Optimize experiment.
+3. Run Optimize experiment with load test.
 
-1. Capture data from a cluster
-2. Data post-processing and Stormforger load test generation
-3. Optimize experiment using Stormforger load test
+## Capture Data with VHS
 
-# Prerequisites
+The rest of this writeup will assume that you have recorded some network traffic with VHS, and that the recorded network traffic is stored in a Google Cloud Storage object.
+This network traffic should be captured in an environment that is similar or identical to the application that will be optimized.
+The [VHS repository](https://github.com/rename-this/vhs) contains a demonstration that shows how to use VHS to capture http traffic in a kubernetes cluster running the voting web app.
+It can be find in the subdirectory `[hack/demo](https://github.com/rename-this/vhs/tree/main/hack/demo)`.
+This demo deploys the voting web app with a VHS container in each of voting-service pod (4 pods), generates some load with simple script using `curl`, and captures 5 minutes of load to a Google Cloud Storage bucket.
 
-- Working installation of `vhs`.
-- Working installation of `redskyctl`.
-- Working installation of `forge`, the Stormforger command line tool.
-
-# Capture Data with VHS
-
-The easiest way to experiment with capturing data from a cluster using VHS is to use the VHS demo created by Brad Beam. This demo lives in the [VHS repository](https://github.com/rename-this/vhs) in the subdirectory `[hack/demo](https://github.com/rename-this/vhs/tree/main/hack/demo)`. This demo deploys the voting web app with a VHS container in each of voting-service pod (4 pods), generates some load with simple script using `curl`, and captures 5 minutes of load to a Google Cloud Storage bucket. It should be sufficient to run through the steps in the README to get this portion of the demo up and running.
 
 ### Notes:
 
@@ -24,7 +21,7 @@ The easiest way to experiment with capturing data from a cluster using VHS is to
 - This demo will produce four output files, one from each voting service pod. We don't currently have a good way to combine these files.
 - The `[loadtest.sh](http://loadtest.sh)` script that's in the repository did not work consistently for me. If you encounter the same issue, try increasing the sleep time on line 9 of the script (The "Wait for the container to come up" sleep line).
 
-# Data Post-processing and Load Test Generation
+## Data Post-processing and Load Test Generation
 
 At this point, there should be four objects in the specified GCS bucket. Each object is a gzipped-json file containing the traffic captured by a VHS instance and will be named according to the session-id of the VHS session that captured it. One of these files must be post-processed to create a Stormforger load test. This process has several steps:
 
@@ -68,7 +65,7 @@ node --check hartest.js
 
 If this command doesn't produce any errors, you should be good to go.
 
-# Optimize with Stormforger load test
+## Optimize with Stormforger load test
 
 Tibo has created an Optimize recipe that uses Stormforger to generate load on the voting web app. It can be found [here in the StormForge Optimize examples repo.](https://github.com/thestormforge/examples/tree/master/webserver/stormforger-metrics) This example can be followed almost verbatim as documented in the repository, with one small additional step. 
 
@@ -88,7 +85,28 @@ You should be able to monitor the progress of the experiment in the Optimize UI 
 
 That's it at this point! If you've successfully gotten this far, you've turned captured VHS data into a StormForger load test and used it as a source of load for an Optimize experiment.
 
-# Notes
+## Notes
 
 - The load test generated is not necessarily an accurate replay of the captured traffic. It captures the content of requests and responses, but timing is not currently captured by this process. That is, there are no wait states inserted between requests, etc. All of the requests in the load test file will be executed as fast as possible by each load test worker.
 - Load/request rate can be adjusted by changing the timing and number of load test workers.
+
+## Create secrets
+
+### StormForge Performance Test token
+
+```terminal
+kubectl create secret generic stormforger-service-account --from-literal=accessToken='<access token>'
+```
+
+### Google Cloud Storage service account
+
+```terminal
+kubectl create secret generic gcs-creds --from-file=service_account.json=<google cloud credentials file>
+```
+
+## Create init container configmap
+
+```terminal
+kubectl create configmap harutils --from-file har2testcase.sh  --from-file harshrinker.jq
+```
+
