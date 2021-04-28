@@ -1,0 +1,240 @@
+apiVersion: redskyops.dev/v1beta1
+kind: Experiment
+metadata:
+  name: voting-sf-vhs-experiment
+  labels:
+    redskyops.dev/application: voting-sf-example-vhs
+    redskyops.dev/scenario: standard
+  namespace: default
+spec:
+  metrics:
+  - minimize: true
+    name: p50-latency
+    optimize: false
+    query: scalar(median{job="trialRun",instance="{{ .Trial.Name }}"})
+    type: prometheus
+  - max: "500"
+    minimize: true
+    name: p95-latency
+    query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
+    type: prometheus
+  - minimize: true
+    name: p99-latency
+    optimize: false
+    query: scalar(percentile_99{job="trialRun",instance="{{ .Trial.Name }}"})
+    type: prometheus
+  - minimize: true
+    name: cost
+    query: ({{ cpuRequests . "app=voting-app" }} * 1) + ({{ memoryRequests . "app=voting-app" | GB }} * 1)
+    type: prometheus
+  - minimize: true
+    name: cost-cpu-requests
+    optimize: false
+    query: '{{ cpuRequests . "app=voting-app" }}'
+    type: prometheus
+  - minimize: true
+    name: cost-memory-requests
+    optimize: false
+    query: '{{ memoryRequests . "app=voting-app" | GB }}'
+    type: prometheus
+  parameters:
+  - baseline: 2098
+    max: 4096
+    min: 1024
+    name: memory
+  - baseline: 750
+    max: 1000
+    min: 500
+    name: cpu
+  - baseline: 2
+    max: 3
+    min: 1
+    name: replicas
+  patches:
+  - patch: |
+      spec:
+        replicas: {{ .Values.replicas }}
+        template:
+          spec:
+            containers:
+            - name: voting-service
+              resources:
+                limits:
+                  memory: '{{ .Values.memory }}M'
+                  cpu: '{{ .Values.cpu }}m'
+                requests:
+                  memory: '{{ .Values.memory }}M'
+                  cpu: '{{ .Values.cpu }}m'
+    targetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: voting-service
+  trialTemplate:
+    metadata:
+      labels:
+        redskyops.dev/application: voting-sf-example-vhs
+        redskyops.dev/scenario: standard
+    spec:
+      jobTemplate:
+        metadata:
+          labels:
+            redskyops.dev/application: voting-sf-example-vhs
+            redskyops.dev/scenario: standard
+        spec:
+          template:
+            metadata:
+              labels:
+                redskyops.dev/application: voting-sf-example-vhs
+                redskyops.dev/scenario: standard
+
+            spec:
+              initContainers:
+              - name: vhstoforge
+                env:
+                - name: GCS_BUCKET
+                  value: vhsdemo
+                - name: GCS_OBJECT
+                  value: 1lnFKPQEk4a9d9BJBfhPWhiL3hk
+                - name: HAR_LIMIT
+                  value: "18000000"
+                - name: TEST_CASE_FILE
+                  value: /jshar/testcase.js
+                - name: INGRESS_ADDRESS
+                  value: 34.117.104.17
+                - name: STORMFORGER_JWT
+                  valueFrom:
+                    secretKeyRef:
+                      key: accessToken
+                      name: stormforger-service-account
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /root/.config/gcloud/service-account.json
+                image: ubuntu:20.10
+                command: 
+                - /bin/bash
+                args:
+                - -x
+                - /har/har2testcase.sh
+                volumeMounts:
+                - mountPath: /jshar
+                  name: jshar 
+                - mountPath: /har
+                  name: harutils
+                - mountPath: /root/.config/gcloud
+                  name: cloud-credentials
+              containers:
+              - env:
+                - name: TITLE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: TEST_CASE
+                  value: sf_sandbox/voting-sf-example-vhs2
+                - name: TEST_CASE_FILE
+                  value: /jshar/testcase.js
+                - name: TARGET
+                  value: 34.117.104.17
+                - name: STORMFORGER_JWT
+                  valueFrom:
+                    secretKeyRef:
+                      key: accessToken
+                      name: stormforger-service-account
+                image: thestormforge/optimize-trials:v0.0.1-stormforger
+                name: stormforger
+                volumeMounts:
+                - mountPath: /jshar
+                  name: jshar 
+                  readOnly: true
+              volumes:
+              - name: jshar
+                emptyDir: {}
+              - configMap:
+                   name: harutils
+                name: harutils
+              - name: cloud-credentials
+                secret:
+                  secretName: gcs-creds
+      setupServiceAccountName: redsky-setup
+      setupTasks:
+      - args:
+        - prometheus
+        - $(MODE)
+        name: monitoring
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: redsky-setup
+  namespace: default
+  labels:
+    redskyops.dev/application: 'voting-sf-example-vhs'
+---
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: redsky-prometheus-6ea045
+  labels:
+    redskyops.dev/application: 'voting-sf-example-vhs'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: redsky-setup-prometheus-6ea045
+  labels:
+    redskyops.dev/application: 'voting-sf-example-vhs'
+roleRef:
+  name: redsky-prometheus-6ea045
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: redsky-setup
+  namespace: default
+  kind: ServiceAccount
