@@ -37,6 +37,7 @@ spec:
       containers:
       - name: voting-service
         image: dockersamples/examplevotingapp_vote
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
         resources:

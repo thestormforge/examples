@@ -37,6 +37,7 @@ spec:
       containers:
       - name: result-service
         image: dockersamples/examplevotingapp_result
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
         resources:

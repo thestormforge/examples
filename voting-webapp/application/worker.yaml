@@ -23,6 +23,7 @@ spec:
       containers:
       - name: worker
         image: dockersamples/examplevotingapp_worker
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             memory: 2000Mi
