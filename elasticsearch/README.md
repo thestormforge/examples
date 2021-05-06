@@ -1,5 +1,10 @@
 # Elasticsearch Example
 
+## Running The experiment
+From `examples/elasticsearch` execute:
+
+`kubectl apply -k .`
+
 ## Introduction
 [Elasticsearch](https://github.com/elastic/elasticsearch) is a widely used distributed database often used as a search engine or for logging. In this example, we demonstrate how to tune Elasticsearch using the benchmarking tool [Rally](https://esrally.readthedocs.io/en/stable/). Rally provides a variety of datasets, called tracks, that can be used to load test Elasticsearch. For each track there are several challenges, designed to test different workloads. This example shows how to i) use a setupTask to integrate with a Helm chart, ii) tune JVM parameters alongside the Kubernetes resources, and iii) set a maximum length a trial can run before being considered failed.
 

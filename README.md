@@ -13,6 +13,9 @@ Each example contains additional documentation for usage and describing how it w
 
 <!-- tocstop -->
 
+## Running Experiments
+Each example can be run by executing `kubectl apply -k .` from each of the example directories.
+
 ## Issues
 
 If you have any problems with or questions about this image, please contact us

@@ -1,13 +1,16 @@
 # JVM Example
 
+## Running The Experiment
+From the `examples/jvm` directory run:
+
+`kubectl apply -k .`
+
 ## Introduction
 The Java Virtual Machine(JVM) is a widely used portable execution environment for running java-based applications. In this example, we demonstrate how to tune the JVM using the benchmarking suite [Renaissance](https://github.com/renaissance-benchmarks/renaissance/). Renaissance provides a variety of benchmarks that can be used to load test many aspects of the JVM such as just-in-time compilers, interpreters, and garbage collectors. This example shows how to i) patch individual trials and ii) tune JVM parameters alongside the Kubernetes resources.
 
 ## Prerequisites
 
-You must have a Kubernetes cluster. We recommend using a cluster with 2 nodes, 8vCPUs (4 on each node) and 16GB of memory (8 on each node).
-
-A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
+You must have a Kubernetes cluster. We recommend using a cluster with at least 1 node with 4vCPUs and 8GB of memory.
 
 Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize v1.6.0 or later in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
 
@@ -27,7 +30,6 @@ The resources for this tutorial can be found in the [`/jvm/`](https://github.com
 * `docker-entrypoint.sh`
 : A shell file that defines the docker configuration. The JAVA OPTS parameters get applied in this file.
 
-To run the experiment use `kustomize build | kubectl apply -f -`.
 
 ## Experiment Lifecycle
 

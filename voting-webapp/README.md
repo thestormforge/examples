@@ -1,5 +1,10 @@
 # Web App Example
 
+## Running The Experiment
+From `examples/voting-webapp` execute
+
+`kubectl apply -k .`
+
 ## Introduction
 A simple distributed application based on the official Docker [voting app](https://github.com/dockersamples/example-voting-app).
 This application allows users to vote on "cats" vs. "dogs", and serves the results in a simple web page.
@@ -19,8 +24,6 @@ In this example, we demonstrate how to tune a typical application with several c
 ## Prerequisites
 
 You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 16 vCPUs (4 on each node) and 32GB of memory (8 on each node). Additionally, you will need a local configured copy of `kubectl`.
-
-A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
 Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
 
