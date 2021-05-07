@@ -1,5 +1,10 @@
 # Postgres Example
 
+## Running The Experiment
+From the `examples/postgres` directory run:
+
+`kubectl apply -k .`
+
 ## Introduction
 [PostgreSQL](https://www.postgresql.org/) is a widely used open-source database management system. Utilized either as a standalone database, or as a component of larger systems, Postgres can be used to manage anything from simple application logs to massive datasets.
 
@@ -8,8 +13,6 @@ In this example, we demonstrate how one can effectively and efficiently tune Pos
 ## Prerequisites
 
 You must have a Kubernetes cluster. While this example will run on Minikube, we highly recommend using a cluster with 2 nodes, 8vCPUs (4 on each node) and 16GB of memory (8 on each node). Additionally, you will need a local configured copy of `kubectl`.
-
-A local install of [Kustomize](https://github.com/kubernetes-sigs/kustomize/releases) (v3.1.0+) is required to manage the objects in you cluster.
 
 Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `redskyctl init` (while connected to your cluster).
 ## Example Resources
