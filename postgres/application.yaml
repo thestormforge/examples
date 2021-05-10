@@ -6,6 +6,8 @@ metadata:
 resources:
 - postgres.yaml
 
+parameters: []
+
 scenarios:
 - custom:
     initialDelaySeconds: 15
