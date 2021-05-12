@@ -6,7 +6,11 @@ metadata:
 resources:
 - postgres.yaml
 
-parameters: []
+parameters:
+- containerResources:
+    selector: >-
+      app.kubernetes.io/instance=postgres-stormforge-example,
+      app.kubernetes.io/name=postgres
 
 scenarios:
 - custom:
