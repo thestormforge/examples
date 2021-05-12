@@ -1,0 +1,45 @@
+apiVersion: apps.redskyops.dev/v1alpha1
+kind: Application
+metadata:
+  name: postgres-example
+
+# The resources identify where the manifests representing the application live.
+# This is roughly the same as a Kustomize resources block, so you can use files,
+# directories, URLs, Git repos, etc.
+resources:
+# - ./application # if you want to scan yaml files in a folder
+# You can also point to an application deployed into a dedicated namespace
+- kubernetes:
+    namespace: postgres
+
+# This section configures the objectives of optimization
+# We want to minimize both cost and latency
+objectives:
+- goals:
+  - name: cost-gcp # Also "cost", "cost-aws", "cpu", ...
+    requests:
+      selector: component=postgres
+  - name: duration
+
+# Control over the discovery of parameters, also optional
+# The default is to generate patches for all deployments and stateful sets
+# Here we decide to only optimize the voting service respon
+parameters:
+- containerResources:
+    selector: component=postgres
+      
+# This section configures the scenarios of load generation
+scenarios:
+- name: pgbench-load
+  custom:
+    pushGateway: true # Use to enable the built-in Prometheus w/ Push Gateway
+    initialDelaySeconds: 10
+    approximateRuntimeSeconds: 5
+    podTemplate:
+      spec:
+        containers:
+        - name: pgbench
+          image: crunchydata/crunchy-pgbench:centos7-11.4-2.4.1
+          envFrom:
+          - secretRef:
+              name: postgres-secret

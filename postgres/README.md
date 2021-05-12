@@ -1,14 +1,14 @@
 # Postgres Example
 
-## Running The Experiment
-From the `examples/postgres` directory run:
-
-`kubectl apply -k .`
-
 ## Introduction
 [PostgreSQL](https://www.postgresql.org/) is a widely used open-source database management system. Utilized either as a standalone database, or as a component of larger systems, Postgres can be used to manage anything from simple application logs to massive datasets.
 
-In this example, we demonstrate how one can effectively and efficiently tune Postgres resources by utilizing [pgbench](https://www.postgresql.org/docs/10/pgbench.html), a customizable load tester for Postgres.
+From the `examples/postgres` directory, deploy the postgres application in the postgres namespace running:
+
+`kubectl -n postgres apply -k application` if you have kubectl 1.14+ and 
+`kustomize build application | kubectl apply -f -` for earlier versions.
+
+In this example, we demonstrate how one can effectively and efficiently tune a Postgres application by utilizing [pgbench](https://www.postgresql.org/docs/10/pgbench.html), a customizable load tester for Postgres.
 
 ## Prerequisites
 
@@ -32,9 +32,9 @@ In particular, the following parameters allow you to control the load to your da
 
 More information can be found on the [pgbench](https://www.postgresql.org/docs/10/pgbench.html) and [crunchydata](https://access.crunchydata.com/documentation/crunchy-postgres-containers/2.4.1/container-specifications/crunchy-pgbench/) docs.
 
-The actual experiment object is defined in the `experiment.yaml` manifest; this includes the definition of the experiment itself (in terms of assignable parameters and observable metrics) as well as the instructions for carrying out the experiment (in terms of load generation and metric queries). Feel free to edit the parameter ranges and change the experiment name to avoid conflicting with other experiments in the cluster.
+The actual experiment object is defined in the `app.yaml` manifest; this includes the definition of the experiment itself (in terms of assignable parameters and observable metrics) as well as the instructions for carrying out the experiment (in terms of load generation and metric queries). 
 
-To launch the experiment run `kustomize build | kubectl apply -f -`
+To launch the experiment run `redskyctl generate experiment -f app.yaml | kubectl apply -f -`
 
 ## Experiment Lifecycle
 
