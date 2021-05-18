@@ -54,7 +54,7 @@ forge sa create <organization name> <svc account name>
 ```
 
 Be careful to keep track of your service account token until it is injected into the cluster. It will only be shown once.
-More information on service accounts can be found in the [Performance Test documentation](https://docs.stormforger.com/guides/forge-cli/#authentication).
+More information on service accounts can be found in the [StormForge Performance Test documentation](https://docs.stormforger.com/guides/forge-cli/#authentication).
 
 #### Google Cloud Storage service account
 
