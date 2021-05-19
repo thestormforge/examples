@@ -1,4 +1,4 @@
-# Voting Webapp with HPA optimized using StormForge Performance Testing load test
+# Voting Webapp with HPA optimized using StormForge Performance Testing
 
 The goal of this recipe is to optimize the HPA used for the voting webapp.
 In this experiment the load test is performed by [StormForge Performance Testing](https://www.stormforge.io/performance-testing/). This allows to generate much heavier load on the website and show how carefully tuning HPA along with the deployed application allows to handle such traffic.
