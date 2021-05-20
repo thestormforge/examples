@@ -12,7 +12,7 @@ and then
 
 The goal of this example is to optimize the [voting webapp](https://github.com/thestormforge/examples/tree/master/voting-webapp) using a [Horizontal Pod Autoscaler (HPA)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) for scaling up and down the `voting-service` deployment during a trial (load test).
 
-We show how to define such stormforge optimization experiment using two load test engine: [Locust](locust.io) and [StormForger](stormforger.com)
+We show how to define such stormforge optimization experiment using two load test engine: [Locust](https://locust.io) and [StormForge Performance Testing](https://www.stormforge.io/performance-testing/)
 
 ## Prerequisites
 

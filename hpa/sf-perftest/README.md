@@ -1,7 +1,7 @@
-# Voting Webapp with HPA optimized using Stormforger load test
+# Voting Webapp with HPA optimized using StormForge Performance Testing
 
 The goal of this recipe is to optimize the HPA used for the voting webapp.
-In this experiment the load test is performed by [Stormforger](stormforger.com). This allows to generate much heavier load on the website and show how carefully tuning HPA along with the deployed application allows to handle such traffic.
+In this experiment the load test is performed by [StormForge Performance Testing](https://www.stormforge.io/performance-testing/). This allows to generate much heavier load on the website and show how carefully tuning HPA along with the deployed application allows to handle such traffic.
 
 ## Deploy the voting webapp with ingress
 
@@ -15,8 +15,8 @@ Write
 
 Once the external IP address for the voting-service is ready insert it in the `sf-experiment/experiment.yaml` as the value for the `TARGET` env variable.
 
-## Insert your Stormforger credentials
-Insert you Stormforger JWT in `sf-experiment/acessToken`
+## Insert your StormForge Performance Testing credentials
+Insert your StormForge Performance Testing JWT in `sf-experiment/acessToken`
 Replace the value of the `TEST_CASE` env variable with your test case e.g.,`my-organization/my-test-case-name`.
 
 
