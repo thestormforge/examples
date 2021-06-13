@@ -20,16 +20,10 @@ jobs:
         run: |
           git diff HEAD origin/master --exit-code -- elasticsearch || \
           echo "::set-output name=needed::elasticsearch"
-      - name: Check if any changes for locust-metrics
-        id: locust-metrics
-        run: |
-          git diff HEAD origin/master --exit-code -- locust-metrics || \
-          echo "::set-output name=needed::locust-metrics"
       - name: Make output
         id: outputter
         run: |
-          echo "${{ steps.elasticsearch.outputs.needed }}
-          ${{ steps.locust-metrics.outputs.needed }}" | \
+          echo "${{ steps.elasticsearch.outputs.needed }} | \
           jq --slurp --raw-output --raw-input -c '
             split("\n")[:-1] |
             map(select(length > 0)) |
