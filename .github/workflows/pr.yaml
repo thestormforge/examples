@@ -23,7 +23,7 @@ jobs:
       - name: Make output
         id: outputter
         run: |
-          echo "${{ steps.elasticsearch.outputs.needed }} | \
+          echo "${{ steps.elasticsearch.outputs.needed }}" | \
           jq --slurp --raw-output --raw-input -c '
             split("\n")[:-1] |
             map(select(length > 0)) |
