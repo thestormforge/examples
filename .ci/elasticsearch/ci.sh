@@ -31,4 +31,4 @@ kubectl wait trial \
 kubectl get trial -o wide
 kubectl get pods -o wide -l redskyops.dev/experiment=${experiment}
 echo "Cleanup experiment and application"
-kustomize build ${experiment} | kubectl delete -f -
+kustomize build ${kustomization} | kubectl delete -f -
