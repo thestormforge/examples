@@ -73,9 +73,9 @@ spec:
       setupServiceAccountName: redsky
       template: # job
         spec:
+          activeDeadlineSeconds: 1800
           template: # pod
             spec:
-              activeDeadlineSeconds: 1800
               containers:
               - image: elastic/rally:2.0.1
                 name: rally
