@@ -6,13 +6,14 @@ metadata:
     app.kubernetes.io/instance: postgres-stormforge-example
     app.kubernetes.io/name: postgres
 stringData:
-  PGBENCH_CLIENTS: "1"
-  PGBENCH_JOBS: "1"
+  PGBENCH_CLIENTS: "5"
+  PGBENCH_JOBS: "10"
   PGBENCH_SCALE: "20"
-  PGBENCH_TRANSACTIONS: "1"
+  PGBENCH_TRANSACTIONS: "10000"
   PG_DATABASE: "test_db"
   PG_HOSTNAME: "postgres"
   PG_PASSWORD: "test_password"
+  PGPASSWORD: "test_password"
   PG_USERNAME: "test_user"
 ---
 apiVersion: v1
