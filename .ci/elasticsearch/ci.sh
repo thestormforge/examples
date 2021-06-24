@@ -10,8 +10,7 @@ echo "Create experiment and application"
 kustomize build ${kustomization} | kubectl apply -f -
 echo "Create new trial"
 redskyctl generate trial \
-  --assign replicas=3 \
-  --assign cpu=333 \
+  --assign cpu=3330 \
   --assign memory=1500 \
   --assign heap_percent=80 \
   -f <(kubectl get experiment ${experiment} -o yaml) | \
@@ -19,7 +18,7 @@ redskyctl generate trial \
 kubectl get trial -o wide
 echo "Wait for trial to complete (${timeout} timeout)"
 # Wait for trial ready ( try to catch early failures quick )
-# # Good grief this is obnoxious... 120s is insufficient
+# # Good grief this is obnoxious... 180s is insufficient
 kubectl wait trial \
   -l redskyops.dev/experiment=${experiment} \
   --for condition=redskyops.dev/trial-ready \

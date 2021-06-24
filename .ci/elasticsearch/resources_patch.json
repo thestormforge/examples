@@ -7,7 +7,68 @@
   {
    "op": "replace",
    "path": "/spec/template/spec/template/spec/activeDeadlineSeconds",
-   "value": 2700
+   "value": 1000
+  },
+  {
+    "op": "replace",
+    "path": "/spec/parameters/1/min",
+    "value": 2500
+  },
+  {
+    "op": "replace",
+    "path": "/spec/parameters/1/max",
+    "value": 3330
+  },
+  {
+    "op": "replace",
+    "path": "/spec/parameters/1/baseline",
+    "value": 3000
+  },
+  {
+    "op": "remove",
+    "path": "/spec/parameters/3"
+  },
+  {
+    "op": "replace",
+    "path": "/spec/template/spec/setupTasks/0/helmValues/1/value",
+    "value": 1
+  },
+  {
+    "op": "replace",
+    "path": "/spec/template/spec/template/spec/template/spec/containers/0/args/4",
+    "value": "--track-params=ingest_percentage:10,bulk_size:50,bulk_indexing_clients:300"
+  },
+  {
+    "op": "add",
+    "path": "/spec/template/spec/setupTasks/0/helmValues/-",
+    "value": {
+      "name": "extraEnvs[0].name",
+      "value": "discovery.type"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/spec/template/spec/setupTasks/0/helmValues/-",
+    "value": {
+      "name": "extraEnvs[0].value",
+      "value": "single-node"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/spec/template/spec/setupTasks/0/helmValues/-",
+    "value": {
+      "name": "extraEnvs[1].name",
+      "value": "cluster.initial_master_nodes"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/spec/template/spec/setupTasks/0/helmValues/-",
+    "value": {
+      "name": "extraEnvs[1].value",
+      "value": "null"
+    }
   }
 ]
 

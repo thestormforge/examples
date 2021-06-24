@@ -43,17 +43,17 @@ spec:
         name: elasticsearch-master
         conditionTypes:
         - redskyops.dev/app-ready
-        initialDelaySeconds: 5
-        periodSeconds: 5
-        failureThreshold: 30
+        initialDelaySeconds: 30
+        periodSeconds: 15
+        failureThreshold: 60
       setupTasks:
       - name: elasticsearch
         helmChart: elasticsearch
         helmChartVersion: 7.9.2
         helmRepository: https://helm.elastic.co
         helmValues:
-        - name: cluster.name
-          value: rally-demo
+        - name: clusterName
+          value: elasticsearch
         - name: replicas
           value: "{{ .Values.replicas }}"
         - name: resources.limits.cpu
