@@ -1,0 +1,87 @@
+apiVersion: redskyops.dev/v1beta1
+kind: Experiment
+metadata:
+  name: latest-cassandra-rwx 
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "40" #number of trials 
+  parameters:
+  - name: memory
+    min: 500
+    max: 12000
+  - name: cpu
+    min: 500
+    max: 3000
+  - name: MAX_HEAP_SIZE
+    min: 1000
+    max: 8000
+#  - name: HEAP_NEWSIZE
+#    min: 1000
+#    max: 8000
+  constraints:
+    - name: heap_memory
+      sum:
+        bound: "-1500"
+        isUpperBound: false
+        parameters:
+        - name: memory
+          weight: "-1.0"
+        - name: MAX_HEAP_SIZE
+          weight: "1.0"
+#  - order:
+#      lowerParameter: MAX_HEAP_SIZE
+#      upperParameter: memory
+  metrics:
+  - name: duration
+    minimize: true
+    query: "{{duration .StartTime .CompletionTime}}"
+  - name: cost
+    minimize: true
+    query: "{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}"
+  patches:
+  - targetRef:
+      kind: StatefulSet
+      apiVersion: apps/v1
+      name: cassandra
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: cassandra 
+              resources:
+                limits:
+                  cpu: "{{ .Values.cpu }}m"
+                  memory: "{{ .Values.memory }}Mi"
+                requests:
+                  cpu: "{{ .Values.cpu }}m"
+                  memory: "{{ .Values.memory }}Mi"
+              env:
+                - name: MAX_HEAP_SIZE
+                  value: "{{ .Values.MAX_HEAP_SIZE }}M"
+#                - name: HEAP_NEW_SIZE
+#                  value: "{{ .Values.HEAP_NEWSIZE }}M"
+  template: # trial
+    spec:
+      initialDelaySeconds: 15
+      template: # job
+        spec:
+          template: # pod
+            spec:
+              containers:
+                - image: cassandra:4.0
+                  name: cassandra-stress
+                  # making sure that our trial job does not eat up endless amounts of resources 
+                  resources:
+                    limits:
+                      memory: "1024Mi"
+                      cpu: "1000m"
+                  command:
+                  - bash
+                  - -c
+                  - |
+                    CASSANDRA_URL="cassandra.default.svc.cluster.local"
+                    /opt/cassandra/tools/bin/cassandra-stress write n=100000 -rate threads=10 -node $CASSANDRA_URL
+                    /opt/cassandra/tools/bin/cassandra-stress mixed n=100000 -rate threads=10 -node $CASSANDRA_URL
+                    cqlsh --request-timeout=60 -e "DROP KEYSPACE keyspace1;" $CASSANDRA_URL || true
