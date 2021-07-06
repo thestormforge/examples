@@ -17,13 +17,36 @@ scenarios:
     initialDelaySeconds: 15
     podTemplate:
       spec:
-        containers:
-        - name: pgbench
-          image: crunchydata/crunchy-pgbench:centos7-11.4-2.4.1
+        initContainers:
+        - name: pgbench-initialize
+          image: postgres:11.1-alpine
           envFrom:
           - secretRef:
               name: postgres-secret
-
+          command:
+          - /usr/local/bin/pgbench
+          args:
+          - --initialize
+          - --host=$(PG_HOSTNAME)
+          - --username=$(PG_USERNAME)
+          - --scale=$(PGBENCH_SCALE)
+          - $(PG_DATABASE)
+        containers:
+        - name: pgbench
+          image: postgres:11.1-alpine
+          envFrom:
+          - secretRef:
+              name: postgres-secret
+          command:
+          - /usr/local/bin/pgbench
+          args:
+          - --client=$(PGBENCH_CLIENTS)
+          - --jobs=$(PGBENCH_JOBS)
+          - --scale=$(PGBENCH_SCALE)
+          - --transactions=$(PGBENCH_TRANSACTIONS)
+          - --host=$(PG_HOSTNAME)
+          - --username=$(PG_USERNAME)
+          - $(PG_DATABASE)
 objectives:
 - goals:
   - name: duration
