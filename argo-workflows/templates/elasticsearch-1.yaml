@@ -5,44 +5,59 @@ kind: Workflow
 metadata:
   name: elasticsearch-example-workflow
 spec:
-  entrypoint: run-all
+  entrypoint: run-experiment
   templates:
-  - name: run-all
+  - name: run-experiment
     steps:
-      - - name: experiment-create
-          template: experiment-create
-      - - name: trial-create
-          template: trial-create
-      - - name: trial-wait-for-ready
-          template: trial-wait-for-ready
-      - - name: trial-wait-for-completion
-          template: trial-wait-for-completion
-  - name: experiment-create
+      - - name: create-experiment
+          template: create-experiment
+      - - name: create-trial
+          template: create-trial
+      - - name: wait-for-trial-ready
+          template: wait-for-trial-ready
+          arguments:
+            parameters:
+            - name: trial-name
+              value: "{{steps.create-trial.outputs.parameters.trial-name}}"
+      - - name: wait-for-trial-complete
+          template: wait-for-trial-complete
+          arguments:
+            parameters:
+            - name: trial-name
+              value: "{{steps.create-trial.outputs.parameters.trial-name}}"
+  - name: create-experiment
     container:
       image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
       imagePullPolicy: Always
-      command: [sh]
+      command: [sh, "-c"]
       args:
-        - -c
-        - "kustomize build .ci/elasticsearch | kubectl -n default apply -f -"
-  - name: trial-create
+      - "kustomize build .ci/elasticsearch | kubectl -n default apply -f -"
+  - name: create-trial
     container:
       image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
-      command: [sh]
+      command: [sh, "-c"]
       args:
-        - -c
-        - "kubectl -n default get experiment elasticsearch-example -o yaml | redskyctl generate trial --assign cpu=7559 --assign memory=11086 --assign heap_percent=50 -f - | kubectl -n default create -f -"
-  - name: trial-wait-for-ready
+      - "kubectl -n default get experiment elasticsearch-example -o yaml | redskyctl generate trial --assign cpu=7559 --assign memory=11086 --assign heap_percent=50 -f - | kubectl -n default create -f -  -o jsonpath='{.metadata.name}' > /tmp/generated_trial_name"
+    outputs:
+      parameters:
+      - name: trial-name
+        valueFrom:
+          path: /tmp/generated_trial_name
+  - name: wait-for-trial-ready
     container:
       image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
-      command: [sh]
+      command: [sh, "-c"]
       args:
-        - -c
-        - "kubectl -n default wait trial -l redskyops.dev/experiment=elasticsearch-example --for condition=redskyops.dev/trial-ready  --timeout 180s"
-  - name: trial-wait-for-completion
+      - 'kubectl -n default wait trial "{{inputs.parameters.trial-name}}" --for condition=redskyops.dev/trial-ready --timeout 180s'
+    inputs:
+        parameters:
+        - name: trial-name
+  - name: wait-for-trial-complete
     container:
       image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
-      command: [sh]
+      command: [sh, "-c"]
       args:
-        - -c
-        - "kubectl -n default wait trial -l redskyops.dev/experiment=elasticsearch-example --for condition=redskyops.dev/trial-ready  --timeout 360s"
+      - 'kubectl -n default wait trial "{{inputs.parameters.trial-name}}" --for condition=redskyops.dev/trial-complete --timeout 360s'
+    inputs:
+        parameters:
+        - name: trial-name
