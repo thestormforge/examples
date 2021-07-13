@@ -7,17 +7,17 @@
   {
     "op": "replace",
     "path": "/spec/parameters/0/min",
-    "value": 6000
+    "value": 8000
   },
   {
     "op": "replace",
     "path": "/spec/parameters/0/max",
-    "value": 12000
+    "value": 16000
   },
   {
     "op": "replace",
     "path": "/spec/parameters/0/baseline",
-    "value": 6000
+    "value": 16000
   },
   {
     "op": "replace",
@@ -32,7 +32,7 @@
   {
     "op": "replace",
     "path": "/spec/parameters/1/baseline",
-    "value": 6000
+    "value": 8000
   },
   {
     "op": "remove",
