@@ -1,0 +1,38 @@
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: elasticsearch-example-workflow
+spec:
+  entrypoint: run-all
+  templates:
+  - name: run-all
+    steps:
+      - - name: experiment-create
+          template: experiment-create
+      - - name: experiment-wait-for-ready
+          template: experiment-wait-for-ready
+  - name: experiment-create
+    container:
+      image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
+      imagePullPolicy: Always
+      command: [sh]
+      args:
+        - -c
+        - "kustomize build .ci/elasticsearch | kubectl -n default apply -f -"
+  - name: trial-create
+    container:
+      image:
+      command: [sh]
+      args:
+        - -c
+        - "redskyctl generate trial --assign cpu=3330 --assign memory=1500 --assign heap_percent=80 -f <(kubectl get experiment elasticsearch-example -o yaml) | kubectl -n default create -f -"
+  - name: trial-wait-for-ready
+    container:
+      image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
+      command: [sh]
+      args:
+        - -c
+        - "kubectl -n default wait trial -l redskyops.dev/experiment=elasticsearch-example --for condition=redskyops.dev/trial-ready  --timeout 180s"
+
