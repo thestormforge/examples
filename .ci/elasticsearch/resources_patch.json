@@ -1,28 +1,38 @@
 [
   {
    "op": "replace",
-   "path": "/spec/parameters/1/min",
-   "value": 300
-  },
-  {
-   "op": "replace",
    "path": "/spec/template/spec/template/spec/activeDeadlineSeconds",
    "value": 1000
   },
   {
     "op": "replace",
+    "path": "/spec/parameters/0/min",
+    "value": 6000
+  },
+  {
+    "op": "replace",
+    "path": "/spec/parameters/0/max",
+    "value": 12000
+  },
+  {
+    "op": "replace",
+    "path": "/spec/parameters/0/baseline",
+    "value": 6000
+  },
+  {
+    "op": "replace",
     "path": "/spec/parameters/1/min",
-    "value": 2500
+    "value": 6000
   },
   {
     "op": "replace",
     "path": "/spec/parameters/1/max",
-    "value": 3330
+    "value": 8000
   },
   {
     "op": "replace",
     "path": "/spec/parameters/1/baseline",
-    "value": 3000
+    "value": 6000
   },
   {
     "op": "remove",
