@@ -26,38 +26,58 @@ spec:
             - name: trial-name
               value: "{{steps.create-trial.outputs.parameters.trial-name}}"
   - name: create-experiment
-    container:
+    script:
       image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
       imagePullPolicy: Always
-      command: [sh, "-c"]
-      args:
-      - "kustomize build .ci/elasticsearch | kubectl -n default apply -f -"
+      command: [sh]
+      source: |
+        set -euo pipefail
+        cd /examples/.ci/elasticsearch
+        ytt --data-value workflow_uid="{{workflow.uid}}" -f owner_references_patch.tpl.yaml -f schema.yaml > owner_references_patch.yaml
+        ytt --data-value workflow_uid="{{workflow.uid}}" -f kustomization.tpl.yaml -f schema.yaml  > kustomization.yaml
+
+        kustomize build . | kubectl apply -f -
   - name: create-trial
-    container:
+    script:
       image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
-      command: [sh, "-c"]
-      args:
-      - "kubectl -n default get experiment elasticsearch-example -o yaml | redskyctl generate trial --assign cpu=7559 --assign memory=11086 --assign heap_percent=50 -f - | kubectl -n default create -f -  -o jsonpath='{.metadata.name}' > /tmp/generated_trial_name"
+      command: [sh]
+      source: |
+        set -euo pipefail
+        kubectl get experiment elasticsearch-example -o yaml | redskyctl generate trial --assign cpu=7559 --assign memory=11086 --assign heap_percent=50 -f - | kubectl create -f -  -o jsonpath='{.metadata.name}' > /tmp/generated_trial_name
     outputs:
       parameters:
       - name: trial-name
         valueFrom:
           path: /tmp/generated_trial_name
   - name: wait-for-trial-ready
-    container:
+    script:
       image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
-      command: [sh, "-c"]
-      args:
-      - 'kubectl -n default wait trial "{{inputs.parameters.trial-name}}" --for condition=redskyops.dev/trial-ready --timeout 180s'
+      command: [sh]
+      source: |
+        set -euo pipefail
+        echo 'Waiting on trial "{{inputs.parameters.trial-name}} to meet condition=redskyops.dev/trial-ready'
+        kubectl wait trial "{{inputs.parameters.trial-name}}" --for condition=redskyops.dev/trial-ready --timeout 180s
+
     inputs:
-        parameters:
+      parameters:
         - name: trial-name
   - name: wait-for-trial-complete
-    container:
+    script:
       image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/thestormforge-examples
-      command: [sh, "-c"]
-      args:
-      - 'kubectl -n default wait trial "{{inputs.parameters.trial-name}}" --for condition=redskyops.dev/trial-complete --timeout 360s'
+      command: [sh]
+      source: |
+        set -euo pipefail
+        echo 'Waiting on trial "{{inputs.parameters.trial-name}} to meet condition=redskyops.dev/trial-complete'
+        kubectl wait trial "{{inputs.parameters.trial-name}}" --for condition=redskyops.dev/trial-complete --timeout 360s
+        echo "Recording trial optimized metrics in workflow outputs..."
+        kubectl get trial "{{inputs.parameters.trial-name}}" -o jsonpath='{.spec.values}' > /tmp/trial_optimized_metrics
+        echo "The optimized metric values are:"
+        cat /tmp/trial_optimized_metrics
     inputs:
-        parameters:
+      parameters:
         - name: trial-name
+    outputs:
+      parameters:
+      - name: trial_optimized_metrics
+        valueFrom:
+          path: /tmp/trial_optimized_metrics

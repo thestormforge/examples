@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+
+- op: add
+  path: /metadata/ownerReferences
+  value: []
+- op: add
+  path: /metadata/ownerReferences/-
+  value:
+    apiVersion: argoproj.io/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Workflow
+    name: elasticsearch-example-workflow
+    uid: #@ data.values.workflow_uid

@@ -7,3 +7,6 @@ WORKDIR /examples
 COPY voting-webapp/application /examples/voting-webapp/application
 COPY elasticsearch /examples/elasticsearch
 COPY .ci /examples/.ci
+
+RUN kubectl config set-context ci --namespace=default && \
+    kubectl config use-context ci
