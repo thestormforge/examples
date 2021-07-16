@@ -2,42 +2,11 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-- ../../locust-metrics
+- ../../voting-webapp/application
+- experiment.yaml
 
-patches:
-- path: ./resources_patch.json
+- path: ./owner_references_patch.yaml
   target:
-    group: apps
-    version: v1
-    kind: Deployment
-    name: db
-- path: ./resources_patch.json
-  target:
-    group: apps
-    version: v1
-    kind: Deployment
-    name: redis
-- path: ./resources_patch.json
-  target:
-    group: apps
-    version: v1
-    kind: Deployment
-    name: result-service
-- path: ./resources_patch.json
-  target:
-    group: apps
-    version: v1
-    kind: Deployment
-    name: result-exporter
-- path: ./resources_patch.json
-  target:
-    group: apps
-    version: v1
-    kind: Deployment
-    name: voting-service
-- path: ./resources_patch.json
-  target:
-    group: apps
-    version: v1
-    kind: Deployment
-    name: worker
+    group: optimize.stormforge.io
+    version: v1beta2
+    kind: Experiment
