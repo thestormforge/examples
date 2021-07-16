@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: elasticsearch-example-workflow
+  generateName: elasticsearch-example-workflow-
 spec:
   entrypoint: run-experiment
   templates:
@@ -33,8 +33,7 @@ spec:
       source: |
         set -euo pipefail
         cd /examples/.ci/elasticsearch
-        ytt --data-value workflow_uid="{{workflow.uid}}" -f owner_references_patch.tpl.yaml -f schema.yaml > owner_references_patch.yaml
-        ytt --data-value workflow_uid="{{workflow.uid}}" -f kustomization.tpl.yaml -f schema.yaml  > kustomization.yaml
+        ytt --data-value workflow_name="{{workflow.name}}" --data-value workflow_uid="{{workflow.uid}}" -f owner_references_patch.tpl.yaml -f schema.yaml  > owner_references_patch.yaml
 
         kustomize build . | kubectl apply -f -
   - name: create-trial

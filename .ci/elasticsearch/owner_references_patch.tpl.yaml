@@ -10,5 +10,5 @@
     blockOwnerDeletion: true
     controller: true
     kind: Workflow
-    name: elasticsearch-example-workflow
+    name: #@ data.values.workflow_name
     uid: #@ data.values.workflow_uid

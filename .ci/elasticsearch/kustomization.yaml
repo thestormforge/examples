@@ -12,10 +12,8 @@ patches:
     group: optimize.stormforge.io
     version: v1beta2
     kind: Experiment
-#@ if data.values.workflow_uid:
 - path: ./owner_references_patch.yaml
   target:
     group: optimize.stormforge.io
     version: v1beta2
     kind: Experiment
-#@ end
