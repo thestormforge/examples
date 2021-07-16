@@ -5,6 +5,7 @@ resources:
 - ../../voting-webapp/application
 - experiment.yaml
 
+patches:
 - path: ./owner_references_patch.yaml
   target:
     group: optimize.stormforge.io

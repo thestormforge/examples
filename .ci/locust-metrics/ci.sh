@@ -6,16 +6,8 @@ echo "Create experiment and application"
 kustomize build .ci/locust-metrics | kubectl apply -f -
 echo "Create new trial"
 redskyctl generate trial \
-  --assign worker_replicas=1 \
-  --assign voting_replicas=1 \
-  --assign voting_cpu=250 \
-  --assign worker_cpu=250 \
-  --assign db_cpu=250 \
-  --assign redis_cpu=250 \
-  --assign worker_memory=250 \
-  --assign voting_memory=250 \
-  --assign db_memory=250 \
-  --assign redis_memory=250 \
+  --assign voting_service_cpu=2000 \
+  --assign voting_service_memory=4096 \
   -f <(kubectl get experiment locust-metrics -o yaml) | \
     kubectl create -f -
 kubectl get trial -o wide
