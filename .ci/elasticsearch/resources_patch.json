@@ -1,7 +1,7 @@
 [
   {
    "op": "replace",
-   "path": "/spec/template/spec/template/spec/activeDeadlineSeconds",
+   "path": "/spec/trialTemplate/spec/jobTemplate/spec/activeDeadlineSeconds",
    "value": 1000
   },
   {
@@ -40,17 +40,17 @@
   },
   {
     "op": "replace",
-    "path": "/spec/template/spec/setupTasks/0/helmValues/1/value",
+    "path": "/spec/trialTemplate/spec/setupTasks/0/helmValues/1/value",
     "value": 1
   },
   {
     "op": "replace",
-    "path": "/spec/template/spec/template/spec/template/spec/containers/0/args/4",
+    "path": "/spec/trialTemplate/spec/jobTemplate/spec/template/spec/containers/0/args/4",
     "value": "--track-params=ingest_percentage:10,bulk_size:50,bulk_indexing_clients:300"
   },
   {
     "op": "add",
-    "path": "/spec/template/spec/setupTasks/0/helmValues/-",
+    "path": "/spec/trialTemplate/spec/setupTasks/0/helmValues/-",
     "value": {
       "name": "extraEnvs[0].name",
       "value": "discovery.type"
@@ -58,7 +58,7 @@
   },
   {
     "op": "add",
-    "path": "/spec/template/spec/setupTasks/0/helmValues/-",
+    "path": "/spec/trialTemplate/spec/setupTasks/0/helmValues/-",
     "value": {
       "name": "extraEnvs[0].value",
       "value": "single-node"
@@ -66,7 +66,7 @@
   },
   {
     "op": "add",
-    "path": "/spec/template/spec/setupTasks/0/helmValues/-",
+    "path": "/spec/trialTemplate/spec/setupTasks/0/helmValues/-",
     "value": {
       "name": "extraEnvs[1].name",
       "value": "cluster.initial_master_nodes"
@@ -74,7 +74,7 @@
   },
   {
     "op": "add",
-    "path": "/spec/template/spec/setupTasks/0/helmValues/-",
+    "path": "/spec/trialTemplate/spec/setupTasks/0/helmValues/-",
     "value": {
       "name": "extraEnvs[1].value",
       "value": "null"

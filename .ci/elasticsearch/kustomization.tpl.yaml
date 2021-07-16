@@ -9,13 +9,13 @@ resources:
 patches:
 - path: ./resources_patch.json
   target:
-    group: redskyops.dev
-    version: v1alpha1
+    group: optimize.stormforge.io
+    version: v1beta2
     kind: Experiment
 #@ if data.values.workflow_uid:
 - path: ./owner_references_patch.yaml
   target:
-    group: redskyops.dev
-    version: v1alpha1
+    group: optimize.stormforge.io
+    version: v1beta2
     kind: Experiment
 #@ end
