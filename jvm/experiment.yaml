@@ -73,12 +73,6 @@ spec:
             spec:
               activeDeadlineSeconds: 1800
               containers:
-<<<<<<< HEAD
               - args: ["reactors"]
                 image: ghcr.io/thestormforge/examples-jvm
                 name: renaissance
-=======
-              - name: renaissance
-                image: gcr.io/stormforge/renaissance:0.10.0
-                args: ["reactors"]
->>>>>>> ad85321 (ran stormforge fix at version v2.0.0-beta.2-next+build.375)
