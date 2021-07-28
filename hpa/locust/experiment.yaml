@@ -105,11 +105,7 @@ spec:
               - name: locustfile
                 configMap:
                   name: locustfile
-<<<<<<< HEAD
       setupServiceAccountName: stormforge-setup
-=======
-      setupServiceAccountName: redsky-setup
->>>>>>> e2beec7 (feat: migrate examples to 2.0 CRDs using stormforge fix command)
       setupTasks:
       - name: monitoring
         args:
@@ -119,22 +115,14 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-<<<<<<< HEAD
   name: stormforge-setup
-=======
-  name: redsky-setup
->>>>>>> e2beec7 (feat: migrate examples to 2.0 CRDs using stormforge fix command)
   labels:
     stormforge.io/application: votingapp
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-<<<<<<< HEAD
   name: stormforge-prometheus
-=======
-  name: redsky-prometheus
->>>>>>> e2beec7 (feat: migrate examples to 2.0 CRDs using stormforge fix command)
   labels:
     stormforge.io/application: votingapp
 rules:
