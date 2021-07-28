@@ -20,7 +20,7 @@ The resources for this tutorial can be found in the [`/elasticsearch`](https://g
 : The actual experiment object manifest. In this experiment we vary the number of replicas for the Elasticsearch data nodes, and the CPU and memory assigned to each. The experiment aims to minimize both the time take to run the load tests and the cost of running the Elasticsearch cluster. The integration with Helm is in the setupTask in the trial template spec and in the patches section of the experiment spec. An empty patch tells the controller to wait until this object is ready before starting the trial. The maximum length a trial can run before being considered a failed trial is controlled by setting activeDeadlineSeconds in the pod spec in the trial template.
 
 * `experiment_free_tier.yaml`
-: This is a modified experiment file for users of the free tier.  
+: This is a modified experiment file for users of the free tier.
 
 * `service-account.yaml`
 : The manifest for the ServiceAccount used by the setupTask pod.
