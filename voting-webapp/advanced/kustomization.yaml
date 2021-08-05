@@ -6,8 +6,8 @@ resources:
 
 patchesJson6902:
 - target:
-    group: redskyops.dev
-    version: v1alpha1
+    group: optimize.stormforge.io
+    version: v1beta2
     kind: Experiment
     name: voting-app-example
   path: add-patches.yaml

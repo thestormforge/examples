@@ -1,20 +1,24 @@
-apiVersion: redskyops.dev/v1alpha1
+apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: parallel-postgres
+  labels:
+    stormforge.io/application: 'parallel-postgres'
+    stormforge.io/scenario: 'pgbench'
 spec:
+  replicas: 4
   optimization:
   - name: "experimentBudget"
     value: "40"
   parameters:
   - name: memory
+    baseline: 4000
     min: 500
     max: 4000
-    baseline: 4000
   - name: cpu
+    baseline: 4000
     min: 100
     max: 4000
-    baseline: 4000
   metrics:
   - name: duration
     minimize: true
@@ -24,9 +28,9 @@ spec:
     query: "{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}"
   patches:
   - targetRef:
-      kind: Deployment
-      apiVersion: apps/v1
       name: postgres
+      apiVersion: apps/v1
+      kind: Deployment
     patch: |
       spec:
         template:
@@ -43,16 +47,15 @@ spec:
   namespaceSelector:
     matchLabels:
       experiment: parallel-postgres
-  replicas: 4
-  template: # trial
+  trialTemplate:
     spec:
-      template: # job
+      jobTemplate:
         spec:
-          template: # pod
+          template:
             spec:
               containers:
-              - image: crunchydata/crunchy-pgbench:centos7-11.4-2.4.1
-                name: pgbench
+              - name: pgbench
+                image: crunchydata/crunchy-pgbench:centos7-11.4-2.4.1
                 envFrom:
                 - secretRef:
                     name: postgres-secret

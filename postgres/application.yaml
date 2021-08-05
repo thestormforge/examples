@@ -1,17 +1,13 @@
-apiVersion: apps.redskyops.dev/v1alpha1
+apiVersion: apps.optimize.stormforge.io/v1alpha1
 kind: Application
 metadata:
   name: postgres
-
 resources:
 - postgres.yaml
-
 parameters:
 - containerResources:
     selector: >-
-      app.kubernetes.io/instance=postgres-stormforge-example,
-      app.kubernetes.io/name=postgres
-
+      app.kubernetes.io/instance=postgres-stormforge-example, app.kubernetes.io/name=postgres
 scenarios:
 - custom:
     initialDelaySeconds: 15
@@ -20,9 +16,6 @@ scenarios:
         initContainers:
         - name: pgbench-initialize
           image: postgres:11.1-alpine
-          envFrom:
-          - secretRef:
-              name: postgres-secret
           command:
           - /usr/local/bin/pgbench
           args:
@@ -31,12 +24,12 @@ scenarios:
           - --username=$(PG_USERNAME)
           - --scale=$(PGBENCH_SCALE)
           - $(PG_DATABASE)
-        containers:
-        - name: pgbench
-          image: postgres:11.1-alpine
           envFrom:
           - secretRef:
               name: postgres-secret
+        containers:
+        - name: pgbench
+          image: postgres:11.1-alpine
           command:
           - /usr/local/bin/pgbench
           args:
@@ -47,11 +40,13 @@ scenarios:
           - --host=$(PG_HOSTNAME)
           - --username=$(PG_USERNAME)
           - $(PG_DATABASE)
+          envFrom:
+          - secretRef:
+              name: postgres-secret
 objectives:
 - goals:
   - name: duration
   - name: cost
     requests:
       selector: >-
-        app.kubernetes.io/instance=postgres-stormforge-example,
-        app.kubernetes.io/name=postgres
+        app.kubernetes.io/instance=postgres-stormforge-example, app.kubernetes.io/name=postgres

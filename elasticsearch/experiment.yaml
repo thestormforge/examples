@@ -1,51 +1,78 @@
-apiVersion: redskyops.dev/v1alpha1
+apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: elasticsearch-example
+  labels:
+    stormforge.io/application: 'elasticsearch'
+    stormforge.io/scenario: 'rally'
 spec:
   optimization:
   - name: "experimentBudget"
     value: "80"
   parameters:
   - name: memory
+    baseline: 2000
     min: 1000
     max: 2000
-    baseline: 2000
   - name: cpu
+    baseline: 1000
     min: 500
     max: 1000
-    baseline: 1000
   - name: heap_percent
+    baseline: 50
     min: 20
     max: 80
-    baseline: 50
   - name: replicas
+    baseline: 3
     min: 3
     max: 5
-    baseline: 3
   metrics:
   - name: duration
     minimize: true
     query: "{{duration .StartTime .CompletionTime}}"
   - name: cost
     minimize: true
-    type: pods
     # Note that these cost weights are specific to GKE and represent $22/month/cpu and $3/month/GB
     query: '{{resourceRequests .Pods "cpu=0.022,memory=0.000000000003"}}'
-    selector:
+    target:
+      kind: PodList
       matchLabels:
         app: elasticsearch-master
-  template: # trial
+  trialTemplate:
     spec:
       readinessGates:
-      - kind: StatefulSet
+      - name: elasticsearch-master
         apiVersion: apps/v1
-        name: elasticsearch-master
+        kind: StatefulSet
         conditionTypes:
-        - redskyops.dev/app-ready
+        - stormforge.io/app-ready
+        failureThreshold: 30
         initialDelaySeconds: 5
         periodSeconds: 5
-        failureThreshold: 30
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              activeDeadlineSeconds: 1800
+              containers:
+              - name: rally
+                image: elastic/rally:2.0.1
+                args:
+                - --track=geopoint
+                - --target-hosts=elasticsearch-master
+                - --pipeline=benchmark-only
+                - --challenge=append-fast-with-conflicts
+                - --track-params=ingest_percentage:50
+                - --distribution-version=7.9.2
+                volumeMounts:
+                - name: config
+                  mountPath: /rally/.rally/rally.ini
+                  subPath: rally-config
+              volumes:
+              - name: config
+                configMap:
+                  name: rally-ini
+      setupServiceAccountName: redsky
       setupTasks:
       - name: elasticsearch
         helmChart: elasticsearch
@@ -65,32 +92,9 @@ spec:
         - name: resources.requests.memory
           value: "{{ .Values.memory }}Mi"
         - name: esJavaOpts
-          value: "-Djava.net.preferIPv4Stack=true -Xms{{ percent .Values.memory .Values.heap_percent }}m -Xmx{{ percent .Values.memory .Values.heap_percent }}m"
+          value: "-Djava.net.preferIPv4Stack=true -Xms{{ percent .Values.memory .Values.heap_percent
+            }}m -Xmx{{ percent .Values.memory .Values.heap_percent }}m"
         - name: persistence.enabled
           value: "false"
         - name: antiAffinity
           value: soft
-      setupServiceAccountName: redsky
-      template: # job
-        spec:
-          template: # pod
-            spec:
-              activeDeadlineSeconds: 1800
-              containers:
-              - image: elastic/rally:2.0.1
-                name: rally
-                args:
-                - --track=geopoint
-                - --target-hosts=elasticsearch-master
-                - --pipeline=benchmark-only
-                - --challenge=append-fast-with-conflicts
-                - --track-params=ingest_percentage:50
-                - --distribution-version=7.9.2
-                volumeMounts:
-                  - name: config
-                    mountPath: /rally/.rally/rally.ini
-                    subPath: rally-config
-              volumes:
-                - name: config
-                  configMap:
-                    name: rally-ini
