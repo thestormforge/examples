@@ -23,6 +23,6 @@ ingress:
 
 ## Create an experiment
 
-You need `redskyctl` version 1.11.0 or newer for this example.
+You need `stormforge` version 1.11.0 or newer for this example.
 
-Generate an experiment and launch it using `redskyctl generate experiment -f app.yaml | kubectl apply -f -`
+Generate an experiment and launch it using `stormforge generate experiment -f app.yaml | kubectl apply -f -`

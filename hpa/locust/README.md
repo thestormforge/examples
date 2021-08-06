@@ -1,7 +1,7 @@
 # HPA optimization using Locust
 
 To allow the controller to patch the deployments and the HPA during the experiment, generate the proper RBAC permissions by running the following:
-`redskyctl generate rbac -f experiment.yaml | kubectl apply -f -`
+`stormforge generate rbac -f experiment.yaml | kubectl apply -f -`
 
 The `experiment.yaml` file is the actual experiment object manifest; this includes the definition of the experiment itself (in terms of assignable parameters and observable metrics) and the instructions for carrying out the experiment.
 

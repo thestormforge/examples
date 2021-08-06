@@ -105,7 +105,7 @@ spec:
               - name: locustfile
                 configMap:
                   name: locustfile
-      setupServiceAccountName: redsky-setup
+      setupServiceAccountName: stormforge-setup
       setupTasks:
       - name: monitoring
         args:
@@ -115,14 +115,14 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: redsky-setup
+  name: stormforge-setup
   labels:
     stormforge.io/application: votingapp
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: redsky-prometheus
+  name: stormforge-prometheus
   labels:
     stormforge.io/application: votingapp
 rules:
@@ -177,13 +177,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: redsky-setup-prometheus
+  name: stormforge-setup-prometheus
   labels:
     stormforge.io/application: votingapp
 roleRef:
-  name: redsky-prometheus
+  name: stormforge-prometheus
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
 subjects:
-- name: redsky-setup
+- name: stormforge-setup
   kind: ServiceAccount

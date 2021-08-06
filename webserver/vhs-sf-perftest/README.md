@@ -15,7 +15,7 @@ This workflow has four main phases:
 
 - `kubectl` installed and configured with your cluster
 - `kustomize` (v3.1.0+)
-- [StormForge Optimize Controller (`redskyctl`)](https://github.com/thestormforge/optimize-controller) installed on your cluster
+- [StormForge Optimize Controller (`stormforge`)](https://github.com/thestormforge/optimize-controller) installed on your cluster
 - [StormForge Performance Test CLI (`forge`)](https://github.com/stormforger/cli)
 - Google Cloud Storage account
 

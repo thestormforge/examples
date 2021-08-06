@@ -34,5 +34,5 @@ objectives:
 
 Generate an experiment and launch it using:
 ```
-redskyctl generate experiment -f app.yaml | kubectl apply -f -
+stormforge generate experiment -f app.yaml | kubectl apply -f -
 ```
