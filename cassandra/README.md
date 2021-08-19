@@ -11,10 +11,6 @@ The official documentation for cassandra-stress can be found [here](https://cass
 
 
 ### Technical Process
-UPDATE: we moved the sequiential test runs into the trial template for the experiment itself, using the image from cassandra 4 which contains the 
-cassandra-stress tools. We've kept all the older related manifests/docker files in this repo as an example of how to wrap your own load test into a 
-customer docker image.
-
 In order to get the cassandra-stress to run all three load tests under one experiment trial, we needed to create a container for that task.
 You can find the Dockerfile and related artifacts [here](https://www.github.com/thecrudge/cstress) or in the Docker folder. Essentially its 
 an image that runs an entrypoint with a very basic script to run all three load tests consecutively. You can customize your load test parameters 
@@ -26,7 +22,7 @@ In the experiment spec, you can see the parameters we are using for our experime
 spec:
   optimization:
   - name: "experimentBudget"
-    value: "40" #number of trials 
+    value: "120" #number of trials 
   parameters:
   - name: memory
     min: 500
@@ -160,7 +156,7 @@ cassandra-write-read-mixed-example-001   Running     MAX_HEAP_SIZE=1413, cpu=618
 ```
 
 ## Results
-The image below shows us that the machine learning has recommended trial number 35. With this trial we can see we have a cost savings of 59.70%
+The image below shows us that the machine learning has recommended trial number #98. With this trial we can see we have a cost savings of 34.29%
 compared to our baseline in Trial #1.
 
 <img src="img/results1.png" width="400">
