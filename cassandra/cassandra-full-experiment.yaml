@@ -5,7 +5,7 @@ metadata:
 spec:
   optimization:
   - name: "experimentBudget"
-    value: "40" #number of trials 
+    value: "120" #number of trials 
   parameters:
   - name: memory
     min: 500
