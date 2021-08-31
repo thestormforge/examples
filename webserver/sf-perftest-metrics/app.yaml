@@ -4,7 +4,7 @@ metadata:
   name: voting-sf-example
 resources:
 - application
-parameters:
+configuration:
 - containerResources:
     selector: component=voting-service
 - replicas:
@@ -13,7 +13,7 @@ ingress:
   url: "my-url.example.com"
 scenarios:
 - name: standard
-  stormforger:
+  stormforgePerf:
     testCaseFile: testcase.js
     # testCase: sf_sandbox/votingapp # if the test case is already created
 objectives:
@@ -27,7 +27,3 @@ objectives:
   - name: cost
     requests:
       selector: app=voting-app
-stormForger:
-  org: sf_sandbox
-  # accessToken:
-  #   file: sf-jwt # otherwise jwt from forge config is used

@@ -140,7 +140,11 @@ spec:
               - name: test-case-file
                 configMap:
                   name: standard-test-case-file
+<<<<<<< HEAD
       setupServiceAccountName: stormforge-setup
+=======
+      setupServiceAccountName: redsky-setup
+>>>>>>> 9bdd085 (stormforge fix @2.0)
       setupTasks:
       - name: monitoring
         args:
@@ -150,14 +154,22 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+<<<<<<< HEAD
   name: stormforge-setup
+=======
+  name: redsky-setup
+>>>>>>> 9bdd085 (stormforge fix @2.0)
   labels:
     stormforge.io/application: hpa-sf
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+<<<<<<< HEAD
   name: stormforge-prometheus
+=======
+  name: redsky-prometheus
+>>>>>>> 9bdd085 (stormforge fix @2.0)
   labels:
     stormforge.io/application: hpa-sf
 rules:

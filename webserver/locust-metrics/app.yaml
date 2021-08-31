@@ -10,7 +10,7 @@ resources:
 # Control over the discovery of parameters, also optional
 # The default is to generate patches for all deployments and stateful sets
 # Here we decide to only optimize the voting service respon
-parameters:
+configuration:
 - containerResources:
     selector: component=voting-service
 - replicas:

@@ -92,12 +92,8 @@ spec:
         - name: resources.requests.memory
           value: "{{ .Values.memory }}Mi"
         - name: esJavaOpts
-<<<<<<< HEAD
           value: "-Djava.net.preferIPv4Stack=true -Xms{{ percent .Values.memory .Values.heap_percent
             }}m -Xmx{{ percent .Values.memory .Values.heap_percent }}m"
-=======
-          value: "-Djava.net.preferIPv4Stack=true -Xms{{ percent .Values.memory .Values.heap_percent}}m -Xmx{{ percent .Values.memory .Values.heap_percent }}m"
->>>>>>> e2beec7 (feat: migrate examples to 2.0 CRDs using stormforge fix command)
         - name: persistence.enabled
           value: "false"
         - name: antiAffinity
