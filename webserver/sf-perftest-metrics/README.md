@@ -23,6 +23,6 @@ ingress:
 
 ## Create an experiment
 
-You need `stormforge` version 1.11.0 or newer for this example.
+You need `stormforge` version 2.0.0 or newer for this example. Additionally, you need to have the `forge` tool setup as described [here](https://docs.stormforger.com/guides/getting-started/).
 
 Generate an experiment and launch it using `stormforge generate experiment -f app.yaml | kubectl apply -f -`
