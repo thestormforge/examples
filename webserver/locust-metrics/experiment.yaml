@@ -1,0 +1,219 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: webserver-locust-metrics-experiment
+  namespace: default
+  labels:
+    stormforge.io/application: 'votingapp'
+    stormforge.io/objective: 'default'
+    stormforge.io/scenario: '100-clients'
+spec:
+  parameters:
+  - name: voting_service_cpu
+    baseline: 1000
+    min: 500
+    max: 2000
+  - name: voting_service_memory
+    baseline: 2000
+    min: 1000
+    max: 4000
+  - name: replicas
+    baseline: 3
+    min: 1
+    max: 5
+  metrics:
+  - name: p95-latency
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: scalar(p95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: p99-latency
+    type: prometheus
+    max: "500"
+    minimize: true
+    query: scalar(p99{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost-gcp
+    type: prometheus
+    minimize: true
+    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 2)
+  - name: cost-gcp-cpu-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ cpuRequests . "" }}'
+  - name: cost-gcp-memory-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ memoryRequests . "" | GB }}'
+  patches:
+  - targetRef:
+      name: voting-service
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: voting-service
+              resources:
+                limits:
+                  cpu: '{{ .Values.voting_service_cpu }}m'
+                  memory: '{{ .Values.voting_service_memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.voting_service_cpu }}m'
+                  memory: '{{ .Values.voting_service_memory }}Mi'
+        replicas: {{ .Values.replicas }}
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'votingapp'
+        stormforge.io/objective: 'default'
+        stormforge.io/scenario: '100-clients'
+    spec:
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'votingapp'
+            stormforge.io/objective: 'default'
+            stormforge.io/scenario: '100-clients'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'votingapp'
+                stormforge.io/objective: 'default'
+                stormforge.io/scenario: '100-clients'
+            spec:
+              containers:
+              - name: 100-clients
+                image: thestormforge/optimize-trials:v0.0.3-locust
+                env:
+                - name: NUM_USERS
+                  value: "100"
+                - name: SPAWN_RATE
+                  value: "20"
+                - name: HOST
+                  value: http://voting-service
+                volumeMounts:
+                - name: locustfile
+                  readOnly: true
+                  mountPath: /mnt/locust
+              volumes:
+              - name: locustfile
+                configMap:
+                  name: 100-clients-locustfile-f19e28
+      setupServiceAccountName: optimize-setup-f19e28
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 100-clients-locustfile-f19e28
+  namespace: default
+  labels:
+    stormforge.io/application: 'votingapp'
+data:
+  locustfile.py: |
+    import os
+
+    from uuid import uuid4
+    import random
+    from locust import HttpUser, task, between
+
+
+    CAT_FRACTION = os.getenv("CAT_FRACTION", 0.25)
+
+
+    class MyUser(HttpUser):
+        wait_time = between(5, 10)
+        @task
+        def vote(self):
+            voter_id = uuid4().hex
+            vote = "a" if (random.uniform(0, 1) < CAT_FRACTION) else "b"
+            self.client.post("/",
+                             cookies={"voter_id": voter_id},
+                             data={"vote": vote})
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: optimize-setup-f19e28
+  namespace: default
+  labels:
+    stormforge.io/application: 'votingapp'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-prometheus-f19e28
+  labels:
+    stormforge.io/application: 'votingapp'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-prometheus-f19e28
+  labels:
+    stormforge.io/application: 'votingapp'
+roleRef:
+  name: optimize-prometheus-f19e28
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-setup-f19e28
+  namespace: default
+  kind: ServiceAccount

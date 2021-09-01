@@ -1,0 +1,102 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: postgres-experiment
+  namespace: default
+  labels:
+    stormforge.io/application: 'postgres'
+    stormforge.io/objective: 'duration-vs-cost'
+    stormforge.io/scenario: 'pgbench'
+spec:
+  parameters:
+  - name: cpu
+    baseline: 4000
+    min: 2000
+    max: 4000
+  - name: memory
+    baseline: 4096
+    min: 2048
+    max: 4295
+  metrics:
+  - name: cost
+    minimize: true
+    query: '{{ resourceRequests .Target "cpu=0.017,memory=0.000000000003" }}'
+    target:
+      apiVersion: v1
+      kind: PodList
+      matchLabels:
+        app.kubernetes.io/instance: postgres-stormforge-example
+        app.kubernetes.io/name: postgres
+  - name: duration
+    minimize: true
+    query: '{{ duration .StartTime .CompletionTime }}'
+  patches:
+  - targetRef:
+      name: postgres
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: postgres
+              resources:
+                limits:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}M'
+                requests:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}M'
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'postgres'
+        stormforge.io/objective: 'duration-vs-cost'
+        stormforge.io/scenario: 'pgbench'
+    spec:
+      initialDelaySeconds: 15
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'postgres'
+            stormforge.io/objective: 'duration-vs-cost'
+            stormforge.io/scenario: 'pgbench'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'postgres'
+                stormforge.io/objective: 'duration-vs-cost'
+                stormforge.io/scenario: 'pgbench'
+            spec:
+              initContainers:
+              - name: pgbench-initialize
+                image: postgres:11.1-alpine
+                command:
+                - /usr/local/bin/pgbench
+                args:
+                - --initialize
+                - --host=$(PG_HOSTNAME)
+                - --username=$(PG_USERNAME)
+                - --scale=$(PGBENCH_SCALE)
+                - $(PG_DATABASE)
+                envFrom:
+                - secretRef:
+                    name: postgres-secret
+              containers:
+              - name: pgbench
+                image: postgres:11.1-alpine
+                command:
+                - /usr/local/bin/pgbench
+                args:
+                - --client=$(PGBENCH_CLIENTS)
+                - --jobs=$(PGBENCH_JOBS)
+                - --scale=$(PGBENCH_SCALE)
+                - --transactions=$(PGBENCH_TRANSACTIONS)
+                - --host=$(PG_HOSTNAME)
+                - --username=$(PG_USERNAME)
+                - $(PG_DATABASE)
+                envFrom:
+                - secretRef:
+                    name: postgres-secret
