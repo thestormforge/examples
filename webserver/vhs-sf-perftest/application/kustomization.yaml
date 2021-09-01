@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
 - github.com/thestormforge/examples/voting-webapp/application
-- ingress.yaml
+- ingress-alb.yaml
 
 patchesStrategicMerge:
 - node-port-patch.yaml
