@@ -1,40 +1,25 @@
-name: Pull Request workflow
+name: Pull Request Workflow
+
 on:
   pull_request:
-    branches:
-      - master
-jobs:
-  test:
-    name: Tests
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        experiment:
-          # - locust-metrics
-          #- voting-webapp
-          #- jvm
-          #- parallel-trials
-          #- postgres
-          #- elasticsearch
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: KinD (Kubernetes in Docker) Initialization
-        uses: helm/kind-action@v1.0.0-rc.1
-        with:
-          version: v0.8.1
-      - name: Download and Setup stormforge
-        run: |
-          .ci/setup_stormforge.sh
-      - name: Install kustomize
-        run: |
-          .ci/install_kustomize.sh
-      - name: Run sample trial for ${{ matrix.experiment }}
-        run: |
-          .ci/${{ matrix.experiment }}/ci.sh
-      - name: The job has failed
-        if: ${{ failure() }}
-        run: |
-          kubectl get trial,experiment,svc,pod -o wide
-          kubectl get pods -o wide
+    branches: [ main ]
 
+jobs:
+  validate-configs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install kustomize
+      run: |
+        wget -q "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv4.2.0/kustomize_v4.2.0_linux_amd64.tar.gz" -O - | tar xz
+        sudo mv kustomize /usr/local/bin/kustomize
+
+    - name: Build all included kustomizations
+      run: |
+        set -eo pipefail
+        find . -type f -maxdepth 6 -name kustomization.yaml \
+        | sed 's/\/kustomization.yaml//g' \
+        | xargs -I{} sh -c 'echo "Building {}..."; kustomize build {} 1> /dev/null'
