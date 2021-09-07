@@ -12,7 +12,7 @@ The Java Virtual Machine(JVM) is a widely used portable execution environment fo
 
 You must have a Kubernetes cluster. We recommend using a cluster with at least 1 node with 4vCPUs and 8GB of memory.
 
-Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize v1.6.0 or later in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `stormforge init` (while connected to your cluster).
+Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize v2.0.0 or later in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `stormforge init` (while connected to your cluster).
 
 ## Example Resources
 
