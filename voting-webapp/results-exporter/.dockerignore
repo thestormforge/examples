@@ -1,2 +1,3 @@
-.venv
-.idea
+**
+!/app.py
+!/requirements.txt
