@@ -71,5 +71,5 @@ spec:
               activeDeadlineSeconds: 1800
               containers:
               - args: ["reactors"]
-                image: gcr.io/redskyops/renaissance:0.10.0
+                image: ghcr.io/thestormforge/examples-jvm
                 name: renaissance
