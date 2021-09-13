@@ -29,11 +29,7 @@ spec:
     spec:
       containers:
       - name: result-exporter
-<<<<<<< HEAD
         image: ghcr.io/thestormforge/examples-results-exporter
-=======
-        image: gcr.io/stormforge/result-exporter:1.1.0
->>>>>>> 2638749 (redsky(ctl|ops) => stormforge)
         env:
         - name: DB_HOST
           value: db

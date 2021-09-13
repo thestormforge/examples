@@ -4,11 +4,7 @@ metadata:
   name: postgres
 resources:
 - postgres.yaml
-<<<<<<< HEAD
-parameters:
-=======
 configuration:
->>>>>>> 9bdd085 (stormforge fix @2.0)
 - containerResources:
     selector: >-
       app.kubernetes.io/instance=postgres-stormforge-example, app.kubernetes.io/name=postgres
