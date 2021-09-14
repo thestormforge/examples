@@ -1,11 +1,14 @@
-apiVersion: redskyops.dev/v1beta1
+apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: cassandra-rwx 
+  name: cassandra-rwx
+  labels:
+    stormforge.io/application: 'cassandra-rwx'
+    stormforge.io/scenario: 'cassandra-stress'
 spec:
   optimization:
   - name: "experimentBudget"
-    value: "120" #number of trials 
+    value: "120" #number of trials
   parameters:
   - name: memory
     min: 500
@@ -16,22 +19,16 @@ spec:
   - name: MAX_HEAP_SIZE
     min: 1000
     max: 8000
-#  - name: HEAP_NEWSIZE
-#    min: 1000
-#    max: 8000
   constraints:
-    - name: heap_memory
-      sum:
-        bound: "-1500"
-        isUpperBound: false
-        parameters:
-        - name: memory
-          weight: "-1.0"
-        - name: MAX_HEAP_SIZE
-          weight: "1.0"
-#  - order:
-#      lowerParameter: MAX_HEAP_SIZE
-#      upperParameter: memory
+  - name: heap_memory
+    sum:
+      parameters:
+      - name: memory
+        weight: "-1.0"
+      - name: MAX_HEAP_SIZE
+        weight: "1.0"
+      bound: "-1500"
+      isUpperBound: false
   metrics:
   - name: duration
     minimize: true
@@ -41,15 +38,15 @@ spec:
     query: "{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}"
   patches:
   - targetRef:
-      kind: StatefulSet
-      apiVersion: apps/v1
       name: cassandra
+      apiVersion: apps/v1
+      kind: StatefulSet
     patch: |
       spec:
         template:
           spec:
             containers:
-            - name: cassandra 
+            - name: cassandra
               resources:
                 limits:
                   cpu: "{{ .Values.cpu }}m"
@@ -60,15 +57,13 @@ spec:
               env:
                 - name: MAX_HEAP_SIZE
                   value: "{{ .Values.MAX_HEAP_SIZE }}M"
-#                - name: HEAP_NEW_SIZE
-#                  value: "{{ .Values.HEAP_NEWSIZE }}M"
-  template: # trial
+  trialTemplate:
     spec:
       initialDelaySeconds: 15
-      template: # job
+      jobTemplate:
         spec:
-          template: # pod
+          template:
             spec:
               containers:
-              - image: thecrudge/cstress:latest
-                name: cassandra-stress
+              - name: cassandra-stress
+                image: thecrudge/cstress:latest
