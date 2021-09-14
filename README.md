@@ -1,6 +1,6 @@
 # StormForge - Examples
 
-This repository contains examples to be used with the [StormForge Optimize Controller][controller].
+This repository contains examples to be used with the [StormForge Optimize Controller](https://docs.stormforge.io/optimize/getting-started/install/).
 
 Each example contains additional documentation for usage and describing how it works.
 
