@@ -32,7 +32,7 @@ Additionally, you will need a local configured copy of `kubectl` and to initiali
 The resources in this directory aren't going to launch experiments in StormForge Optimize in and off themselves. For that, see [locust-metrics](../webserver/locust-metrics). Nevertheless, here is a short description for each of them.
 
 `application/kustomization.yaml`
-: The input to Kustomize used to build the Kubernetes object manifests for this example. Change "experiment.yaml" to "experiment_free_tier.yaml" if you are using our free tier plan.
+: The input to Kustomize used to build the Kubernetes object manifests for this sample application.
 
 `application/postgres.yaml`
 : The manifest for the PostgreSQL database.
