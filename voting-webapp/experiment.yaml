@@ -103,8 +103,14 @@ spec:
               - name: locust
                 image: grubykarol/locust:0.12.0-python3.7-alpine3.10
                 command: ["/usr/local/bin/locust"]
-                args: ["--locustfile=/locust-tasks/locustfile.py", "--no-web", "--host=http://voting-service",
-                  "--clients=200", "--hatch-rate=20", "--run-time=300", "--exit-code-on-error=0"]
+                args:
+                - --locustfile=/locust-tasks/locustfile.py"
+                - --no-web
+                - --host=http://voting-service
+                - --clients=200
+                - --hatch-rate=20
+                - --run-time=300
+                - --exit-code-on-error=0
                 volumeMounts:
                 - name: locust
                   mountPath: /locust-tasks/locustfile.py
