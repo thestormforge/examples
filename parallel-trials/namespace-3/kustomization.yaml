@@ -1,9 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-- ./namespace.yaml
-# TODO: not sure how this has ever worked, but it definitely is incompatible with stormforge 2.0
-# - ../../postgres/application
-
-namespace: postgres-trial-3
