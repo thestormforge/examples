@@ -31,25 +31,25 @@ Additionally, you will need a local configured copy of `kubectl` and to initiali
 
 The resources in this directory aren't going to launch experiments in StormForge Optimize in and off themselves. For that, see [locust-metrics](../webserver/locust-metrics). Nevertheless, here is a short description for each of them.
 
-`kustomization.yaml`
+`application/kustomization.yaml`
 : The input to Kustomize used to build the Kubernetes object manifests for this example. Change "experiment.yaml" to "experiment_free_tier.yaml" if you are using our free tier plan.
 
-`postgres.yaml`
+`application/postgres.yaml`
 : The manifest for the PostgreSQL database.
 
-`redis.yaml`
+`applicaton/redis.yaml`
 : The manifest for the Redis queue.
 
-`results-exporter.yaml`
+`application/results-exporter.yaml`
 : The manifest for the results exporter.
 
-`results-service.yaml`
+`applicaton/results-service.yaml`
 : The manifest for the results service.
 
-`voting-service.yaml`
+`application/voting-service.yaml`
 : The manifest for the voting service.
 
-`worker.yaml`
+`application/worker.yaml`
 : The manifest for the .NET worker.
 
 `results-exporter/`
