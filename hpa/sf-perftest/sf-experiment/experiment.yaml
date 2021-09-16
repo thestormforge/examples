@@ -1,71 +1,71 @@
-apiVersion: redskyops.dev/v1beta1
+apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  labels:
-    redskyops.dev/application: hpa-sf
-    redskyops.dev/scenario: standard
   name: hpa-sf
+  labels:
+    stormforge.io/application: hpa-sf
+    stormforge.io/scenario: standard
 spec:
-  metrics:
-  - minimize: true
-    name: cost
-    port: 9090
-    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 3)
-    type: prometheus
-  - minimize: true
-    name: error_ratio
-    port: 9090
-    query: scalar(error_ratio{job="trialRun",instance="{{ .Trial.Name }}"})
-    type: prometheus
-  - minimize: true
-    optimize: false
-    name: p95-latency
-    port: 9090
-    query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
-    type: prometheus
-  - minimize: true
-    name: p50-latency
-    optimize: false
-    port: 9090
-    query: scalar(median{job="trialRun",instance="{{ .Trial.Name }}"})
-    type: prometheus
-  - minimize: true
-    max: "1000"
-    name: p99-latency
-    optimize: false
-    port: 9090
-    query: scalar(percentile_99{job="trialRun",instance="{{ .Trial.Name }}"})
-    type: prometheus
   parameters:
-  - baseline: 2098
-    max: 4096
+  - name: memory
+    baseline: 2098
     min: 128
-    name: memory
-  - baseline: 1000
-    max: 4000
+    max: 4096
+  - name: cpu
+    baseline: 1000
     min: 100
-    name: cpu
+    max: 4000
   - name: min_replicas
+    baseline: 2
     min: 1
     max: 4
-    baseline: 2
   - name: max_replicas
+    baseline: 2
     min: 1
     max: 4
-    baseline: 2
   - name: avg_utilization
+    baseline: 50
     min: 10
     max: 80
-    baseline: 50
   constraints:
-    - order:
-        lowerParameter: min_replicas
-        upperParameter: max_replicas
+  - order:
+      lowerParameter: min_replicas
+      upperParameter: max_replicas
+  metrics:
+  - name: cost
+    type: prometheus
+    port: 9090
+    minimize: true
+    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 3)
+  - name: error_ratio
+    type: prometheus
+    port: 9090
+    minimize: true
+    query: scalar(error_ratio{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: p95-latency
+    type: prometheus
+    port: 9090
+    minimize: true
+    optimize: false
+    query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: p50-latency
+    type: prometheus
+    port: 9090
+    minimize: true
+    optimize: false
+    query: scalar(median{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: p99-latency
+    type: prometheus
+    port: 9090
+    max: "1000"
+    minimize: true
+    optimize: false
+    query: scalar(percentile_99{job="trialRun",instance="{{ .Trial.Name }}"})
   patches:
   - targetRef:
-      kind: HorizontalPodAutoscaler
-      apiVersion: autoscaling/v2beta2
       name: voting-hpa
+      apiVersion: autoscaling/v2beta2
+      kind: HorizontalPodAutoscaler
     patch: |
       spec:
         maxReplicas: {{ .Values.max_replicas }}
@@ -77,7 +77,11 @@ spec:
             target:
               type: Utilization
               averageUtilization: {{ .Values.avg_utilization }}
-  - patch: |
+  - targetRef:
+      name: voting-service
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
       spec:
         template:
           spec:
@@ -90,30 +94,28 @@ spec:
                 requests:
                   memory: '{{ .Values.memory }}M'
                   cpu: '{{ .Values.cpu }}m'
-    targetRef:
-      apiVersion: apps/v1
-      kind: Deployment
-      name: voting-service
   trialTemplate:
     metadata:
       labels:
-        redskyops.dev/application: hpa-sf
-        redskyops.dev/scenario: standard
+        stormforge.io/application: hpa-sf
+        stormforge.io/scenario: standard
     spec:
       jobTemplate:
         metadata:
           labels:
-            redskyops.dev/application: hpa-sf
-            redskyops.dev/scenario: standard
+            stormforge.io/application: hpa-sf
+            stormforge.io/scenario: standard
         spec:
           template:
             metadata:
               labels:
-                redskyops.dev/application: hpa-sf
-                redskyops.dev/scenario: standard
+                stormforge.io/application: hpa-sf
+                stormforge.io/scenario: standard
             spec:
               containers:
-              - env:
+              - name: stormforger
+                image: thestormforge/optimize-trials:v0.0.1-stormforger
+                env:
                 - name: TITLE
                   valueFrom:
                     fieldRef:
@@ -127,84 +129,82 @@ spec:
                 - name: STORMFORGER_JWT
                   valueFrom:
                     secretKeyRef:
-                      key: accessToken
                       name: stormforger-service-account
-                image: thestormforge/optimize-trials:v0.0.1-stormforger
-                name: stormforger
+                      key: accessToken
                 resources: {}
                 volumeMounts:
-                - mountPath: /forge-init.d
-                  name: test-case-file
+                - name: test-case-file
                   readOnly: true
+                  mountPath: /forge-init.d
               volumes:
-              - configMap:
+              - name: test-case-file
+                configMap:
                   name: standard-test-case-file
-                name: test-case-file
-      setupServiceAccountName: redsky-setup
+      setupServiceAccountName: stormforge-setup
       setupTasks:
-      - args:
+      - name: monitoring
+        args:
         - prometheus
         - $(MODE)
-        name: monitoring
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  name: stormforge-setup
   labels:
-    redskyops.dev/application: hpa-sf
-  name: redsky-setup
+    stormforge.io/application: hpa-sf
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  name: stormforge-prometheus
   labels:
-    redskyops.dev/application: hpa-sf
-  name: redsky-prometheus
+    stormforge.io/application: hpa-sf
 rules:
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
+- resources:
   - clusterroles
   - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
   verbs:
   - get
   - create
   - delete
-- apiGroups:
-  - ""
-  resources:
+- resources:
   - serviceaccounts
   - services
   - configmaps
+  apiGroups:
+  - ""
   verbs:
   - get
   - create
   - delete
-- apiGroups:
-  - apps
-  resources:
+- resources:
   - deployments
+  apiGroups:
+  - apps
   verbs:
   - get
   - create
   - delete
   - list
   - watch
-- apiGroups:
-  - ""
-  resources:
+- resources:
   - nodes
   - nodes/metrics
   - nodes/proxy
   - services
+  apiGroups:
+  - ""
   verbs:
   - list
   - watch
   - get
-- apiGroups:
-  - ""
-  resources:
+- resources:
   - pods
+  apiGroups:
+  - ""
   verbs:
   - list
   - watch
@@ -212,14 +212,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  name: stormforge-setup-prometheus
   labels:
-    redskyops.dev/application: hpa-sf
-  name: redsky-setup-prometheus
+    stormforge.io/application: hpa-sf
 roleRef:
-  apiGroup: rbac.authorization.k8s.io
+  name: stormforge-prometheus
   kind: ClusterRole
-  name: redsky-prometheus
+  apiGroup: rbac.authorization.k8s.io
 subjects:
-- kind: ServiceAccount
-  name: redsky-setup
-
+- name: stormforge-setup
+  kind: ServiceAccount

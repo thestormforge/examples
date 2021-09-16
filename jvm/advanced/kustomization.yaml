@@ -6,8 +6,8 @@ resources:
 
 patchesJson6902:
 - target:
-    group: redskyops.dev
-    version: v1beta1
+    group: optimize.stormforge.io
+    version: v1beta2
     kind: Experiment
     name: jvm-reactors
   path: add-patches.yaml

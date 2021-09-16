@@ -1,32 +1,21 @@
-apiVersion: apps.redskyops.dev/v1alpha1
+apiVersion: apps.optimize.stormforge.io/v1alpha1
 kind: Application
 metadata:
   name: voting-sf-example
-
 resources:
 - application
-
-ingress:
-  url: "my-url.example.com"
-
-parameters:
+configuration:
 - containerResources:
     selector: component=voting-service
 - replicas:
     selector: component=voting-service
-
-
+ingress:
+  url: "my-url.example.com"
 scenarios:
 - name: standard
-  stormforger:
+  stormforgePerf:
     testCaseFile: testcase.js
     # testCase: sf_sandbox/votingapp # if the test case is already created
-stormForger:
-  org: sf_sandbox
-  # accessToken:
-  #   file: sf-jwt # otherwise jwt from forge config is used
-
-
 objectives:
 - goals:
   - name: p50-latency
@@ -38,4 +27,3 @@ objectives:
   - name: cost
     requests:
       selector: app=voting-app
-

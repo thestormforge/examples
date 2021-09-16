@@ -1,49 +1,52 @@
-apiVersion: redskyops.dev/v1alpha1
+apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: hpa-example
+  labels:
+    stormforge.io/application: 'hpa'
+    stormforge.io/scenario: 'locust'
 spec:
   parameters:
   - name: voting_cpu
+    baseline: 400
     min: 100
     max: 1000
-    baseline: 400
   - name: min_replicas
-    min: 1
-    max: 4
     baseline: 1
-  - name: max_replicas
     min: 1
     max: 4
+  - name: max_replicas
     baseline: 2
+    min: 1
+    max: 4
   - name: avg_utilization
+    baseline: 50
     min: 10
     max: 80
-    baseline: 50
   constraints:
-    - order:
-        lowerParameter: min_replicas
-        upperParameter: max_replicas
+  - order:
+      lowerParameter: min_replicas
+      upperParameter: max_replicas
   metrics:
-  - minimize: true
-    name: p95-latency
-    query: scalar(p95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: p95-latency
     type: prometheus
     max: "500"
-  - minimize: true
-    name: cost-gcp
-    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 2)
+    minimize: true
+    query: scalar(p95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost-gcp
     type: prometheus
-  - minimize: true
-    name: failures_per_s
+    minimize: true
+    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 2)
+  - name: failures_per_s
+    type: prometheus
+    minimize: true
     optimize: false
     query: scalar(failures_per_s{job="trialRun",instance="{{ .Trial.Name }}"})
-    type: prometheus
   patches:
   - targetRef:
-      kind: Deployment
-      apiVersion: apps/v1
       name: voting-service
+      apiVersion: apps/v1
+      kind: Deployment
     patch: |
       spec:
         replicas: {{ .Values.min_replicas }}
@@ -59,9 +62,9 @@ spec:
                   cpu: "{{ .Values.voting_cpu }}m"
                   memory: "250Mi"
   - targetRef:
-      kind: HorizontalPodAutoscaler
-      apiVersion: autoscaling/v2beta2
       name: voting-hpa
+      apiVersion: autoscaling/v2beta2
+      kind: HorizontalPodAutoscaler
     patch: |
       spec:
         maxReplicas: {{ .Values.max_replicas }}
@@ -73,20 +76,16 @@ spec:
             target:
               type: Utilization
               averageUtilization: {{ .Values.avg_utilization }}
-  template: # trial
+  trialTemplate:
     spec:
-      setupServiceAccountName: redsky-setup
-      setupTasks:
-      - args:
-        - prometheus
-        - $(MODE)
-        name: monitoring
-      template: # job
+      jobTemplate:
         spec:
-          template: # pod
+          template:
             spec:
               containers:
-              - env:
+              - name: locust
+                image: thestormforge/optimize-trials:v0.0.1-locust
+                env:
                 - name: HOST
                   value: http://voting-service
                 - name: NUM_USERS
@@ -95,78 +94,82 @@ spec:
                   value: "50"
                 - name: RUN_TIME
                   value: "180"
-                image: thestormforge/optimize-trials:v0.0.1-locust
-                name: locust
                 resources:
                   requests:
                     cpu: "1"
                 volumeMounts:
-                - mountPath: /mnt/locust
-                  name: locustfile
+                - name: locustfile
                   readOnly: true
+                  mountPath: /mnt/locust
               volumes:
-              - configMap:
+              - name: locustfile
+                configMap:
                   name: locustfile
-                name: locustfile
+      setupServiceAccountName: stormforge-setup
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  name: stormforge-setup
   labels:
-    redskyops.dev/application: votingapp
-  name: redsky-setup
+    stormforge.io/application: votingapp
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  name: stormforge-prometheus
   labels:
-    redskyops.dev/application: votingapp
-  name: redsky-prometheus
+    stormforge.io/application: votingapp
 rules:
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
+- resources:
   - clusterroles
   - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
   verbs:
   - get
   - create
   - delete
-- apiGroups:
-  - ""
-  resources:
+- resources:
   - serviceaccounts
   - services
   - configmaps
+  apiGroups:
+  - ""
   verbs:
   - get
   - create
   - delete
-- apiGroups:
-  - apps
-  resources:
+- resources:
   - deployments
+  apiGroups:
+  - apps
   verbs:
   - get
   - create
   - delete
   - list
   - watch
-- apiGroups:
-  - ""
-  resources:
+- resources:
   - nodes
   - nodes/metrics
   - nodes/proxy
   - services
+  apiGroups:
+  - ""
   verbs:
   - list
   - watch
   - get
-- apiGroups:
-  - ""
-  resources:
+- resources:
   - pods
+  apiGroups:
+  - ""
   verbs:
   - list
   - watch
@@ -174,14 +177,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  name: stormforge-setup-prometheus
   labels:
-    redskyops.dev/application: votingapp
-  name: redsky-setup-prometheus
+    stormforge.io/application: votingapp
 roleRef:
-  apiGroup: rbac.authorization.k8s.io
+  name: stormforge-prometheus
   kind: ClusterRole
-  name: redsky-prometheus
+  apiGroup: rbac.authorization.k8s.io
 subjects:
-- kind: ServiceAccount
-  name: redsky-setup
----
+- name: stormforge-setup
+  kind: ServiceAccount

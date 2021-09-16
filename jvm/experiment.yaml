@@ -1,32 +1,35 @@
-apiVersion: redskyops.dev/v1beta1
+apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: jvm-reactors
+  labels:
+    stormforge.io/application: 'jvm-reactors'
+    stormforge.io/scenario: 'renaissance'
 spec:
   optimization:
   - name: experimentBudget
     value: "80"
   parameters:
   - name: heap_size
+    baseline: 1024
     min: 512
     max: 12288
-    baseline: 1024
   - name: parallel_gc_threads
+    baseline: 20
     min: 10
     max: 30
-    baseline: 20
   - name: con_gc_threads
+    baseline: 8
     min: 0
     max: 8
-    baseline: 8
   - name: cpu
+    baseline: 1000
     min: 200
     max: 2000
-    baseline: 1000
   - name: memory
+    baseline: 2048
     min: 100
     max: 12288
-    baseline: 2048
   constraints:
   - order:
       lowerParameter: heap_size
@@ -39,7 +42,10 @@ spec:
     minimize: true
     query: "{{div (add (mul .Values.cpu 22) (mul .Values.memory 3)) 1000}}"
   patches:
-  - patch: |
+  - targetRef:
+      apiVersion: batch/v1
+      kind: Job
+    patch: |
       spec:
         template:
           spec:
@@ -59,9 +65,6 @@ spec:
                 value: {{ .Values.con_gc_threads }}
               - name: PARALLEL_GC_THREADS
                 value: {{ .Values.parallel_gc_threads }}
-    targetRef:
-      apiVersion: batch/v1
-      kind: Job
   trialTemplate:
     spec:
       jobTemplate:

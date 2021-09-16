@@ -1,57 +1,62 @@
-apiVersion: redskyops.dev/v1beta1
+apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: voting-sf-vhs-experiment
-  labels:
-    redskyops.dev/application: voting-sf-example-vhs
-    redskyops.dev/scenario: standard
   namespace: default
+  labels:
+    stormforge.io/application: voting-sf-example-vhs
+    stormforge.io/scenario: standard
 spec:
+  parameters:
+  - name: memory
+    baseline: 2098
+    min: 1024
+    max: 4096
+  - name: cpu
+    baseline: 750
+    min: 500
+    max: 1000
+  - name: replicas
+    baseline: 2
+    min: 1
+    max: 3
   metrics:
-  - minimize: true
-    name: p50-latency
+  - name: p50-latency
+    type: prometheus
+    minimize: true
     optimize: false
     query: scalar(median{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: p95-latency
     type: prometheus
-  - max: "500"
+    max: "500"
     minimize: true
-    name: p95-latency
     query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: p99-latency
     type: prometheus
-  - minimize: true
-    name: p99-latency
+    minimize: true
     optimize: false
     query: scalar(percentile_99{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost
     type: prometheus
-  - minimize: true
-    name: cost
-    query: ({{ cpuRequests . "app=voting-app" }} * 1) + ({{ memoryRequests . "app=voting-app" | GB }} * 1)
+    minimize: true
+    query: ({{ cpuRequests . "app=voting-app" }} * 1) + ({{ memoryRequests . "app=voting-app"
+      | GB }} * 1)
+  - name: cost-cpu-requests
     type: prometheus
-  - minimize: true
-    name: cost-cpu-requests
+    minimize: true
     optimize: false
     query: '{{ cpuRequests . "app=voting-app" }}'
+  - name: cost-memory-requests
     type: prometheus
-  - minimize: true
-    name: cost-memory-requests
+    minimize: true
     optimize: false
     query: '{{ memoryRequests . "app=voting-app" | GB }}'
-    type: prometheus
-  parameters:
-  - baseline: 2098
-    max: 4096
-    min: 1024
-    name: memory
-  - baseline: 750
-    max: 1000
-    min: 500
-    name: cpu
-  - baseline: 2
-    max: 3
-    min: 1
-    name: replicas
   patches:
-  - patch: |
+  - targetRef:
+      name: voting-service
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
       spec:
         replicas: {{ .Values.replicas }}
         template:
@@ -65,31 +70,32 @@ spec:
                 requests:
                   memory: '{{ .Values.memory }}M'
                   cpu: '{{ .Values.cpu }}m'
-    targetRef:
-      apiVersion: apps/v1
-      kind: Deployment
-      name: voting-service
   trialTemplate:
     metadata:
       labels:
-        redskyops.dev/application: voting-sf-example-vhs
-        redskyops.dev/scenario: standard
+        stormforge.io/application: voting-sf-example-vhs
+        stormforge.io/scenario: standard
     spec:
       jobTemplate:
         metadata:
           labels:
-            redskyops.dev/application: voting-sf-example-vhs
-            redskyops.dev/scenario: standard
+            stormforge.io/application: voting-sf-example-vhs
+            stormforge.io/scenario: standard
         spec:
           template:
             metadata:
               labels:
-                redskyops.dev/application: voting-sf-example-vhs
-                redskyops.dev/scenario: standard
-
+                stormforge.io/application: voting-sf-example-vhs
+                stormforge.io/scenario: standard
             spec:
               initContainers:
               - name: vhstoforge
+                image: ubuntu:20.10
+                command:
+                - /bin/bash
+                args:
+                - -x
+                - /har/har2testcase.sh
                 env:
                 - name: GCS_BUCKET
                   value: vhsdemo
@@ -104,25 +110,21 @@ spec:
                 - name: STORMFORGER_JWT
                   valueFrom:
                     secretKeyRef:
-                      key: accessToken
                       name: stormforger-service-account
+                      key: accessToken
                 - name: GOOGLE_APPLICATION_CREDENTIALS
                   value: /root/.config/gcloud/service-account.json
-                image: ubuntu:20.10
-                command: 
-                - /bin/bash
-                args:
-                - -x
-                - /har/har2testcase.sh
                 volumeMounts:
-                - mountPath: /jshar
-                  name: jshar 
-                - mountPath: /har
-                  name: harutils
-                - mountPath: /root/.config/gcloud
-                  name: cloud-credentials
+                - name: jshar
+                  mountPath: /jshar
+                - name: harutils
+                  mountPath: /har
+                - name: cloud-credentials
+                  mountPath: /root/.config/gcloud
               containers:
-              - env:
+              - name: stormforger
+                image: thestormforge/optimize-trials:v0.0.1-stormforger
+                env:
                 - name: TITLE
                   valueFrom:
                     fieldRef:
@@ -136,45 +138,42 @@ spec:
                 - name: STORMFORGER_JWT
                   valueFrom:
                     secretKeyRef:
-                      key: accessToken
                       name: stormforger-service-account
-                image: thestormforge/optimize-trials:v0.0.1-stormforger
-                name: stormforger
+                      key: accessToken
                 volumeMounts:
-                - mountPath: /jshar
-                  name: jshar 
+                - name: jshar
                   readOnly: true
+                  mountPath: /jshar
               volumes:
               - name: jshar
                 emptyDir: {}
-              - configMap:
-                   name: harutils
-                name: harutils
+              - name: harutils
+                configMap:
+                  name: harutils
               - name: cloud-credentials
                 secret:
                   secretName: gcs-creds
-      setupServiceAccountName: redsky-setup
+      setupServiceAccountName: stormforge-setup
       setupTasks:
-      - args:
+      - name: monitoring
+        args:
         - prometheus
         - $(MODE)
-        name: monitoring
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: redsky-setup
+  name: stormforge-setup
   namespace: default
   labels:
-    redskyops.dev/application: 'voting-sf-example-vhs'
----
+    stormforge.io/application: 'voting-sf-example-vhs'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: redsky-prometheus-6ea045
+  name: stormforge-prometheus-6ea045
   labels:
-    redskyops.dev/application: 'voting-sf-example-vhs'
+    stormforge.io/application: 'voting-sf-example-vhs'
 rules:
 - resources:
   - clusterroles
@@ -227,14 +226,14 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: redsky-setup-prometheus-6ea045
+  name: stormforge-setup-prometheus-6ea045
   labels:
-    redskyops.dev/application: 'voting-sf-example-vhs'
+    stormforge.io/application: 'voting-sf-example-vhs'
 roleRef:
-  name: redsky-prometheus-6ea045
+  name: stormforge-prometheus-6ea045
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
 subjects:
-- name: redsky-setup
+- name: stormforge-setup
   namespace: default
   kind: ServiceAccount

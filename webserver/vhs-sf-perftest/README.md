@@ -15,7 +15,7 @@ This workflow has four main phases:
 
 - `kubectl` installed and configured with your cluster
 - `kustomize` (v3.1.0+)
-- [StormForge Optimize Controller (`redskyctl`)](https://github.com/thestormforge/optimize-controller) installed on your cluster
+- [StormForge Optimize Controller (`stormforge`)](https://docs.stormforge.io/optimize/getting-started/install/) installed on your cluster
 - [StormForge Performance Test CLI (`forge`)](https://github.com/stormforger/cli)
 - Google Cloud Storage account
 
@@ -26,7 +26,7 @@ This network traffic should be captured in an environment that is similar or ide
 The [VHS repository](https://github.com/rename-this/vhs) contains an example that demonstrates capturing HTTP traffic from a cluster running the Voting Web App.
 It can be find in the subdirectory [hack/demo](https://github.com/rename-this/vhs/tree/main/hack/demo).
 
-This demo deploys the voting web app with a VHS container in each of voting-service pod (4 pods), generates some load with simple script using `curl`, and captures 5 minutes of load to a Google Cloud Storage bucket. 
+This demo deploys the voting web app with a VHS container in each of voting-service pod (4 pods), generates some load with simple script using `curl`, and captures 5 minutes of load to a Google Cloud Storage bucket.
 The demo will generate four files, and any one of those files can be used for the remaining steps in this example.
 
 ## Prepare the cluster
