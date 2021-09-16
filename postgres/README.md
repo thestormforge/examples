@@ -31,7 +31,7 @@ More information can be found on the [pgbench](https://www.postgresql.org/docs/1
 
 The description of the application in `application.yaml` is used to determine how to apply load to the application (in this case, using pgbench as a custom load test), and what the objective of the optimization is (reducing cost and the time required to execute the benchmark). Feel free to change the name or namespace to avoid conflicting with other experiments in the cluster.
 
-To launch the experiment run `kubectl apply -f postgres.yaml -f experiment.yaml
+To launch the experiment run `kubectl apply -f postgres.yaml -f experiment.yaml`
 
 ## Experiment Lifecycle
 
