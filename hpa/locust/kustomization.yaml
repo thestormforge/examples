@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: recipe
 
 resources:
-  - github.com/thestormforge/examples/voting-webapp/application
+  - github.com/thestormforge/examples/webserver/voting-webapp/application
   - hpa.yaml
   - experiment.yaml
 
