@@ -1,10 +1,5 @@
 # Web App Example
 
-## Running The Experiment
-From `examples/voting-webapp` execute
-
-`kubectl apply -k .`
-
 ## Introduction
 A simple distributed application based on the official Docker [voting app](https://github.com/dockersamples/example-voting-app).
 This application allows users to vote on "cats" vs. "dogs", and serves the results in a simple web page.
@@ -19,17 +14,9 @@ The application architecture is made of 5 components (see diagram below):
 
 ![Architecture diagram](architecture.png)
 
-In this example, we demonstrate how to tune a typical application with several components, using [Locust](https://locust.io/). Locust makes repeated HTTP calls to the voting service, thereby simulating user load on the application.
+## Resources
 
-## Prerequisites
-
-You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 16 vCPUs (4 on each node) and 32GB of memory (8 on each node). Additionally, you will need a local configured copy of `kubectl`.
-
-Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `stormforge init` (while connected to your cluster).
-
-## Example Resources
-
-The resources in this directory aren't going to launch experiments in StormForge Optimize in and off themselves. For that, see [locust-metrics](../webserver/locust-metrics). Nevertheless, here is a short description for each of them.
+The resources in this directory aren't going to launch experiments in StormForge Optimize in and off themselves. For that, see [locust-metrics](../locust-metrics). Nevertheless, here is a short description for each of them.
 
 `application/kustomization.yaml`
 : The input to Kustomize used to build the Kubernetes object manifests for this sample application.
@@ -56,4 +43,4 @@ The resources in this directory aren't going to launch experiments in StormForge
 : This directory contains files required to run the results exporter. The exporter's role is to expose the throughput metric over HTTP (in contrast to the original websocket implementation in the results service) so that it can be collected by the jsonpath metric collector.
 `app.py` contains the exporter application, `requirements.txt` are the python library requirements and `Dockerfile` contains the Docker commands to run the exporter container. There is no need to build the image; the folder is only included for reference.
 
-More information can be found on the [docker example voting app](https://github.com/dockersamples/example-voting-app) and [Locust](https://docs.locust.io/en/stable/) docs.
+More information can be found on the [docker example voting app](https://github.com/dockersamples/example-voting-app)docs.
