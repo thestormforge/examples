@@ -1,0 +1,343 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: codys-google-boutique
+  namespace: default
+  labels:
+    stormforge.io/application: 'google-boutique'
+    stormforge.io/objective: 'cost-vs-p95-latency'
+    stormforge.io/scenario: 'google-boutique'
+spec:
+  parameters:
+  - name: cartservice_cpu
+    baseline: 200
+    min: 100
+    max: 2000
+  - name: cartservice_memory
+    baseline: 64
+    min: 32
+    max: 128
+  - name: frontend_cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: frontend_memory
+    baseline: 64
+    min: 32
+    max: 128
+  - name: paymentservice_cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: paymentservice_memory
+    baseline: 64
+    min: 32
+    max: 128
+  - name: productcatalogservice_cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: productcatalogservice_memory
+    baseline: 64
+    min: 32
+    max: 128
+  - name: recommendationservice_cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: recommendationservice_memory
+    baseline: 220
+    min: 110
+    max: 440
+  - name: redis_cart_cpu
+    baseline: 70
+    min: 35
+    max: 2000
+  - name: redis_cart_memory
+    baseline: 200
+    min: 100
+    max: 400
+  - name: shippingservice_cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: shippingservice_memory
+    baseline: 64
+    min: 32
+    max: 128
+  metrics:
+  - name: p95-latency
+    type: prometheus
+    minimize: true
+    query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost
+    type: prometheus
+    minimize: true
+    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 3)
+  - name: cost-cpu-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ cpuRequests . "" }}'
+  - name: cost-memory-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ memoryRequests . "" | GB }}'
+  patches:
+  - targetRef:
+      name: paymentservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ .Values.paymentservice_cpu }}m'
+                  memory: '{{ .Values.paymentservice_memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.paymentservice_cpu }}m'
+                  memory: '{{ .Values.paymentservice_memory }}Mi'
+  - targetRef:
+      name: productcatalogservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ .Values.productcatalogservice_cpu }}m'
+                  memory: '{{ .Values.productcatalogservice_memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.productcatalogservice_cpu }}m'
+                  memory: '{{ .Values.productcatalogservice_memory }}Mi'
+  - targetRef:
+      name: shippingservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ .Values.shippingservice_cpu }}m'
+                  memory: '{{ .Values.shippingservice_memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.shippingservice_cpu }}m'
+                  memory: '{{ .Values.shippingservice_memory }}Mi'
+  - targetRef:
+      name: frontend
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ .Values.frontend_cpu }}m'
+                  memory: '{{ .Values.frontend_memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.frontend_cpu }}m'
+                  memory: '{{ .Values.frontend_memory }}Mi'
+  - targetRef:
+      name: recommendationservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ .Values.recommendationservice_cpu }}m'
+                  memory: '{{ .Values.recommendationservice_memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.recommendationservice_cpu }}m'
+                  memory: '{{ .Values.recommendationservice_memory }}Mi'
+  - targetRef:
+      name: redis-cart
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: redis
+              resources:
+                limits:
+                  cpu: '{{ .Values.redis_cart_cpu }}m'
+                  memory: '{{ .Values.redis_cart_memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.redis_cart_cpu }}m'
+                  memory: '{{ .Values.redis_cart_memory }}Mi'
+  - targetRef:
+      name: cartservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ .Values.cartservice_cpu }}m'
+                  memory: '{{ .Values.cartservice_memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.cartservice_cpu }}m'
+                  memory: '{{ .Values.cartservice_memory }}Mi'
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'google-boutique'
+        stormforge.io/objective: 'cost-vs-p95-latency'
+        stormforge.io/scenario: 'google-boutique'
+    spec:
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'google-boutique'
+            stormforge.io/objective: 'cost-vs-p95-latency'
+            stormforge.io/scenario: 'google-boutique'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'google-boutique'
+                stormforge.io/objective: 'cost-vs-p95-latency'
+                stormforge.io/scenario: 'google-boutique'
+            spec:
+              containers:
+              - name: google-boutique
+                image: thestormforge/optimize-trials:v0.0.3-stormforge-perf
+                env:
+                - name: TITLE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: TEST_CASE
+                  value: sf_sandbox/google-boutique
+                - name: STORMFORGER_JWT
+                  valueFrom:
+                    secretKeyRef:
+                      name: stormforge-perf-access-token-ea91c5
+                      key: STORMFORGER_JWT
+      setupServiceAccountName: optimize-setup-ea91c5
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: stormforge-perf-access-token-ea91c5
+  namespace: default
+  labels:
+    stormforge.io/application: 'google-boutique'
+data:
+  STORMFORGER_JWT: ZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKemRXSWlPaUp6WmpwellUcDFkams0UWxCblJTSXNJbVY0Y0NJNk1UazBPVFV3T0Rnek1Dd2lhblJwSWpvaVZrcE1UR05aVXkxSVlqVk5ia3BOVmxGS2NWSWlmUS5SMFRVc0t6dm1DeXU1eW9NX0V6TmZMZHRPYTBMeW41dHFwT1NGT3M2N1ZB
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: optimize-setup-ea91c5
+  namespace: default
+  labels:
+    stormforge.io/application: 'google-boutique'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-prometheus-ea91c5
+  labels:
+    stormforge.io/application: 'google-boutique'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-prometheus-ea91c5
+  labels:
+    stormforge.io/application: 'google-boutique'
+roleRef:
+  name: optimize-prometheus-ea91c5
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-setup-ea91c5
+  namespace: default
+  kind: ServiceAccount
