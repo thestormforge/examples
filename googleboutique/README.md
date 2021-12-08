@@ -14,8 +14,22 @@ For this example, there are a few things you'll need to setup
 
 # Creating the Load Test
 
+Using the StormForge performance testing platform, you have the ability to record a HAR file from the browser and import that into our platform and use that as a baseline or skaffold for you performace test. In this way, you can define different user journeys and workflows while testing different functions of your application.
+
+You can find detailed instructions on how to create and import a HAR file here: [StormForge HAR Creation](https://docs.stormforger.com/guides/har-converter/)
+
+Alternatively, you can view a video of a walkthrough for this example here: [StormForge Boutique Walkthrough Example](https://)
+
+In this case, I've opened the developer tools on my Chrome browser, and loaded the Google Boutique. Here, I've added a few items to the cart, and then checked out, so we can get a good representation of a user journey start to finish. This hits most of the microservices in this application, that we will then use in our machine learning platform to optimize.
+
+<img src="img/pic1.png" width="400">
+
+<img src="img/pic2.png" width="400">
+
 
 # Generating the experiment
+
+<!--- SHOW HOW USE OF LABELS WORKS IN EXPERIMENT GENERATION -->
 
 
 # Running the experiment
