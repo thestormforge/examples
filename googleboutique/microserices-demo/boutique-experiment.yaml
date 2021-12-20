@@ -1,0 +1,247 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: boutique-demo 
+  namespace: default
+  labels:
+    stormforge.io/application: 'default'
+    stormforge.io/objective: 'cost-vs-p95-latency'
+    stormforge.io/scenario: 'codys-hipster-boutique'
+spec:
+  parameters:
+  - name: deployment/cartservice/server/resources/cpu
+    baseline: 1090
+    min: 545
+    max: 4000
+  - name: deployment/cartservice/server/resources/memory
+    baseline: 72
+    min: 36
+    max: 144
+  - name: deployment/checkoutservice/server/resources/cpu
+    baseline: 1036
+    min: 518
+    max: 4000
+  - name: deployment/checkoutservice/server/resources/memory
+    baseline: 63
+    min: 31
+    max: 126
+  - name: deployment/frontend/server/resources/cpu
+    baseline: 1995
+    min: 997
+    max: 4000
+  - name: deployment/frontend/server/resources/memory
+    baseline: 80
+    min: 40
+    max: 160
+  metrics:
+  - name: p95-latency
+    type: prometheus
+    minimize: true
+    query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost
+    type: prometheus
+    minimize: true
+    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 3)
+  - name: cost-cpu-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ cpuRequests . "" }}'
+  - name: cost-memory-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ memoryRequests . "" | GB }}'
+  patches:
+  - targetRef:
+      name: cartservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/cartservice/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/cartservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/cartservice/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/cartservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: checkoutservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/checkoutservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/checkoutservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/checkoutservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/checkoutservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: frontend
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/frontend/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/frontend/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/frontend/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/frontend/server/resources/memory"
+                    }}Mi'
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'default'
+        stormforge.io/objective: 'cost-vs-p95-latency'
+        stormforge.io/scenario: 'codys-hipster-boutique'
+    spec:
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'default'
+            stormforge.io/objective: 'cost-vs-p95-latency'
+            stormforge.io/scenario: 'codys-hipster-boutique'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'default'
+                stormforge.io/objective: 'cost-vs-p95-latency'
+                stormforge.io/scenario: 'codys-hipster-boutique'
+            spec:
+              containers:
+              - name: codys-hipster-boutique
+                image: thestormforge/optimize-trials:v0.0.3-stormforge-perf
+                env:
+                - name: TITLE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: TEST_CASE
+                  value: codys-hipster-boutique
+                - name: STORMFORGER_JWT
+                  valueFrom:
+                    secretKeyRef:
+                      name: stormforge-perf-access-token-6b1d03
+                      key: STORMFORGER_JWT
+      setupServiceAccountName: optimize-setup-6b1d03
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: stormforge-perf-access-token-6b1d03
+  namespace: default
+  labels:
+    stormforge.io/application: 'default'
+data:
+  STORMFORGER_JWT: XXX
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: optimize-setup-6b1d03
+  namespace: default
+  labels:
+    stormforge.io/application: 'default'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-prometheus-6b1d03
+  labels:
+    stormforge.io/application: 'default'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-prometheus-6b1d03
+  labels:
+    stormforge.io/application: 'default'
+roleRef:
+  name: optimize-prometheus-6b1d03
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-setup-6b1d03
+  namespace: default
+  kind: ServiceAccount

@@ -1,0 +1,573 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: default-f7988069
+  namespace: default
+  labels:
+    stormforge.io/application: 'default'
+    stormforge.io/objective: 'cost-vs-p95-latency'
+    stormforge.io/scenario: 'codys-hipster-boutique'
+spec:
+  parameters:
+  - name: deployment/adservice/server/resources/cpu
+    baseline: 200
+    min: 100
+    max: 2000
+  - name: deployment/adservice/server/resources/memory
+    baseline: 180
+    min: 90
+    max: 360
+  - name: deployment/cartservice/server/resources/cpu
+    baseline: 2024
+    min: 1012
+    max: 4000
+  - name: deployment/cartservice/server/resources/memory
+    baseline: 86
+    min: 43
+    max: 172
+  - name: deployment/checkoutservice/server/resources/cpu
+    baseline: 696
+    min: 348
+    max: 2000
+  - name: deployment/checkoutservice/server/resources/memory
+    baseline: 34
+    min: 17
+    max: 68
+  - name: deployment/currencyservice/server/resources/cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: deployment/currencyservice/server/resources/memory
+    baseline: 64
+    min: 32
+    max: 128
+  - name: deployment/emailservice/server/resources/cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: deployment/emailservice/server/resources/memory
+    baseline: 64
+    min: 32
+    max: 128
+  - name: deployment/frontend/server/resources/cpu
+    baseline: 3215
+    min: 1607
+    max: 4000
+  - name: deployment/frontend/server/resources/memory
+    baseline: 76
+    min: 38
+    max: 152
+  - name: deployment/optimize-default-prometheus-server/kube-state-metrics/resources/cpu
+    baseline: 25
+    min: 12
+    max: 2000
+  - name: deployment/optimize-default-prometheus-server/kube-state-metrics/resources/memory
+    baseline: 25
+    min: 12
+    max: 50
+  - name: deployment/optimize-default-prometheus-server/prometheus-pushgateway/resources/cpu
+    baseline: 25
+    min: 12
+    max: 2000
+  - name: deployment/optimize-default-prometheus-server/prometheus-pushgateway/resources/memory
+    baseline: 25
+    min: 12
+    max: 50
+  - name: deployment/optimize-default-prometheus-server/prometheus-server/resources/cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: deployment/optimize-default-prometheus-server/prometheus-server/resources/memory
+    baseline: 100
+    min: 50
+    max: 200
+  - name: deployment/optimize-default-prometheus-server/configmap-reloader/resources/cpu
+    baseline: 25
+    min: 12
+    max: 2000
+  - name: deployment/optimize-default-prometheus-server/configmap-reloader/resources/memory
+    baseline: 25
+    min: 12
+    max: 50
+  - name: deployment/paymentservice/server/resources/cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: deployment/paymentservice/server/resources/memory
+    baseline: 64
+    min: 32
+    max: 128
+  - name: deployment/productcatalogservice/server/resources/cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: deployment/productcatalogservice/server/resources/memory
+    baseline: 64
+    min: 32
+    max: 128
+  - name: deployment/recommendationservice/server/resources/cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: deployment/recommendationservice/server/resources/memory
+    baseline: 220
+    min: 110
+    max: 440
+  - name: deployment/redis-cart/redis/resources/cpu
+    baseline: 70
+    min: 35
+    max: 2000
+  - name: deployment/redis-cart/redis/resources/memory
+    baseline: 200
+    min: 100
+    max: 400
+  - name: deployment/shippingservice/server/resources/cpu
+    baseline: 100
+    min: 50
+    max: 2000
+  - name: deployment/shippingservice/server/resources/memory
+    baseline: 64
+    min: 32
+    max: 128
+  metrics:
+  - name: p95-latency
+    type: prometheus
+    minimize: true
+    query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost
+    type: prometheus
+    minimize: true
+    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 3)
+  - name: cost-cpu-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ cpuRequests . "" }}'
+  - name: cost-memory-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ memoryRequests . "" | GB }}'
+  patches:
+  - targetRef:
+      name: checkoutservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/checkoutservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/checkoutservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/checkoutservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/checkoutservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: emailservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/emailservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/emailservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/emailservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/emailservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: paymentservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/paymentservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/paymentservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/paymentservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/paymentservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: shippingservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/shippingservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/shippingservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/shippingservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/shippingservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: recommendationservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/recommendationservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/recommendationservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/recommendationservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/recommendationservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: redis-cart
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: redis
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/redis-cart/redis/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/redis-cart/redis/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/redis-cart/redis/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/redis-cart/redis/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: adservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/adservice/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/adservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/adservice/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/adservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: cartservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/cartservice/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/cartservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/cartservice/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/cartservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: currencyservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/currencyservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/currencyservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/currencyservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/currencyservice/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: frontend
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/frontend/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/frontend/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/frontend/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/frontend/server/resources/memory"
+                    }}Mi'
+  - targetRef:
+      name: optimize-default-prometheus-server
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: kube-state-metrics
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/optimize-default-prometheus-server/kube-state-metrics/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/optimize-default-prometheus-server/kube-state-metrics/resources/memory"
+                    }}M'
+                requests:
+                  cpu: '{{ index .Values "deployment/optimize-default-prometheus-server/kube-state-metrics/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/optimize-default-prometheus-server/kube-state-metrics/resources/memory"
+                    }}M'
+            - name: prometheus-pushgateway
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/optimize-default-prometheus-server/prometheus-pushgateway/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/optimize-default-prometheus-server/prometheus-pushgateway/resources/memory"
+                    }}M'
+                requests:
+                  cpu: '{{ index .Values "deployment/optimize-default-prometheus-server/prometheus-pushgateway/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/optimize-default-prometheus-server/prometheus-pushgateway/resources/memory"
+                    }}M'
+            - name: prometheus-server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/optimize-default-prometheus-server/prometheus-server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/optimize-default-prometheus-server/prometheus-server/resources/memory"
+                    }}M'
+                requests:
+                  cpu: '{{ index .Values "deployment/optimize-default-prometheus-server/prometheus-server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/optimize-default-prometheus-server/prometheus-server/resources/memory"
+                    }}M'
+            - name: configmap-reloader
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/optimize-default-prometheus-server/configmap-reloader/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/optimize-default-prometheus-server/configmap-reloader/resources/memory"
+                    }}M'
+                requests:
+                  cpu: '{{ index .Values "deployment/optimize-default-prometheus-server/configmap-reloader/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/optimize-default-prometheus-server/configmap-reloader/resources/memory"
+                    }}M'
+  - targetRef:
+      name: productcatalogservice
+      namespace: default
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/productcatalogservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/productcatalogservice/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/productcatalogservice/server/resources/cpu"
+                    }}m'
+                  memory: '{{ index .Values "deployment/productcatalogservice/server/resources/memory"
+                    }}Mi'
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'default'
+        stormforge.io/objective: 'cost-vs-p95-latency'
+        stormforge.io/scenario: 'codys-hipster-boutique'
+    spec:
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'default'
+            stormforge.io/objective: 'cost-vs-p95-latency'
+            stormforge.io/scenario: 'codys-hipster-boutique'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'default'
+                stormforge.io/objective: 'cost-vs-p95-latency'
+                stormforge.io/scenario: 'codys-hipster-boutique'
+            spec:
+              containers:
+              - name: codys-hipster-boutique
+                image: thestormforge/optimize-trials:v0.0.3-stormforge-perf
+                env:
+                - name: TITLE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: TEST_CASE
+                  value: codys-hipster-boutique
+                - name: STORMFORGER_JWT
+                  valueFrom:
+                    secretKeyRef:
+                      name: stormforge-perf-access-token-6b1d03
+                      key: STORMFORGER_JWT
+      setupServiceAccountName: optimize-setup-6b1d03
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: stormforge-perf-access-token-6b1d03
+  namespace: default
+  labels:
+    stormforge.io/application: 'default'
+data:
+  STORMFORGER_JWT: ZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKemRXSWlPaUp6WmpwdllUcENjbEJLT0RoVVVDSXNJbVY0Y0NJNk1UWTBNREV4TWpVME9Dd2lhblJwSWpvaVMzUk1lbVY2YlMxMVlYaGxjRVJXZWw5SFJsQWlmUS5yOXNXVW5OaHFSZGd4NlRuTDM3R2NCdUlEaElTVFloZFZJdC1iWmFwTnpR
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: optimize-setup-6b1d03
+  namespace: default
+  labels:
+    stormforge.io/application: 'default'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-prometheus-6b1d03
+  labels:
+    stormforge.io/application: 'default'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-prometheus-6b1d03
+  labels:
+    stormforge.io/application: 'default'
+roleRef:
+  name: optimize-prometheus-6b1d03
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-setup-6b1d03
+  namespace: default
+  kind: ServiceAccount
