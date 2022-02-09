@@ -1,7 +1,10 @@
-apiVersion: redskyops.dev/v1beta1
+apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: jvm-reactors
+  labels:
+    stormforge.io/application: jvm-reactors
+    stormforge.io/scenario: jvm-test
 spec:
   optimization:
   - name: experimentBudget
