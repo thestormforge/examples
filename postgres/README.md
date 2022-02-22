@@ -16,8 +16,8 @@ You will also need to initialize StormForge Optimize in your cluster, you can fo
 
 The resources for this tutorial can be found in the [`/postgres`](https://github.com/thestormforge/examples/tree/master/postgres) directory of the `examples` source repository. The following manifests define how to run Postgres:
 
-* `application.yaml`
-  : The StormForge Optimize description of the application.
+* `experiment.yaml`
+  : The StormForge Optimize Pro Experiment definition.
 * `postgres.yaml`
   : The resources for the Postgres application itself.
 
@@ -29,7 +29,7 @@ The application includes a configuration secret which allows you to control the 
 
 More information can be found on the [pgbench](https://www.postgresql.org/docs/10/pgbench.html) and [crunchydata](https://access.crunchydata.com/documentation/crunchy-postgres-containers/2.4.1/container-specifications/crunchy-pgbench/) documentation.
 
-The description of the application in `application.yaml` is used to determine how to apply load to the application (in this case, using pgbench as a custom load test), and what the objective of the optimization is (reducing cost and the time required to execute the benchmark). Feel free to change the name or namespace to avoid conflicting with other experiments in the cluster.
+The objective of the optimization is (reducing cost and the time required to execute the benchmark). Feel free to change the name or namespace to avoid conflicting with other experiments in the cluster.
 
 To launch the experiment run `kubectl apply -f postgres.yaml -f experiment.yaml
 
