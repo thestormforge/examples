@@ -17,7 +17,7 @@ For this example, there are a few things you'll need:
 
 ## Creating the Load Test
 
-Using the StormForge performance testing platform, you have the ability to record a HAR file from the browser and import that into our platform and use that as a baseline or skaffold for you performace test. In this way, you can define different user journeys and workflows while testing different functions of your application.
+Using the StormForge performance testing platform, you have the ability to record a HAR file from the browser and import that into our platform and use that as a baseline or skaffold for your performace test. In this way, you can define different user journeys and workflows while testing various functions of your application.
 
 You can find detailed instructions on how to create and import a HAR file here: [StormForge HAR Creation](https://docs.stormforger.com/guides/har-converter/)
 

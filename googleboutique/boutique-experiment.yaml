@@ -1,7 +1,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: boutique-demo 
+  name: boutique-demo-22500-clients 
   namespace: default
   labels:
     stormforge.io/application: 'default'
@@ -166,7 +166,7 @@ metadata:
   labels:
     stormforge.io/application: 'default'
 data:
-  STORMFORGER_JWT: XXX
+  STORMFORGER_JWT: ZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKemRXSWlPaUp6WmpwMU9tdFNWM0l3VUZodklpd2laWGh3SWpveE5qY3lOekF6T0RjNExDSnFkR2tpT2lKRVpIbFhjbk5UYTFkRmFHODVhR2g0VjNoVk15Sjkub2Vya2ZzTjNsbnhhN0ZONHJLZzlORWZRWENoSm82aENNRE9jY0RpaC1pVQ== 
 ---
 apiVersion: v1
 kind: ServiceAccount
