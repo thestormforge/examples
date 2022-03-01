@@ -10,7 +10,7 @@ In this example, we demonstrate how one can effectively and efficiently tune Pos
 
 You must have a Kubernetes cluster. While this example will run on Minikube, we highly recommend using a cluster with 2 nodes, 8vCPUs (4 on each node) and 16GB of memory (8 on each node). Additionally, you will need a local configured copy of `kubectl`.
 
-You will also need to initialize StormForge Optimize in your cluster, you can follow the instructions from the [installation guide](https://docs.stormforge.io/getting-started/install/).
+You will also need to initialize StormForge Optimize in your cluster, you can follow the instructions from the [installation guide](https://docs.stormforge.io/optimize-pro/getting-started/install/).
 
 ## Example Resources
 
@@ -39,4 +39,4 @@ For every trial, two pods will come up:
 1. A `postgres` pod that contains the database that trial will run against and get patched accordingly
 2. An `<experiment-name>` pod which runs `pgbench` against the database - this is the actual trial pod
 
-For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://docs.stormforge.io/getting-started/quickstart/) and [experiment lifecycle](https://docs.stormforge.io/lifecycle/) documentation.
+For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://docs.stormforge.io/optimize-pro/getting-started/quickstart/) and [experiment lifecycle](https://docs.stormforge.io/optimize-pro/concepts/lifecycle/) documentation.
