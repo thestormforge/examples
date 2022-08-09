@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  labels:
+    app: pet-clinic
+  name: pet-clinic
+  namespace: examples
+spec:
+  rules:
+  - host: pet-clinic.stormforge.show
+    http:
+      paths:
+      - backend:
+          service:
+            name: pet-clinic
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix

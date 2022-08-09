@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pet-clinic
+  name: pet-clinic
+  namespace: examples
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pet-clinic
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pet-clinic
+    spec:
+      containers:
+      - image: public.ecr.aws/d6i2p8s7/examples/spring-petclinic:latest
+        imagePullPolicy: Always
+        name: spring-petclinic
+        resources:
+          limits:
+            cpu: 1
+            memory: 1000Mi
+          requests:
+            cpu: 1
+            memory: 1000Mi
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 1
