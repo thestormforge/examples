@@ -47,11 +47,11 @@ spec:
           successThreshold: 1
           timeoutSeconds: 5
         startupProbe:
-          failureThreshold: 30
+          failureThreshold: 300
           httpGet:
             path: /
             port: 8080
             scheme: HTTP
-          periodSeconds: 15
+          periodSeconds: 1
           successThreshold: 1
           timeoutSeconds: 1
