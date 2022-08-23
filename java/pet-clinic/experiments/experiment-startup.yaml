@@ -1,0 +1,185 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: pet-clinic-startup
+  namespace: pet-clinic
+  labels:
+    stormforge.io/application: 'pet-clinic'
+    stormforge.io/objective: 'cost-vs-startup-time'
+    stormforge.io/scenario: 'pet-clinic-startup-time'
+    stormforge.io/jvm: 'gc_and_jit_trials'
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "100"
+  parameters:
+  - name: cpu
+    baseline: 500
+    min: 10
+    max: 2000
+  - name: memory
+    baseline: 1500
+    min: 640
+    max: 2500
+  metrics:
+  - name: startup-time
+    minimize: true
+    type: prometheus
+    query: scalar(application_startup_time{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost
+    minimize: true
+    query: '{{divf (addf (mulf .Values.cpu 17) (mulf .Values.memory 3)) 1000}}'
+  - name: cost-cpu-requests
+    minimize: true
+    optimize: false
+    query: '{{divf (mulf .Values.cpu 17) 1000}}'
+  - name: cost-memory-requests
+    minimize: true
+    optimize: false
+    query: '{{divf (mulf .Values.memory 3) 1000}}'
+  patches:
+  - targetRef:
+      kind: Deployment
+      apiVersion: apps/v1
+      name: pet-clinic
+      namespace: pet-clinic
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: spring-petclinic
+              resources:
+                limits:
+                  cpu: '{{ index .Values.cpu}}m'
+                  memory: '{{ index .Values.memory}}Mi'
+                requests:
+                  cpu: '{{ index .Values.cpu}}m'
+                  memory: '{{ index .Values.memory}}Mi'
+              env:
+              - name: JAVA_TOOL_OPTIONS
+                value: '-XX:+PreferContainerQuotaForCPUCount'
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'pet-clinic'
+        stormforge.io/objective: 'cost-vs-startup-time'
+        stormforge.io/scenario: 'pet-clinic-startup-time'
+    spec:
+      readinessGates:
+      - selector:
+          matchLabels:
+            stormforge.io/application: 'pet-clinic'
+            stormforge.io/scenario: 'pet-clinic-startup-time'
+        failureThreshold: 60
+        conditionTypes:
+        - ContainersReady
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'pet-clinic'
+            stormforge.io/objective: 'cost-vs-startup-time'
+            stormforge.io/scenario: 'pet-clinic-startup-time'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'pet-clinic'
+                stormforge.io/objective: 'cost-vs-startup-time'
+                stormforge.io/scenario: 'pet-clinic-startup-time'
+            spec:
+              containers:
+              - name: startup-checker
+                image: public.ecr.aws/stormforge/examples/startup-checker:latest
+                imagePullPolicy: Always
+                env:
+                - name: NAMESPACE
+                  value: examples
+                - name: APP_NAME
+                  value: pet-clinic
+              serviceAccountName: optimize-setup-sa
+      setupServiceAccountName: optimize-setup-sa
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: optimize-setup-sa
+  namespace: pet-clinic
+  labels:
+    stormforge.io/application: 'pet-clinic'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-setup-cr
+  labels:
+    stormforge.io/application: 'pet-clinic'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - get
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-crb
+  labels:
+    stormforge.io/application: 'pet-clinic'
+roleRef:
+  name: optimize-setup-cr
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-setup-sa
+  namespace: pet-clinic
+  kind: ServiceAccount
