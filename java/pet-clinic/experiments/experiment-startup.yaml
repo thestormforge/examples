@@ -94,9 +94,11 @@ spec:
                 imagePullPolicy: Always
                 env:
                 - name: NAMESPACE
-                  value: examples
+                  value: pet-clinic
                 - name: APP_NAME
                   value: pet-clinic
+                - name: STARTUP_TIME_LOG_REGEX
+                  value: 'Started PetClinicApplication in (\d+\.*\d*) seconds'
               serviceAccountName: optimize-setup-sa
       setupServiceAccountName: optimize-setup-sa
       setupTasks:
@@ -162,6 +164,7 @@ rules:
   - get
 - resources:
   - pods
+  - pods/log
   apiGroups:
   - ""
   verbs:
