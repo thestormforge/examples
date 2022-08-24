@@ -9,7 +9,7 @@ metadata:
   labels:
     app: pet-clinic
   name: pet-clinic
-  namespace: examples
+  namespace: pet-clinic
 spec:
   rules:
   - host: pet-clinic.stormforge.show
