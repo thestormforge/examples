@@ -1,13 +1,13 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: pet-clinic-startup
+  name: pet-clinic-startup-logs-with-jvm-flags
   namespace: pet-clinic
   labels:
     stormforge.io/application: 'pet-clinic'
     stormforge.io/objective: 'cost-vs-startup-time'
     stormforge.io/scenario: 'pet-clinic-startup-time'
-    stormforge.io/jvm: 'gc_and_jit_trials'
+    stormforge.io/source: 'logs-with-jvm-flags'
 spec:
   optimization:
   - name: "experimentBudget"
@@ -21,6 +21,22 @@ spec:
     baseline: 1500
     min: 640
     max: 2500
+  - name: gc_newRatio
+    baseline: 2
+    min: 1
+    max: 5
+  - name: gc_survivorRatio
+    baseline: 8
+    min: 1
+    max: 16
+  - name: threadStackSize
+    baseline: 1024
+    min: 500
+    max: 5000
+  - name: initialCodeCacheSize
+    baseline: 500
+    max: 1500
+    min: 250
   metrics:
   - name: startup-time
     minimize: true
@@ -58,7 +74,7 @@ spec:
                   memory: '{{ index .Values.memory}}Mi'
               env:
               - name: JAVA_TOOL_OPTIONS
-                value: '-XX:+PreferContainerQuotaForCPUCount'
+                value: '-XX:+PreferContainerQuotaForCPUCount -XX:NewRatio={{ .Values.gc_newRatio }} -XX:SurvivorRatio={{ .Values.gc_survivorRatio }} -Xss{{ .Values.threadStackSize }}k -XX:InitialCodeCacheSize={{ .Values.initialCodeCacheSize }}k'
   trialTemplate:
     metadata:
       labels:
