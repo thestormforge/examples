@@ -8,6 +8,9 @@ metadata:
     stormforge.io/objective: 'duration-vs-cost'
     stormforge.io/scenario: 'pgbench'
 spec:
+  optimization:
+  - name: experimentBudget
+    value: "400"
   parameters:
   - name: cpu
     baseline: 4000
