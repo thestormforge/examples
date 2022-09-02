@@ -1,7 +1,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: testapp-example-zeisss-2022-2
+  name: testapp-with-cli-v3-2022-1
   namespace: default
   labels:
     stormforge.io/application: 'stormforger-testapp'
@@ -70,6 +70,11 @@ spec:
         #     stormforge.io/objective: 'duration-vs-cost'
         #     stormforge.io/scenario: 'pgbench'
         spec:
+          setupTasks:
+          - name: monitoring
+            args:
+            - prometheus
+            - $(MODE)
           template:
             # metadata:
             #   labels:
@@ -79,9 +84,17 @@ spec:
             spec:
               containers:
               - name: curl
-                image: curlimages/curl
-                command:
-                - /bin/sh
+                image: 155712429589.dkr.ecr.us-east-1.amazonaws.com/stormforge-cli:3.0.0-alpha.5
+                env:
+                - name: ENABLE_PERFTEST_PREVIEW_COMMANDS
+                  value: "true"
+                envFrom:
+                - secretRef:
+                    name: stormforge-v3
                 args:
-                - -c
-                - seq 1 10 | xargs -I{} curl -k http://k8s-default-testapp-d6d43fe263-625234464.us-east-1.elb.amazonaws.com/
+                # NOTE: --metrics-output is automatically activated via ENV variable
+                - create
+                - test-run
+                - "--test-case=testapp_labs_optimize_trial"
+                - "--watch-timeout=1h"
+                - "--watch"
