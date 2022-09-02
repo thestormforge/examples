@@ -8,6 +8,10 @@ metadata:
     stormforge.io/scenario: 'scenario1'
   #   stormforge.io/objective: 'duration-vs-cost'
 spec:
+  optimization:
+  - name: experimentBudget
+    value: "20"
+
   parameters:
   - name: cpu
     baseline: 1000
