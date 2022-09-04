@@ -1,7 +1,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: testapp-with-cli-v3-2022-1
+  name: testapp-with-cli-v3-2022-2
   namespace: default
   labels:
     stormforge.io/application: 'stormforger-testapp'
@@ -63,6 +63,12 @@ spec:
     #     stormforge.io/scenario: 'pgbench'
     spec:
       initialDelaySeconds: 15
+      setupServiceAccountName: stormforge-setup
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
       jobTemplate:
         # metadata:
         #   labels:
@@ -70,11 +76,7 @@ spec:
         #     stormforge.io/objective: 'duration-vs-cost'
         #     stormforge.io/scenario: 'pgbench'
         spec:
-          setupTasks:
-          - name: monitoring
-            args:
-            - prometheus
-            - $(MODE)
+
           template:
             # metadata:
             #   labels:
@@ -83,7 +85,7 @@ spec:
             #     stormforge.io/scenario: 'pgbench'
             spec:
               containers:
-              - name: curl
+              - name: stormforge-cli
                 image: 155712429589.dkr.ecr.us-east-1.amazonaws.com/stormforge-cli:3.0.0-alpha.5
                 env:
                 - name: ENABLE_PERFTEST_PREVIEW_COMMANDS
