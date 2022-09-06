@@ -1,7 +1,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: testapp-with-cli-v3-2022-2
+  name: testapp-with-cli-v3-2022-4
   namespace: default
   labels:
     stormforge.io/application: 'stormforger-testapp'
@@ -32,9 +32,29 @@ spec:
       matchLabels:
         app.kubernetes.io/instance: testapp-example
         app.kubernetes.io/name: testapp
+
   - name: duration
     minimize: true
     query: '{{ duration .StartTime .CompletionTime }}'
+
+
+  - name: error_ratio
+    type: prometheus
+    query: scalar(error_ratio)
+    minimize: true
+    url: http://optimize-default-prometheus.default.svc.cluster.local:9090
+
+  - name: apdex_75
+    type: prometheus
+    query: scalar(apdex_75)
+    minimize: true
+    url: http://optimize-default-prometheus.default.svc.cluster.local:9090
+
+  - name: percentile_99
+    type: prometheus
+    query: scalar(percentile_99)
+    minimize: true
+    url: http://optimize-default-prometheus.default.svc.cluster.local:9090
 
   patches:
   - targetRef:
