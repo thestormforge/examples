@@ -1,0 +1,120 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: testapp-with-k6-alpha-2022-0
+  namespace: default
+  labels:
+    stormforge.io/application: 'stormforger-testapp'
+    stormforge.io/scenario: 'scenario1'
+  #   stormforge.io/objective: 'duration-vs-cost'
+spec:
+  optimization:
+  - name: experimentBudget
+    value: "20"
+
+  parameters:
+  - name: cpu
+    baseline: 1000
+    min: 500
+    max: 2000
+  - name: memory
+    baseline: 2048
+    min: 512
+    max: 2048
+
+  metrics:
+  - name: cost
+    minimize: true
+    query: '{{ resourceRequests .Target "cpu=0.017,memory=0.000000000003" }}'
+    target:
+      apiVersion: v1
+      kind: PodList
+      matchLabels:
+        app.kubernetes.io/instance: testapp-example
+        app.kubernetes.io/name: testapp
+
+  - name: duration
+    minimize: true
+    query: '{{ duration .StartTime .CompletionTime }}'
+
+
+  - name: error_ratio
+    type: prometheus
+    query: scalar(http_req_failed_passes / http_req_failed_fails)
+    minimize: true
+    url: http://optimize-default-prometheus.default.svc.cluster.local:9090
+
+  - name: percentile_99
+    type: prometheus
+    query: scalar(http_req_duration_p99)
+    minimize: true
+    url: http://optimize-default-prometheus.default.svc.cluster.local:9090
+
+  patches:
+  - targetRef:
+      name: testapp
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: testapp
+              resources:
+                limits:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}M'
+                requests:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}M'
+
+  trialTemplate:
+    # metadata:
+    #   labels:
+    #     stormforge.io/application: 'postgres'
+    #     stormforge.io/objective: 'duration-vs-cost'
+    #     stormforge.io/scenario: 'pgbench'
+    spec:
+      initialDelaySeconds: 15
+      setupServiceAccountName: stormforge-setup
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+      jobTemplate:
+        # metadata:
+        #   labels:
+        #     stormforge.io/application: 'postgres'
+        #     stormforge.io/objective: 'duration-vs-cost'
+        #     stormforge.io/scenario: 'pgbench'
+        spec:
+
+          template:
+            # metadata:
+            #   labels:
+            #     stormforge.io/application: 'postgres'
+            #     stormforge.io/objective: 'duration-vs-cost'
+            #     stormforge.io/scenario: 'pgbench'
+            spec:
+              containers:
+              - name: k6
+                image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/optimize-trials:k6-alpha0
+                env:
+                - name: ENABLE_PERFTEST_PREVIEW_COMMANDS
+                  value: "true"
+                envFrom:
+                - secretRef:
+                    name: stormforge-v3
+                volumeMounts:
+                - name: k6-test-file
+                  mountPath: /scripts/load_script.js
+                  subPath: load_script.js
+              volumes:
+                - name: k6-test-file
+                  configMap:
+                    name: k6-test-file
+                    items:
+                      - key: load_script.js
+                        path: load_script.js    
