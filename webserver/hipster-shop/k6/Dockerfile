@@ -1,4 +1,4 @@
-FROM ghcr.io/thestormforge/optimize-trials:sha-d48b6c5-k6
+FROM ghcr.io/thestormforge/optimize-trials:edge-k6
 
 COPY script.js creditcards.csv products.csv /scripts/
 
