@@ -18,25 +18,25 @@ The application architecture is made of 5 components (see diagram below):
 
 The resources in this directory aren't going to launch experiments in StormForge Optimize in and off themselves. For that, see [locust-metrics](../locust-metrics). Nevertheless, here is a short description for each of them.
 
-`application/kustomization.yaml`
+`manifests/kustomization.yaml`
 : The input to Kustomize used to build the Kubernetes object manifests for this sample application.
 
-`application/postgres.yaml`
+`maniftests/postgres.yaml`
 : The manifest for the PostgreSQL database.
 
-`applicaton/redis.yaml`
+`manifests/redis.yaml`
 : The manifest for the Redis queue.
 
-`application/results-exporter.yaml`
+`manifests/results-exporter.yaml`
 : The manifest for the results exporter.
 
-`applicaton/results-service.yaml`
+`manifests/results-service.yaml`
 : The manifest for the results service.
 
-`application/voting-service.yaml`
+`manifests/voting-service.yaml`
 : The manifest for the voting service.
 
-`application/worker.yaml`
+`manifests/worker.yaml`
 : The manifest for the .NET worker.
 
 `results-exporter/`
