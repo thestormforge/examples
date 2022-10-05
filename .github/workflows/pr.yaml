@@ -20,6 +20,6 @@ jobs:
     - name: Build all included kustomizations
       run: |
         set -eo pipefail
-        find . -type f -maxdepth 8 -name kustomization.yaml \
+        find . -type f -maxdepth 10 -name kustomization.yaml \
         | xargs -n1 dirname \
         | xargs -I{} sh -c 'echo "Building {}..."; kustomize build {} 1> /dev/null'
