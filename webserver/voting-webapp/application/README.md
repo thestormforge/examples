@@ -1,4 +1,4 @@
-# Web App Example
+# Voting Web App Example
 
 ## Introduction
 A simple distributed application based on the official Docker [voting app](https://github.com/dockersamples/example-voting-app).
@@ -16,7 +16,7 @@ The application architecture is made of 5 components (see diagram below):
 
 ## Resources
 
-The resources in this directory aren't going to launch experiments in StormForge Optimize in and off themselves. For that, see [locust-metrics](../locust-metrics). Nevertheless, here is a short description for each of them.
+The resources in this directory aren't going to launch experiments in StormForge Optimize Pro in and of themselves. For that, see [locust-metrics](../locust-metrics). Nevertheless, here is a short description for each of them.
 
 `manifests/kustomization.yaml`
 : The input to Kustomize used to build the Kubernetes object manifests for this sample application.
