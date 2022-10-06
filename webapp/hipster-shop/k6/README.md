@@ -2,10 +2,10 @@
 
 The StormForge Optimize Pro experiment in this folder uses [k6](https://k6.io) to generate load against the Online Boutique test application and track performance metrics through the course of an experimental trial. 
 
-The experiment utilizes a custom trial image based on [the K6 trial image](https://github.com/thestormforge/optimize-trials/tree/main/k6) distributed by StormForge. 
+The experiment utilizes a custom trial image based on [the k6 trial image](https://github.com/thestormforge/optimize-trials/tree/main/k6) distributed by StormForge. 
 This trial image is used as the basis of each trial job that Optimize Pro runs during an experiment.
 
-The custom trial image uses the K6 trial image as the base layer, and adds the test script and test data to the image for convenience. 
+The custom trial image uses the k6 trial image as the base layer, and adds the test script and test data to the image for convenience. 
 The Dockerfile for the custom trial image is included here.
 
 The k6 test script is given in the `script.js` file. 
