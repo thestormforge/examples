@@ -28,3 +28,13 @@ The resources in this directory can be used to launch an Online Boutique instanc
 All of the manifests are combined into a single YAML file `manifests.yaml` in the `manifests/` folder.
 
 More information and other versions of the Online Boutique manifests can be found at the [official Online Boutique repo](https://github.com/GoogleCloudPlatform/microservices-demo).
+
+## Usage
+
+Deploy the application to your cluster with the following command:
+
+```sh
+kubectl apply -f /manifests/manifests.yaml
+```
+
+Note: This command will deploy the application to whichever namespace is selected in your current `kubectl` context.
