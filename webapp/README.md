@@ -1,4 +1,4 @@
-# Webserver optimization
+# Web application optimization
 
 The examples in this folder show how to use StormForge Optimize Pro to optimize a web application.
 
