@@ -16,7 +16,10 @@ The application architecture is made of 5 components (see diagram below):
 
 ## Resources
 
-The resources in this directory aren't going to launch experiments in StormForge Optimize Pro in and of themselves. For that, see [locust-metrics](../locust-metrics). Nevertheless, here is a short description for each of them.
+The resources in this directory aren't going to launch experiments in StormForge Optimize Pro in and of themselves.
+For that, see the [locust experiment](../locust) or the [StormForge Performance Testing experiment](../stormforge-perftest).
+The resource manifests in this directory contain the components of the voting webapp itself.
+Here is a short description of the included files:
 
 `manifests/kustomization.yaml`
 : The input to Kustomize used to build the Kubernetes object manifests for this sample application.
