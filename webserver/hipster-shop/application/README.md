@@ -4,6 +4,16 @@
 The [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo) (also known as the Hipster Shop) is a microservices demo application from Google.
 It consists of 11 microservices that together implement a web-based ecommerce shop with products that a user can browse, add to a shopping cart, and purchase.
 
+## Usage
+
+Deploy the application to your cluster with the following command:
+
+```sh
+kubectl apply -f /manifests/manifests.yaml
+```
+
+Note: This command will deploy the application to whichever namespace is selected in your current `kubectl` context.
+
 ## Architecture
 From the Google Online Boutiqe documentation:
 
@@ -29,12 +39,3 @@ All of the manifests are combined into a single YAML file `manifests.yaml` in th
 
 More information and other versions of the Online Boutique manifests can be found at the [official Online Boutique repo](https://github.com/GoogleCloudPlatform/microservices-demo).
 
-## Usage
-
-Deploy the application to your cluster with the following command:
-
-```sh
-kubectl apply -f /manifests/manifests.yaml
-```
-
-Note: This command will deploy the application to whichever namespace is selected in your current `kubectl` context.
