@@ -1,0 +1,193 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: k6-hipster-demo-1
+  namespace: hipster-demo
+  labels:
+    stormforge.io/application: 'k6-hipster-demo'
+    stormforge.io/objective: 'cost-vs-p95-latency'
+    stormforge.io/scenario: 'constant-arrival-rate'
+spec:
+  optimization: 
+  - name: experimentBudget
+    value: "20"
+
+  parameters:
+  - name: deployment/frontend/server/resources/cpu
+    baseline: 500
+    min: 250
+    max: 2000
+  - name: deployment/frontend/server/resources/memory
+    baseline: 512
+    min: 256
+    max: 1024
+  - name: deployment/frontend/replicas
+    baseline: 1
+    min: 1
+    max: 4
+  
+  metrics:
+  - name: p95-latency
+    type: prometheus
+    minimize: true
+    query: scalar(http_req_duration_p95{job="trialRun",instance="{{ .Trial.Name }}"})
+  
+  - name: error-ratio
+    type: prometheus
+    max: 50m
+    minimize: true
+    optimize: false
+    query: scalar(http_req_failed_rate{job="trialRun",instance="{{ .Trial.Name }}"} / 100)
+  
+  - name: cost
+    type: prometheus
+    minimize: true
+    query: ({{ cpuRequests . "" }} * 17) + ({{ memoryRequests . "" | GB }} * 3)
+  
+  - name: cost-cpu-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ cpuRequests . "" }}'
+  
+  - name: cost-memory-requests
+    type: prometheus
+    minimize: true
+    optimize: false
+    query: '{{ memoryRequests . "" | GB }}'
+  
+  patches:
+  - targetRef:
+      name: frontend
+      namespace: hipster-demo
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: server
+              resources:
+                limits:
+                  cpu: '{{ index .Values "deployment/frontend/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/frontend/server/resources/memory"
+                    }}Mi'
+                requests:
+                  cpu: '{{ index .Values "deployment/frontend/server/resources/cpu" }}m'
+                  memory: '{{ index .Values "deployment/frontend/server/resources/memory"
+                    }}Mi'
+        replicas: {{ index .Values "deployment/frontend/replicas" }}
+  
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'k6-hipster-demo'
+        stormforge.io/objective: 'cost-vs-p95-latency'
+        stormforge.io/scenario: 'constant-arrival-rate'
+    spec:
+      initialDelaySeconds: 15
+      setupServiceAccountName: optimize-setup-810861
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'k6-hipster-demo'
+            stormforge.io/objective: 'cost-vs-p95-latency'
+            stormforge.io/scenario: 'constant-arrival-rate'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'k6-hipster-demo'
+                stormforge.io/objective: 'cost-vs-p95-latency'
+                stormforge.io/scenario: 'constant-arrival-rate'
+            spec:
+              containers:
+              - name: constant-arrival-rate
+                image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/optimize-trials:k6-demo
+                env:
+                - name: SCRIPT_TARGET
+                  value: http://frontend-external.hipster-demo.svc.cluster.local/
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: optimize-setup-810861
+  namespace: hipster-demo
+  labels:
+    stormforge.io/application: 'k6-hipster-demo'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-prometheus-810861
+  labels:
+    stormforge.io/application: 'k6-hipster-demo'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-prometheus-810861
+  labels:
+    stormforge.io/application: 'k6-hipster-demo'
+roleRef:
+  name: optimize-prometheus-810861
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-setup-810861
+  namespace: hipster-demo
+  kind: ServiceAccount

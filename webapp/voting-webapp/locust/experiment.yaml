@@ -1,7 +1,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: webserver-locust-metrics-experiment
+  name: webapp-locust-metrics-experiment
   namespace: default
   labels:
     stormforge.io/application: 'votingapp'

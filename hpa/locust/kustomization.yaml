@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: recipe
 
 resources:
-  - ../../webserver/voting-webapp/application
+  - ../../webapp/voting-webapp/application/manifests
   - hpa.yaml
   - experiment.yaml
 
