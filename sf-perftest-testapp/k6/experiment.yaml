@@ -6,7 +6,6 @@ metadata:
   labels:
     stormforge.io/application: 'stormforger-testapp'
     stormforge.io/scenario: 'scenario1'
-  #   stormforge.io/objective: 'duration-vs-cost'
 spec:
   optimization:
   - name: experimentBudget
@@ -70,11 +69,6 @@ spec:
                   memory: '{{ .Values.memory }}M'
 
   trialTemplate:
-    # metadata:
-    #   labels:
-    #     stormforge.io/application: 'postgres'
-    #     stormforge.io/objective: 'duration-vs-cost'
-    #     stormforge.io/scenario: 'pgbench'
     spec:
       initialDelaySeconds: 15
       setupServiceAccountName: stormforge-setup
@@ -84,19 +78,8 @@ spec:
         - prometheus
         - $(MODE)
       jobTemplate:
-        # metadata:
-        #   labels:
-        #     stormforge.io/application: 'postgres'
-        #     stormforge.io/objective: 'duration-vs-cost'
-        #     stormforge.io/scenario: 'pgbench'
         spec:
-
           template:
-            # metadata:
-            #   labels:
-            #     stormforge.io/application: 'postgres'
-            #     stormforge.io/objective: 'duration-vs-cost'
-            #     stormforge.io/scenario: 'pgbench'
             spec:
               containers:
               - name: k6
@@ -117,4 +100,81 @@ spec:
                     name: k6-test-file
                     items:
                       - key: load_script.js
-                        path: load_script.js    
+                        path: load_script.js
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stormforge-setup
+  labels:
+    stormforge.io/application: 'stormforger-testapp'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: stormforge-prometheus
+  labels:
+    stormforge.io/application: 'stormforger-testapp'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: stormforge-setup-prometheus
+  labels:
+    stormforge.io/application: 'stormforger-testapp'
+roleRef:
+  name: stormforge-prometheus
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: stormforge-setup
+  kind: ServiceAccount
+  namespace: default
