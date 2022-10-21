@@ -1,7 +1,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: testapp-example-zeisss-2022-2
+  name: curl-testapp
   namespace: default
   labels:
     stormforge.io/application: 'stormforger-testapp'
