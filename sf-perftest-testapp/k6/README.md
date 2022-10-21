@@ -15,7 +15,7 @@ This experiment is a demonstration of the [k6 trial image](https://github.com/th
 - Edit the `name` field in the `experiment.yaml` file, setting it to something unique
 - Inject the k6 script file into a configmap in your cluster with the following command:
   ```sh
-  kubectl create configmap k6-test-file --from-file=./load_script.js
+  kubectl create configmap k6-test-file --from-file=./script.js
   ```
 - Deploy the experiment with the following command:
   ```sh
