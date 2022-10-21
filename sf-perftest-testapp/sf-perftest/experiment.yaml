@@ -90,17 +90,14 @@ spec:
               containers:
               - name: stormforge-cli
                 image: registry.stormforge.io/library/stormforge-cli
-                env:
-                - name: ENABLE_PERFTEST_PREVIEW_COMMANDS
-                  value: "true"
                 envFrom:
                 - secretRef:
-                    name: stormforge-v3
+                    name: stormforge-token
                 args:
                 # NOTE: --metrics-output is automatically activated via ENV variable
                 - create
                 - test-run
-                - "--test-case=testapp_labs_optimize_trial"
+                - "--test-case=testapp_optimize_trial"
                 - "--watch-timeout=1h"
                 - "--watch"
 ---
