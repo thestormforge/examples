@@ -83,24 +83,18 @@ spec:
             spec:
               containers:
               - name: k6
-                image: 516273174544.dkr.ecr.us-east-1.amazonaws.com/optimize-trials:k6-alpha0
-                env:
-                - name: ENABLE_PERFTEST_PREVIEW_COMMANDS
-                  value: "true"
-                envFrom:
-                - secretRef:
-                    name: stormforge-v3
+                image: thestormforge/optimize-trials:v0.0.4-k6
                 volumeMounts:
                 - name: k6-test-file
-                  mountPath: /scripts/load_script.js
-                  subPath: load_script.js
+                  mountPath: /scripts/script.js
+                  subPath: script.js
               volumes:
                 - name: k6-test-file
                   configMap:
                     name: k6-test-file
                     items:
-                      - key: load_script.js
-                        path: load_script.js
+                      - key: script.js
+                        path: script.js
 ---
 apiVersion: v1
 kind: ServiceAccount
