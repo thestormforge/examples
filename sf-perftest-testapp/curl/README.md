@@ -14,6 +14,7 @@ This experiment is best regarded as a proof of concept or end to end demonstrati
 ## Running the Experiment
 
 - Edit the `name` field in the `experiment.yaml` file, setting it to something unique
+- Edit the hostname to perform the request against
 - Deploy the experiment with the following command:
   ```sh
   kubectl apply -f ./experiment.yaml
