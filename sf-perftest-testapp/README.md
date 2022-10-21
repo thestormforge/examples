@@ -4,6 +4,7 @@ This folder contains simple experiments to optimize the StormForge Performance T
 
 NOTE: This is not really useful as an optimization target since the Test App doesn't really have a lot of knobs to tune nor does it need a lot of memory/cpu. 
 However, it is useful as a test target for experimenting with Optimize Pro trial pods for various performance testing tools.
+
 ## The Test App
 
 More information on the Test App and manifests to install it in your Kubernetes cluster can be found in the [`application/`](application/) folder.
