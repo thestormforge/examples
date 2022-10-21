@@ -1,7 +1,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: testapp-locust-2022-0
+  name: locust-testapp
   namespace: default
   labels:
     stormforge.io/application: 'stormforger-testapp'
