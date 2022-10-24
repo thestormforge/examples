@@ -1,0 +1,116 @@
+---
+# Topics:
+#   - Patching existing k8s resources
+#   - Trial readinessGates
+
+# The hello-world-121 experiment introduces manipulation of existing k8s
+# resources as part of an experiment. This permits designing an experiment
+# around an existing large or complex application without needing to involve
+# every piece of it in the experiment - the experiment only needs to care about
+# pieces being experimented on.
+#
+# The experiment will work by choosing parameter values, applying a set of k8s
+# patches which set the parameter values, waiting for the resources to be
+# ready, and then running the trial job.
+
+# Optimize Pro to explore which number of sleepSeconds (our parameter) results
+# in the shortest duration (our metric), within the bounds of 0 and 20.
+#
+# While real experiments tend to be conducted against large applications and/or
+# involve orchestration of external load testing frameworks during each trial,
+# this experiment does not. During each trial, the trial job simply sleeps for
+# the specified number of seconds, and the metric notes how long the pod ran.
+#
+# The intended focus is understanding the anatomy of an Optimize Pro
+# experiment.
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: hello-world-121
+  labels:
+    stormforge.io/application: 'hello-world'
+    stormforge.io/scenario: 'example'
+
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "10"
+
+  # Parameters are the variables that Optimize Pro will experiment on, searching
+  # for the most optimal values. It will change and adjust the values of these
+  # parameters for each experimental trial.
+  parameters:
+  - name: trialInput
+    baseline: 10
+    min: 0
+    max: 20
+
+  metrics:
+  - name: trialOutput
+    type: prometheus
+    query: 'scalar( output{job="trialRun", instance="{{ .Trial.Name }}"} )'
+
+  # Patches allow Optimize Pro to adjust the values of the experiment
+  # parameters between trials, when one or more Kubernetes resources besides
+  # the trial pod needs to be modified. Each patch targets a pre-existing k8s
+  # object, and is a Go template of a `kubectl patch` yaml document.
+  patches:
+  - targetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: hello-world-121-nginx
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: nginx
+              env:
+              - name: VARIABLE
+                value: "{{ .Values.trialInput }}"
+
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'hello-world'
+        stormforge.io/scenario: 'example'
+    spec:
+      setupServiceAccountName: optimize-pro-setuptask-sa
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+      readinessGates:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: hello-world-121-nginx
+        periodSeconds: 5
+        failureThreshold: 10
+        conditionTypes:
+        - Available
+      jobTemplate:
+        backoffLimit: 1
+        metadata:
+          labels:
+            stormforge.io/application: 'hello-world'
+            stormforge.io/scenario: 'example'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'hello-world'
+                stormforge.io/scenario: 'example'
+            spec:
+              activeDeadlineSeconds: 60
+              restartPolicy: Never
+              containers:
+              - name: main
+                image: docker.io/curlimages/curl:latest
+                command:
+                - '/bin/sh'
+                - '-c'
+                - |
+                  curl --data-binary @- "$PUSHGATEWAY_URL" <<EOF
+                    output $(curl http://hello-world-121-nginx:80/variable)
+                  EOF
