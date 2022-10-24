@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: testapp
+  labels:
+    app.kubernetes.io/instance: testapp-example
+    app.kubernetes.io/name: testapp
+spec:
+  selector:
+    app.kubernetes.io/instance: testapp-example
+    app.kubernetes.io/name: testapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testapp
+  labels:
+    app.kubernetes.io/instance: testapp-example
+    app.kubernetes.io/name: testapp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: testapp-example
+      app.kubernetes.io/name: testapp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: testapp-example
+        app.kubernetes.io/name: testapp
+    spec:
+      containers:
+      - name: testapp
+        image: stormforger/testapp
+        ports:
+        - name: http
+          containerPort: 8080
+        env:
+        - name: DISABLE_TLS
+          value: "true"
+
+        resources:
+          limits:
+            cpu: 1.0
+            memory: 2048M
+          requests:
+            cpu: 0.2
+            memory: 512M
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          httpGet:
+            path: /
+            port: 8080
+  strategy:
+    type: Recreate
