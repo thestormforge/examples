@@ -1,7 +1,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: testapp-with-cli-v3-2022-4
+  name: testapp-with-blazemeter-0
   namespace: default
   labels:
     stormforge.io/application: 'stormforger-testapp'
@@ -9,7 +9,7 @@ metadata:
 spec:
   optimization:
   - name: experimentBudget
-    value: "20"
+    value: "3"
 
   parameters:
   - name: cpu
@@ -87,16 +87,15 @@ spec:
         spec:
           template:
             spec:
-            containers:
-            - name: blazemeter-cloud
-              image: thestormforge/optimize-trials:latest-blazemeter-cloud
-              env:
-              - name: BLAZEMETER_API_ID
-                value: 12345678abcdefg12345678
-              - name: BLAZEMETER_API_SECRET
-                value: abcdefg12345678abcdefg12345678abcdefg12345678abcdefg12345678abcdefg
-              - name: BLAZEMETER_TEST_URL
-                value: https://a.blazemeter.com/app/#/accounts/1234567/workspaces/1234567/projects/1234567/tests/12345678
+              containers:
+              - name: blazemeter-cloud
+                image: ghcr.io/thestormforge/optimize-trials:edge-blazemeter-cloud
+                envFrom:
+                - secretRef:
+                    name: blazemeter-token
+                env:
+                - name: BLAZEMETER_TEST_URL
+                  value: https://a.blazemeter.com/app/#/accounts/1234567/workspaces/1234567/projects/1234567/tests/12345678
 ---
 apiVersion: v1
 kind: ServiceAccount

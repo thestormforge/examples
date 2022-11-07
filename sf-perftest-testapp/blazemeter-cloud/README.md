@@ -17,7 +17,14 @@ This experiment demonstrates how to use the [BlazeMeter Cloud](https://github.co
 - Create a BlazeMeter test by uploading the `load_test.yaml` (See the [BlazeMeter documentation](https://guide.blazemeter.com/hc/en-us/articles/207387369) for details.) Note the URL of your test, you will need it later.
 - Create a [BlazeMeter API key](https://guide.blazemeter.com/hc/en-us/articles/115002213289-BlazeMeter-API-keys--BlazeMeter-API-keys-), noting the key ID and secret. They will only be displayed once.
 - Edit the `name` field in the `experiment.yaml` file, setting it to something unique
-- Edit the `BLAZEMETER_API_ID` (line 95), `BLAZEMETER_API_SECRET` (line 97), and `BLAZEMETER_TEST_URL` (line 99) environment variables in the `experiment.yaml` file, setting them to the values you noted in the previous steps.
+- Place the `BLAZEMETER_API_ID` and `BLAZEMETER_API_SECRET` into a Kubernetes Secret object using the following command, using the values you noted earlier:
+  ```sh
+  kubectl create secret generic blazemeter-token \
+  --from-literal="BLAZEMETER_API_ID=<BlazeMeter API key ID>" \
+  --from-literal="BLAZEMETER_API_SECRET=<BlazeMeter API key secret>"
+  ```
+  This secret is referenced using `envFrom` with a `secretRef` in the trial job container spec in `experiment.yaml` (line 95).
+- Edit the `BLAZEMETER_TEST_URL` (line 99) environment variables in the `experiment.yaml` file, setting it to the value you noted in the previous step.
 - Deploy the experiment with the following command:
   ```sh
   kubectl apply -f ./experiment.yaml
