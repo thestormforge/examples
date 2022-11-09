@@ -1,4 +1,4 @@
-# StormForge Performance Testing experiment
+# BlazeMeter Cloud experiment
 
 This experiment utilizes [BlazeMeter](https://www.blazemeter.com/) to drive traffic against the Test App.
 This experiment demonstrates how to use the [BlazeMeter Cloud](https://github.com/thestormforge/optimize-trials/tree/main/blazemeter-cloud) trial image to utilize a BlazeMeter load test with Optimize Pro.
