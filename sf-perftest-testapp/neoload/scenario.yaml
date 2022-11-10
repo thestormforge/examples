@@ -1,0 +1,21 @@
+name: Stormforge NeoLoad Experiment
+user_paths:
+- name: sf-path
+  actions:
+    steps:
+    - request:
+        url: http://testapp-ingress.example.com/
+populations:
+- name: pop1
+  user_paths:
+  - name: sf-path
+scenarios:
+- name: StormForgeScenario
+  populations:
+  - name: pop1
+    rampup_load:
+      min_users: 20
+      max_users: 100   
+      increment_users: 2
+      increment_every: 1s
+      duration: 5m 
