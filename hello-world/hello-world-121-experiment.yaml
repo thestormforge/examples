@@ -30,6 +30,8 @@ metadata:
   labels:
     stormforge.io/application: 'hello-world'
     stormforge.io/scenario: 'example'
+  annotations:
+    config.kubernetes.io/path: 'hello-world-121-experiment.yaml'
 
 spec:
   optimization:
@@ -75,12 +77,6 @@ spec:
         stormforge.io/application: 'hello-world'
         stormforge.io/scenario: 'example'
     spec:
-      setupServiceAccountName: optimize-pro-setuptask-sa
-      setupTasks:
-      - name: monitoring
-        args:
-        - prometheus
-        - $(MODE)
       readinessGates:
       - apiVersion: apps/v1
         kind: Deployment
@@ -89,6 +85,11 @@ spec:
         failureThreshold: 10
         conditionTypes:
         - Available
+
+      setupTasks:
+      - name: prometheus
+        helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
+
       jobTemplate:
         backoffLimit: 1
         metadata:
