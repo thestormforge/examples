@@ -91,12 +91,12 @@ spec:
         - $(MODE)
 
       jobTemplate:
-        backoffLimit: 1
         metadata:
           labels:
             stormforge.io/application: 'hello-world'
             stormforge.io/scenario: 'example'
         spec:
+          backoffLimit: 1
           template:
             metadata:
               labels:

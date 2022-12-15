@@ -73,7 +73,6 @@ spec:
       # The jobTemplate is used to create the trial Job. It follows the usual
       # semantics of a k8s Job definition.
       jobTemplate:
-        backoffLimit: 1
         metadata:
           labels:
             # For ease of observation, these labels should match the
@@ -81,6 +80,7 @@ spec:
             stormforge.io/application: 'hello-world'
             stormforge.io/scenario: 'example'
         spec:
+          backoffLimit: 1
           template:
             metadata:
               labels:
