@@ -3,7 +3,7 @@
 ## TL;DR
 
 Run
-`stormforge generate rbac -f experiment.yaml | kubectl apply -f -`
+`stormforge rbac experiment.yaml | kubectl apply -f -`
 and then
 `kubect apply -n <my-namespace> -k .`
 

@@ -23,7 +23,7 @@ Replace the value of the `TEST_CASE` env variable with your test case e.g.,`my-o
 ## Create an experiment
 
 Create the RBAC permission
-`stormforge generate rbac -f sf-experiment/experiment.yaml | kubectl apply -f -`
+`stormforge rbac sf-experiment/experiment.yaml | kubectl apply -f -`
 Replace the namespace in `sf-experiment/kustomization.yaml` with the namespace in which you want to deploy.
 Launch the experiment
 `kustomize build sf-experiment | kubectl apply -f`
