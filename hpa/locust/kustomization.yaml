@@ -4,9 +4,10 @@ kind: Kustomization
 namespace: recipe
 
 resources:
-  - ../../webapp/voting-webapp/application/manifests
-  - hpa.yaml
-  - experiment.yaml
+- ../../webapp/voting-webapp/application/manifests
+- hpa.yaml
+- service-account.yaml
+- experiment.yaml
 
 configMapGenerator:
 - name: locustfile
