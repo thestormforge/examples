@@ -1,8 +1,9 @@
+---
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: postgres-experiment
-  namespace: default
+  namespace: postgres
   labels:
     stormforge.io/application: 'postgres'
     stormforge.io/objective: 'duration-vs-cost'
