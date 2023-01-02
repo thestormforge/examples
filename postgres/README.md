@@ -16,6 +16,8 @@ You will also need to initialize StormForge Optimize in your cluster, you can fo
 
 The resources for this tutorial can be found in the [`/postgres`](https://github.com/thestormforge/examples/tree/master/postgres) directory of the `examples` source repository. The following manifests define how to run Postgres:
 
+* `experiment-rbac.yaml`
+  : RBAC resources required for the experiment. A supplement to (and automatically generated from) the `experiment.yaml` file.
 * `experiment.yaml`
   : The StormForge Optimize Pro experiment file used to optimize a kubernetes workload.
 * `postgres.yaml`
@@ -31,7 +33,7 @@ More information can be found on the [pgbench](https://www.postgresql.org/docs/1
 
 The objective of this optimization is (reducing cost and the time required to execute the benchmark). Feel free to change the name or namespace to avoid conflicting with other experiments in the cluster.
 
-To launch the experiment run `kubectl apply -f postgres.yaml -f experiment.yaml`
+To launch the experiment run `kubectl apply -f postgres.yaml -f experiment-rbac.yaml -f experiment.yaml`
 
 ## Experiment Lifecycle
 
