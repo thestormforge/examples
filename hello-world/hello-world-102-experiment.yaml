@@ -1,0 +1,123 @@
+---
+# Topics:
+#   - setupTasks
+#   - Prometheus metrics
+#
+# Note: comments from hello-world-101 have been removed. All comments are new
+#       to hello-world-102.
+#
+# In the hello-world-102 experiment, we introduce an ability for the trial pod
+# to produce arbitrary metrics, which we can query against at the end of each
+# trial. To demonstrate this capability, we will ask Optimize Pro to explore
+# which value of input (parameter) results in the shortest output (metric)
+# reading, within the bounds of 0 and 20.
+#
+# A builtin setupTask in the trialTemplate will be invoked create an ephemeral
+# prometheus instance and push gateway for the trial pod to send metric values
+# to. The trial pod will use curl to echo the input back to prometheus as its
+# output.
+#
+# Before finalizing each trial, Optimize Pro will make a query to the
+# prometheus server to determine the trial's metric result value(s).
+#
+# While the trial pod can send whatever metrics it wants to the prometheus
+# service, the *query* specified under each .spec.metrics element is how
+# Optimize Pro will determine the final trial results.
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: hello-world-102
+  labels:
+    stormforge.io/application: 'hello-world'
+    stormforge.io/scenario: 'example'
+
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "10"
+
+  parameters:
+  - name: input
+    baseline: 10
+    min: 0
+    max: 20
+
+  metrics:
+  - name: output
+    minimize: true
+    # This metric is of type prometheus. The query field for a prometheus
+    # metric needs to be a PromQL query to Prometheus, which will return a
+    # single numeric value.
+    #
+    # In the query below, the scalar() function is used to ensure that the
+    # value returned is a number, and not an instant vector. The
+    # PUSHGATEWAY_URL parameter in the trial pod below will have enabled an
+    # easy push for metrics with job and instance tags.
+    #
+    #   <metric-name> { job="trialRun", instance="<trial-name>" }
+    #
+    # As with the basic query from hello-world-101, this field is a Go
+    # template and we can fill in the dynamic values we need with a template
+    # function.
+    #
+    # Because we did not supply a URL value to query the metric from, a default
+    # value will be used which assumes we are using the builtin ephemeral
+    # prometheus server (setupTask).
+    type: prometheus
+    query: 'scalar( output{job="trialRun", instance="{{ .Trial.Name }}"} )'
+
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'hello-world'
+        stormforge.io/scenario: 'example'
+    spec:
+      # setupTasks are builtin helpers which can make trials easier to run.
+      #
+      # The built-in setup task "prometheus" creates an ephemeral service that
+      # metrics can be pushed to during a trial run. This permits trial jobs to
+      # record sophisticated metric information for retrieval after the trial
+      # pod completes, without requiring the use of a pre-deployed monitoring
+      # tool.
+      #
+      # PREREQUISITE NOTE: using the "prometheus" setup task requires the use
+      # of a serviceAccount that is permitted to create and manage deployments
+      # in the appropriate namespace. See hello-world-102-resources.yaml.
+      setupServiceAccountName: optimize-pro-setuptask-sa
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'hello-world'
+            stormforge.io/scenario: 'example'
+        spec:
+          backoffLimit: 1
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'hello-world'
+                stormforge.io/scenario: 'example'
+            spec:
+              activeDeadlineSeconds: 60
+              restartPolicy: Never
+              containers:
+              - name: trial
+                # PUSHGATEWAY_URL is another automatic environment variable
+                # supplied by Optimize Pro, when the prometheus setupTask is in
+                # use.
+                #
+                # The PUSHGATEWAY_URL will have the form:
+                #   http://<service>:9091/metrics/job/trialRun/instance/<trial-name>
+                #
+                # Any metrics pushed there will be queryable with the tags:
+                #   job=trialRun, instance=<trial-name>
+                #
+                # This trial pod simply uses curl to push the value of
+                # INPUT to prometheus as a metric called "output".
+                image: docker.io/curlimages/curl:latest
+                args: ['--data-binary', "output $(INPUT)\n", '$(PUSHGATEWAY_URL)']

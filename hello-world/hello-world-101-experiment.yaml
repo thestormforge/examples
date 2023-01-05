@@ -1,0 +1,102 @@
+---
+# Topics:
+#   - Parameters
+#   - Simple metrics
+#   - Trials
+#
+# In the hello-world-101 experiment, we introduce concepts. The experiment will
+# ask Optimize Pro to explore which number of sleepSeconds (our parameter)
+# results in the shortest trialDuration (our metric), within the bounds of 0
+# and 20.
+#
+# While real experiments tend to be conducted against large applications and/or
+# involve orchestration of external load testing frameworks during each trial,
+# this experiment does not. During each trial, the trial job simply sleeps for
+# the specified number of seconds, and the metric notes how long the pod ran.
+#
+# The intended focus is understanding the anatomy of an Optimize Pro
+# experiment.
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: hello-world-101
+  labels:
+    # These labels are required. They help StormForge organize the experiment
+    # in the web UI.
+    stormforge.io/application: 'hello-world'
+    stormforge.io/scenario: 'example'
+
+spec:
+  # The optimization section lets you configure optional behavior adjustments
+  # to Optimize Pro. Usually, the only one that you will want to adjust is
+  # experimentBudget, which tells Optimize Pro how many trials it is permitted
+  # to run during this experiment.
+  optimization:
+  - name: "experimentBudget"
+    value: "10"
+
+  # Parameters are the variables that Optimize Pro will experiment on, searching
+  # for the most optimal values. It will change and adjust the values of these
+  # parameters for each experimental trial.
+  parameters:
+  - name: sleepSeconds
+    baseline: 10
+    min: 0
+    max: 20
+
+  # Metrics will be measured at the conclusion of each trial, and tell the
+  # machine learning how well the trial performed. Metrics need to be numeric.
+  # We also need to let Optimize Pro know if it should try to find parameter
+  # values that maximize the value of the metric (default), or if it should
+  # search for parameter values that minimize the value of the metric instead.
+  metrics:
+  - name: trialDuration
+    minimize: true
+    # Depending on metric type (metric types will be introduced later), the
+    # query field can be defined a number of different ways. It is always
+    # evaluated first as a Go template though, with access to several helper
+    # functions. In this case, we are simply using a Go template Kubernetes
+    # helper function to calculate the difference between two trial pod fields
+    # as a number. This template query will be evaluated at the end of each
+    # trial.
+    query: "{{ duration .StartTime .CompletionTime }}"
+
+  # The trialTemplate is used to create trials. Trials are conducted after
+  # choosing new parameter values, and before collecting the metric results.
+  # The primary component of each trial is a k8s Job.
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'hello-world'
+        stormforge.io/scenario: 'example'
+    spec:
+      # The jobTemplate is used to create the trial Job. It follows the usual
+      # semantics of a k8s Job definition.
+      jobTemplate:
+        metadata:
+          labels:
+            # For ease of observation, these labels should match the
+            # experiments own corresponding labels.
+            stormforge.io/application: 'hello-world'
+            stormforge.io/scenario: 'example'
+        spec:
+          backoffLimit: 1
+          template:
+            metadata:
+              labels:
+                # For ease of observation, these labels should match the
+                # experiments own corresponding labels.
+                stormforge.io/application: 'hello-world'
+                stormforge.io/scenario: 'example'
+            spec:
+              activeDeadlineSeconds: 600 # Running longer than 10min is a failure
+              restartPolicy: Never
+              containers:
+              - name: trial
+                image: docker.io/library/busybox:latest
+                # Note the use of the SLEEPSECONDS environment variable in
+                # the command. Optimize Pro exposes ALL experiment parameters
+                # as environment variables to the trial pod. Automatic
+                # environment variables added by Optimize Pro will be
+                # uppercase.
+                command: ['sleep', '$(SLEEPSECONDS)']
