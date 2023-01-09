@@ -1,3 +1,4 @@
+---
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
@@ -7,11 +8,13 @@ metadata:
     stormforge.io/application: 'k6-hipster-demo'
     stormforge.io/objective: 'cost-vs-p95-latency'
     stormforge.io/scenario: 'constant-arrival-rate'
+  annotations:
+    config.kubernetes.io/path: 'experiment.yaml'
+
 spec:
-  optimization: 
+  optimization:
   - name: experimentBudget
     value: "20"
-
   parameters:
   - name: deployment/frontend/server/resources/cpu
     baseline: 500
@@ -89,10 +92,8 @@ spec:
       initialDelaySeconds: 15
       setupServiceAccountName: optimize-setup-810861
       setupTasks:
-      - name: monitoring
-        args:
-        - prometheus
-        - $(MODE)
+      - name: prometheus
+        helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
       jobTemplate:
         metadata:
           labels:

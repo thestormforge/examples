@@ -1,3 +1,4 @@
+---
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
@@ -7,6 +8,8 @@ metadata:
     stormforge.io/application: 'votingapp'
     stormforge.io/objective: 'default'
     stormforge.io/scenario: '100-clients'
+  annotations:
+    config.kubernetes.io/path: 'experiment.yaml'
 spec:
   parameters:
   - name: voting_service_cpu
@@ -53,6 +56,7 @@ spec:
       kind: Deployment
     patch: |
       spec:
+        replicas: {{ .Values.replicas }}
         template:
           spec:
             containers:
@@ -64,7 +68,6 @@ spec:
                 requests:
                   cpu: '{{ .Values.voting_service_cpu }}m'
                   memory: '{{ .Values.voting_service_memory }}Mi'
-        replicas: {{ .Values.replicas }}
   trialTemplate:
     metadata:
       labels:
@@ -72,6 +75,10 @@ spec:
         stormforge.io/objective: 'default'
         stormforge.io/scenario: '100-clients'
     spec:
+      setupServiceAccountName: optimize-setup-f19e28
+      setupTasks:
+      - name: prometheus
+        helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
       jobTemplate:
         metadata:
           labels:
@@ -104,12 +111,6 @@ spec:
               - name: locustfile
                 configMap:
                   name: 100-clients-locustfile-f19e28
-      setupServiceAccountName: optimize-setup-f19e28
-      setupTasks:
-      - name: monitoring
-        args:
-        - prometheus
-        - $(MODE)
 ---
 apiVersion: v1
 kind: ConfigMap
