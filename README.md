@@ -8,10 +8,23 @@ Each example contains additional documentation for usage and describing how it w
 
 <!-- toc -->
 
+- [Optimize Pro Version](#optimize-pro-version)
 - [Issues](#issues)
 - [Contributing](#contributing)
 
 <!-- tocstop -->
+
+## Optimize Pro Version
+
+The examples here are all designed to run with an older version of the Optimize Pro controller, (~> 2.0).
+
+You can check your controller version by running `stormforge check optimize-pro`.
+
+To view the latest examples designed for the Optimize Pro controller (~> 3.0) or newer, please switch to the `main` branch of this repository.
+
+If you need to upgrade your controller, see the [upgrade documentation](upgrade).
+
+[upgrade]: https://docs.stormforge.io/optimize-pro/getting-started/upgrade/
 
 ## Running Experiments
 Each example can be run by executing `kubectl apply -k .` from each of the example directories.
