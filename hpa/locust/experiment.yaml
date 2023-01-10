@@ -1,3 +1,4 @@
+---
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
@@ -5,6 +6,8 @@ metadata:
   labels:
     stormforge.io/application: 'hpa'
     stormforge.io/scenario: 'locust'
+  annotations:
+    config.kubernetes.io/path: 'experiment.yaml'
 spec:
   parameters:
   - name: voting_cpu
@@ -78,6 +81,9 @@ spec:
               averageUtilization: {{ .Values.avg_utilization }}
   trialTemplate:
     spec:
+      setupTasks:
+      - name: prometheus
+        helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
       jobTemplate:
         spec:
           template:
@@ -105,85 +111,3 @@ spec:
               - name: locustfile
                 configMap:
                   name: locustfile
-      setupServiceAccountName: stormforge-setup
-      setupTasks:
-      - name: monitoring
-        args:
-        - prometheus
-        - $(MODE)
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: stormforge-setup
-  labels:
-    stormforge.io/application: votingapp
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: stormforge-prometheus
-  labels:
-    stormforge.io/application: votingapp
-rules:
-- resources:
-  - clusterroles
-  - clusterrolebindings
-  apiGroups:
-  - rbac.authorization.k8s.io
-  verbs:
-  - get
-  - create
-  - delete
-- resources:
-  - serviceaccounts
-  - services
-  - configmaps
-  apiGroups:
-  - ""
-  verbs:
-  - get
-  - create
-  - delete
-- resources:
-  - deployments
-  apiGroups:
-  - apps
-  verbs:
-  - get
-  - create
-  - delete
-  - list
-  - watch
-- resources:
-  - nodes
-  - nodes/metrics
-  - nodes/proxy
-  - services
-  apiGroups:
-  - ""
-  verbs:
-  - list
-  - watch
-  - get
-- resources:
-  - pods
-  apiGroups:
-  - ""
-  verbs:
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: stormforge-setup-prometheus
-  labels:
-    stormforge.io/application: votingapp
-roleRef:
-  name: stormforge-prometheus
-  kind: ClusterRole
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-- name: stormforge-setup
-  kind: ServiceAccount

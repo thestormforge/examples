@@ -30,7 +30,8 @@ metadata:
   labels:
     stormforge.io/application: 'hello-world'
     stormforge.io/scenario: 'example'
-
+  annotations:
+    config.kubernetes.io/path: 'hello-world-102-experiment.yaml'
 spec:
   optimization:
   - name: "experimentBudget"
@@ -79,16 +80,9 @@ spec:
       # record sophisticated metric information for retrieval after the trial
       # pod completes, without requiring the use of a pre-deployed monitoring
       # tool.
-      #
-      # PREREQUISITE NOTE: using the "prometheus" setup task requires the use
-      # of a serviceAccount that is permitted to create and manage deployments
-      # in the appropriate namespace. See hello-world-102-resources.yaml.
-      setupServiceAccountName: optimize-pro-setuptask-sa
       setupTasks:
-      - name: monitoring
-        args:
-        - prometheus
-        - $(MODE)
+      - name: prometheus
+        helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
 
       jobTemplate:
         metadata:

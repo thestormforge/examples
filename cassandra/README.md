@@ -99,10 +99,10 @@ Finally, we define our patches and our trial template
                 - name: MAX_HEAP_SIZE
                   value: "{{ .Values.MAX_HEAP_SIZE }}M"
 
-  template: # trial
+  trialTemplate:
     spec:
       initialDelaySeconds: 15
-      template: # job
+      jobTemplate:
         spec:
           template: # pod
             spec:
@@ -116,7 +116,7 @@ using the custom cassandra-stress image we discussed at the beginning of this fi
 and verifying the trial settings by describing the trial -
 
 ```
-kubectl describe pod cassandra-0                                                                                                                       
+kubectl describe pod cassandra-0
 Name:         cassandra-0
 ...
 Containers:
@@ -148,7 +148,7 @@ Containers:
 ...
 ```
 ```
-kubectl get trials -w                                                                                                                                  
+kubectl get trials -w
 
 NAME                                     STATUS      ASSIGNMENTS                                                     VALUES
 cassandra-write-read-mixed-example-000   Completed   MAX_HEAP_SIZE=5186, cpu=2309, memory=6622   duration=3411, cost=70

@@ -5,6 +5,7 @@ namespace: hpa-sf
 
 resources:
 # - sfjwt.yaml
+- service-account.yaml
 - experiment.yaml
 
 configMapGenerator:
