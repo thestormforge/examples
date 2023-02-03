@@ -1,0 +1,223 @@
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: pet-clinic-latency
+  namespace: pet-clinic
+  labels:
+    stormforge.io/application: 'pet-clinic'
+    stormforge.io/objective: 'cost-vs-p95-latency'
+    stormforge.io/scenario: 'pet-clinic-p95-latency'
+    stormforge.io/load: '600_users'
+    stormforge.io/jvm: 'gc_and_jit_trials'
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "150"
+  parameters:
+  - name: cpu
+    baseline: 500
+    min: 300
+    max: 1000
+  - name: memory
+    baseline: 2000
+    min: 640
+    max: 2500
+  - name: gc_newRatio
+    baseline: 2
+    min: 1
+    max: 5
+  - name: gc_survivorRatio
+    baseline: 8
+    min: 1
+    max: 16
+  - name: threadStackSize
+    baseline: 1024
+    min: 500
+    max: 5000
+  - name: initialCodeCacheSize
+    baseline: 500
+    max: 1500
+    min: 250
+  metrics:
+  - name: p95-latency
+    type: prometheus
+    max: "2000"
+    minimize: true
+    query: scalar(percentile_95{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: error-ratio
+    type: prometheus
+    max: "0.1"
+    minimize: true
+    optimize: false
+    query: scalar(error_ratio{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost
+    minimize: true
+    query: '{{divf (addf (mulf .Values.cpu 17) (mulf .Values.memory 3)) 1000}}'
+  - name: cost-cpu-requests
+    minimize: true
+    optimize: false
+    query: '{{divf (mulf .Values.cpu 17) 1000}}'
+  - name: cost-memory-requests
+    minimize: true
+    optimize: false
+    query: '{{divf (mulf .Values.memory 3) 1000}}'
+  patches:
+  - targetRef:
+      kind: Deployment
+      apiVersion: apps/v1
+      name: pet-clinic
+      namespace: pet-clinic
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: spring-petclinic
+              resources:
+                limits:
+                  cpu: '{{ index .Values "cpu"}}m'
+                  memory: '{{ index .Values "memory"}}Mi'
+                requests:
+                  cpu: '{{ index .Values "cpu"}}m'
+                  memory: '{{ index .Values "memory"}}Mi'
+              env:
+              - name: JAVA_TOOL_OPTIONS
+                value: '-XX:+PreferContainerQuotaForCPUCount -XX:NewRatio={{ .Values.gc_newRatio }} -XX:SurvivorRatio={{ .Values.gc_survivorRatio }} -Xss{{ .Values.threadStackSize }}k -XX:InitialCodeCacheSize={{ .Values.initialCodeCacheSize }}k'
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'pet-clinic'
+        stormforge.io/objective: 'cost-vs-p95-latency'
+        stormforge.io/scenario: 'pet-clinic-p95-latency'
+    spec:
+      readinessGates:
+      - selector:
+          matchLabels:
+            stormforge.io/application: 'pet-clinic'
+            stormforge.io/scenario: 'pet-clinic-p95-latency'
+        failureThreshold: 60
+        conditionTypes:
+        - ContainersReady
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'pet-clinic'
+            stormforge.io/objective: 'cost-vs-p95-latency'
+            stormforge.io/scenario: 'pet-clinic-p95-latency'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'pet-clinic'
+                stormforge.io/objective: 'cost-vs-p95-latency'
+                stormforge.io/scenario: 'pet-clinic-p95-latency'
+            spec:
+              containers:
+              - name: stormforger
+                image: thestormforge/optimize-trials:v0.0.3-stormforge-perf
+                env:
+                - name: TITLE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: TEST_CASE
+                  value: ptavares/pet-clinic
+                - name: STORMFORGER_JWT
+                  valueFrom:
+                    secretKeyRef:
+                      name: stormforge-perf-access-token-903367
+                      key: STORMFORGER_JWT
+      setupServiceAccountName: optimize-setup-sa
+      setupTasks:
+      - name: monitoring
+        args:
+        - prometheus
+        - $(MODE)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: stormforge-perf-access-token-903367
+  namespace: pet-clinic
+  labels:
+    stormforge.io/application: 'pet-clinic'
+data:
+  STORMFORGER_JWT: ZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKemRXSWlPaUp6WmpwellUcEVVa2c1TUdOMFpDSXNJbVY0Y0NJNk1UazNNelEwT1RneE5Td2lhblJwSWpvaVpqUldUWE56UVdaTWNGZDNabWxhT1ZaMmJXa2lmUS5MaU4zMl8tc25admZndE5Md0owX2FMa2pfZFRjSHZJV1YydlVKTlVVS1NF
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: optimize-setup-sa
+  namespace: pet-clinic
+  labels:
+    stormforge.io/application: 'pet-clinic'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-setup-cr
+  labels:
+    stormforge.io/application: 'pet-clinic'
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-crb
+  labels:
+    stormforge.io/application: 'pet-clinic'
+roleRef:
+  name: optimize-setup-cr
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-setup-sa
+  namespace: pet-clinic
+  kind: ServiceAccount
