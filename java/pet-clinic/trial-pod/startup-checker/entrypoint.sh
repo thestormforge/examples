@@ -61,34 +61,45 @@ fi
 
 echo "Application pod found: ${APP_POD}."
 
-CONTAINER_READY_TIME=$(kubectl -n ${NAMESPACE} get pod ${APP_POD} -o json | jq -r '.status.conditions[] | select(.status == "True" and .type == "ContainersReady") | .lastTransitionTime')
-if [ -z "${CONTAINER_READY_TIME}" ]; then
-  echo "Could not find the app pod's ContainersReady time."
-  exit 1
+if [ -n "${STARTUP_TIME_LOG_REGEX}" ]; then
+  APP_STARTUP_TIME=$(kubectl -n ${NAMESPACE} logs ${APP_POD} | grep -Eo "${STARTUP_TIME_LOG_REGEX}" | grep -Eo '(\d+\.*\d*)' &2>1)
+  if [ -z "${APP_STARTUP_TIME}" ]; then
+    echo "Could not find application start time in log using provided Regular Expression"
+    exit 1
+  fi
+  APP_STARTUP_TIME=$(printf %.2f ${APP_STARTUP_TIME} &2>1)
+  echo "Application took ${APP_STARTUP_TIME} seconds to startup according to app logs."
+else
+  CONTAINER_READY_TIME=$(kubectl -n ${NAMESPACE} get pod ${APP_POD} -o json | jq -r '.status.conditions[] | select(.status == "True" and .type == "ContainersReady") | .lastTransitionTime' &2>1)
+
+  if [ -z "${CONTAINER_READY_TIME}" ]; then
+    echo "Could not find the app pod's ContainersReady time."
+    exit 1
+  fi
+
+  echo "ContainersReady time: ${CONTAINER_READY_TIME}."
+  CONTAINER_READY_TIME_SECONDS=$(date -D "%Y-%m-%dT%H:%M:%SZ" -d "${CONTAINER_READY_TIME}" "+%s" &2>1)
+  echo "ContainersReady time in seconds: ${CONTAINER_READY_TIME_SECONDS}."
+
+  CONTAINER_START_TIME=$(kubectl -n ${NAMESPACE} get pod ${APP_POD} -o json | jq -r '.status.containerStatuses[0].state.running.startedAt' &2>1)
+  if [ -z "${CONTAINER_START_TIME}" ]; then
+    echo "Could not find the app pod's start time."
+    exit 1
+  fi
+
+  echo "Pod (container) start time: ${CONTAINER_START_TIME}."
+  CONTAINER_START_TIME_SECONDS=$(date -D "%Y-%m-%dT%H:%M:%SZ" -d "${CONTAINER_START_TIME}" "+%s" &2>1)
+  echo "Pod (container) start time in seconds: ${CONTAINER_START_TIME_SECONDS}."
+
+  APP_STARTUP_TIME=$(echo $(( ((${CONTAINER_READY_TIME_SECONDS} - ${CONTAINER_START_TIME_SECONDS} )) )) &2>1)
+  echo "Application took ${APP_STARTUP_TIME} seconds to startup"
 fi
-
-echo "ContainersReady time: ${CONTAINER_READY_TIME}."
-CONTAINER_READY_TIME_SECONDS=$(date -D "%Y-%m-%dT%H:%M:%SZ" -d "${CONTAINER_READY_TIME}" "+%s")
-echo "ContainersReady time in seconds: ${CONTAINER_READY_TIME_SECONDS}."
-
-CONTAINER_START_TIME=$(kubectl -n ${NAMESPACE} get pod ${APP_POD} -o json | jq -r '.status.containerStatuses[0].state.running.startedAt')
-if [ -z "${CONTAINER_START_TIME}" ]; then
-  echo "Could not find the app pod's start time."
-  exit 1
-fi
-
-echo "Pod (container) start time: ${CONTAINER_START_TIME}."
-CONTAINER_START_TIME_SECONDS=$(date -D "%Y-%m-%dT%H:%M:%SZ" -d "${CONTAINER_START_TIME}" "+%s")
-echo "Pod (container) start time in seconds: ${CONTAINER_START_TIME_SECONDS}."
-
-APP_STARTUP_TIME=$(echo $(( ((${CONTAINER_READY_TIME_SECONDS} - ${CONTAINER_START_TIME_SECONDS} )) )))
-echo "Application took ${APP_STARTUP_TIME} seconds to startup"
 
 # Push to the Prometheus PushGateway
 echo "application_startup_time ${APP_STARTUP_TIME}"
 
 if [ -n "${PUSHGATEWAY_URL}" ]; then
-  echo "application_startup_time ${APP_STARTUP_TIME}" | curl --data-binary @- "${PUSHGATEWAY_URL}"
+  echo "application_startup_time ${APP_STARTUP_TIME}" | curl --fail-with-body -s --data-binary @- "${PUSHGATEWAY_URL}"
 fi
 
 } 2>&1 | tee -a /proc/1/fd/1
