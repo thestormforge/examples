@@ -1,0 +1,150 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pet-clinic-startup-logs-with-jvm-flags
+  namespace: pet-clinic
+rules:
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - patch
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+- resources:
+  - ""
+  apiGroups:
+  - ""
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pet-clinic-startup-logs-with-jvm-flags
+  namespace: pet-clinic
+roleRef:
+  name: pet-clinic-startup-logs-with-jvm-flags
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-pro-controller
+  namespace: stormforge-system
+  kind: ServiceAccount
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pet-clinic-startup-logs-with-jvm-flags-setup
+  namespace: pet-clinic
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pet-clinic-startup-logs-with-jvm-flags-setup
+  namespace: pet-clinic
+rules:
+- resources:
+  - secrets
+  apiGroups:
+  - ""
+  verbs:
+  - create
+  - delete
+  - list
+  - get
+  - update
+- resources:
+  - replicasets
+  apiGroups:
+  - apps
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pet-clinic-startup-logs-with-jvm-flags-setup
+  namespace: pet-clinic
+roleRef:
+  name: pet-clinic-startup-logs-with-jvm-flags-setup
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: pet-clinic-startup-logs-with-jvm-flags-setup
+  namespace: pet-clinic
+  kind: ServiceAccount
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-prometheus-827298
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-prometheus-827298
+roleRef:
+  name: optimize-prometheus-827298
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: pet-clinic-startup-logs-with-jvm-flags-setup
+  namespace: pet-clinic
+  kind: ServiceAccount
