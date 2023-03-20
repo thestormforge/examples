@@ -2,7 +2,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: pet-clinic-startup-logs-with-jvm-flags
+  name: pet-clinic-startup-001
   namespace: pet-clinic
   labels:
     stormforge.io/application: 'pet-clinic'

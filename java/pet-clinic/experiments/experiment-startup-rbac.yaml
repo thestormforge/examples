@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: pet-clinic-startup-logs-with-jvm-flags
+  name: pet-clinic-startup-001
   namespace: pet-clinic
 rules:
 - resources:
@@ -28,10 +28,10 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: pet-clinic-startup-logs-with-jvm-flags
+  name: pet-clinic-startup-001
   namespace: pet-clinic
 roleRef:
-  name: pet-clinic-startup-logs-with-jvm-flags
+  name: pet-clinic-startup-001
   kind: Role
   apiGroup: rbac.authorization.k8s.io
 subjects:
@@ -42,13 +42,13 @@ subjects:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: pet-clinic-startup-logs-with-jvm-flags-setup
+  name: pet-clinic-startup-001-setup
   namespace: pet-clinic
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: pet-clinic-startup-logs-with-jvm-flags-setup
+  name: pet-clinic-startup-001-setup
   namespace: pet-clinic
 rules:
 - resources:
@@ -71,21 +71,21 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: pet-clinic-startup-logs-with-jvm-flags-setup
+  name: pet-clinic-startup-001-setup
   namespace: pet-clinic
 roleRef:
-  name: pet-clinic-startup-logs-with-jvm-flags-setup
+  name: pet-clinic-startup-001-setup
   kind: Role
   apiGroup: rbac.authorization.k8s.io
 subjects:
-- name: pet-clinic-startup-logs-with-jvm-flags-setup
+- name: pet-clinic-startup-001-setup
   namespace: pet-clinic
   kind: ServiceAccount
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: optimize-prometheus-827298
+  name: optimize-prometheus-b3ce9d
 rules:
 - resources:
   - clusterroles
@@ -139,12 +139,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: optimize-setup-prometheus-827298
+  name: optimize-setup-prometheus-b3ce9d
 roleRef:
-  name: optimize-prometheus-827298
+  name: optimize-prometheus-b3ce9d
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
 subjects:
-- name: pet-clinic-startup-logs-with-jvm-flags-setup
+- name: pet-clinic-startup-001-setup
   namespace: pet-clinic
   kind: ServiceAccount
