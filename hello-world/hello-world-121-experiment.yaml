@@ -91,7 +91,6 @@ spec:
         helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
 
       jobTemplate:
-        backoffLimit: 1
         metadata:
           labels:
             stormforge.io/application: 'hello-world'
