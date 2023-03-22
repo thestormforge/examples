@@ -1,0 +1,124 @@
+---
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: pet-clinic-startup
+  namespace: pet-clinic
+  labels:
+    stormforge.io/application: 'pet-clinic'
+    stormforge.io/objective: 'cost-vs-startup-time'
+    stormforge.io/scenario: 'pet-clinic-startup-time'
+    stormforge.io/source: 'logs-with-jvm-flags'
+spec:
+  optimization:
+  - name: "experimentBudget"
+    value: "100"
+  parameters:
+  - name: cpu
+    baseline: 500
+    min: 10
+    max: 2000
+  - name: memory
+    baseline: 1500
+    min: 640
+    max: 2500
+  - name: gc_newRatio
+    baseline: 2
+    min: 1
+    max: 5
+  - name: gc_survivorRatio
+    baseline: 8
+    min: 1
+    max: 16
+  - name: threadStackSize
+    baseline: 1024
+    min: 500
+    max: 5000
+  - name: initialCodeCacheSize
+    baseline: 500
+    max: 1500
+    min: 250
+  metrics:
+  - name: startup-time
+    minimize: true
+    type: prometheus
+    query: scalar(application_startup_time{job="trialRun",instance="{{ .Trial.Name }}"})
+  - name: cost
+    minimize: true
+    query: '{{divf (addf (mulf .Values.cpu 17) (mulf .Values.memory 3)) 1000}}'
+  - name: cost-cpu-requests
+    minimize: true
+    optimize: false
+    query: '{{divf (mulf .Values.cpu 17) 1000}}'
+  - name: cost-memory-requests
+    minimize: true
+    optimize: false
+    query: '{{divf (mulf .Values.memory 3) 1000}}'
+
+  patches:
+  - targetRef:
+      kind: Deployment
+      apiVersion: apps/v1
+      name: pet-clinic
+      namespace: pet-clinic
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: spring-petclinic
+              resources:
+                limits:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}Mi'
+                requests:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}Mi'
+              env:
+              - name: JAVA_TOOL_OPTIONS
+                value: '-XX:+PreferContainerQuotaForCPUCount -XX:NewRatio={{ .Values.gc_newRatio }} -XX:SurvivorRatio={{ .Values.gc_survivorRatio }} -Xss{{ .Values.threadStackSize }}k -XX:InitialCodeCacheSize={{ .Values.initialCodeCacheSize }}k'
+
+  trialTemplate:
+    metadata:
+      labels:
+        stormforge.io/application: 'pet-clinic'
+        stormforge.io/objective: 'cost-vs-startup-time'
+        stormforge.io/scenario: 'pet-clinic-startup-time'
+    spec:
+      readinessGates:
+      - selector:
+          matchLabels:
+            stormforge.io/application: 'pet-clinic'
+            stormforge.io/scenario: 'pet-clinic-startup-time'
+        failureThreshold: 60
+        conditionTypes:
+        - ContainersReady
+      setupTasks:
+      - name: prometheus
+        helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
+      jobTemplate:
+        metadata:
+          labels:
+            stormforge.io/application: 'pet-clinic'
+            stormforge.io/objective: 'cost-vs-startup-time'
+            stormforge.io/scenario: 'pet-clinic-startup-time'
+        spec:
+          template:
+            metadata:
+              labels:
+                stormforge.io/application: 'pet-clinic'
+                stormforge.io/objective: 'cost-vs-startup-time'
+                stormforge.io/scenario: 'pet-clinic-startup-time'
+            spec:
+              serviceAccountName: pet-clinic-startup-setup
+              containers:
+              - name: startup-checker
+                image: public.ecr.aws/stormforge/examples/startup-checker:latest
+                imagePullPolicy: Always
+                env:
+                - name: NAMESPACE
+                  value: pet-clinic
+                - name: APP_NAME
+                  value: pet-clinic
+                - name: STARTUP_TIME_LOG_REGEX
+                  value: 'Started PetClinicApplication in (\d+\.*\d*) seconds'
