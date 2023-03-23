@@ -1,0 +1,72 @@
+---
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: curl-testapp
+  namespace: default
+  labels:
+    stormforge.io/application: 'stormforger-testapp'
+    stormforge.io/scenario: 'scenario1'
+spec:
+  optimization:
+  - name: experimentBudget
+    value: "20"
+
+  parameters:
+  - name: cpu
+    baseline: 1000
+    min: 500
+    max: 2000
+  - name: memory
+    baseline: 2048
+    min: 512
+    max: 2048
+
+  metrics:
+  - name: cost
+    minimize: true
+    query: '{{ resourceRequests .Target "cpu=0.017,memory=0.000000000003" }}'
+    target:
+      apiVersion: v1
+      kind: PodList
+      matchLabels:
+        app.kubernetes.io/instance: testapp-example
+        app.kubernetes.io/name: testapp
+  - name: duration
+    minimize: true
+    query: '{{ duration .StartTime .CompletionTime }}'
+
+  patches:
+  - targetRef:
+      name: testapp
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: testapp
+              resources:
+                limits:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}M'
+                requests:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}M'
+
+  trialTemplate:
+    spec:
+      initialDelaySeconds: 15
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: curl
+                image: curlimages/curl
+                command:
+                - /bin/sh
+                args:
+                - -c
+                - seq 1 10 | xargs -I{} curl -k http://k8s-default-testapp-d6d43fe263-625234464.us-east-1.elb.amazonaws.com/

@@ -1,0 +1,144 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jmeter-testapp
+  namespace: default
+rules:
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - patch
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jmeter-testapp
+  namespace: default
+roleRef:
+  name: jmeter-testapp
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-pro-controller
+  namespace: stormforge-system
+  kind: ServiceAccount
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jmeter-testapp-setup
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jmeter-testapp-setup
+  namespace: default
+rules:
+- resources:
+  - secrets
+  apiGroups:
+  - ""
+  verbs:
+  - create
+  - delete
+  - list
+  - get
+  - update
+- resources:
+  - replicasets
+  apiGroups:
+  - apps
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jmeter-testapp-setup
+  namespace: default
+roleRef:
+  name: jmeter-testapp-setup
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: jmeter-testapp-setup
+  namespace: default
+  kind: ServiceAccount
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: optimize-prometheus-ccb177
+rules:
+- resources:
+  - clusterroles
+  - clusterrolebindings
+  apiGroups:
+  - rbac.authorization.k8s.io
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - serviceaccounts
+  - services
+  - configmaps
+  apiGroups:
+  - ""
+  verbs:
+  - get
+  - create
+  - delete
+- resources:
+  - deployments
+  apiGroups:
+  - apps
+  verbs:
+  - get
+  - create
+  - delete
+  - list
+  - watch
+- resources:
+  - nodes
+  - nodes/metrics
+  - nodes/proxy
+  - services
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+- resources:
+  - pods
+  apiGroups:
+  - ""
+  verbs:
+  - list
+  - watch
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: optimize-setup-prometheus-ccb177
+roleRef:
+  name: optimize-prometheus-ccb177
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: jmeter-testapp-setup
+  namespace: default
+  kind: ServiceAccount
