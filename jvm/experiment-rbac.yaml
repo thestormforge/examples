@@ -1,0 +1,26 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jvm-reactors
+rules:
+- resources:
+  - jobs
+  apiGroups:
+  - batch
+  verbs:
+  - get
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jvm-reactors
+roleRef:
+  name: jvm-reactors
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- name: optimize-pro-controller
+  namespace: stormforge-system
+  kind: ServiceAccount
