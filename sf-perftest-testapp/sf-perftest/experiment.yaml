@@ -1,0 +1,100 @@
+---
+apiVersion: optimize.stormforge.io/v1beta2
+kind: Experiment
+metadata:
+  name: testapp-with-cli-v3-2022-4
+  namespace: default
+  labels:
+    stormforge.io/application: 'stormforger-testapp'
+    stormforge.io/scenario: 'scenario1'
+spec:
+  optimization:
+  - name: experimentBudget
+    value: "20"
+
+  parameters:
+  - name: cpu
+    baseline: 1000
+    min: 500
+    max: 2000
+  - name: memory
+    baseline: 2048
+    min: 512
+    max: 2048
+
+  metrics:
+  - name: cost
+    minimize: true
+    query: '{{ resourceRequests .Target "cpu=0.017,memory=0.000000000003" }}'
+    target:
+      apiVersion: v1
+      kind: PodList
+      matchLabels:
+        app.kubernetes.io/instance: testapp-example
+        app.kubernetes.io/name: testapp
+
+  - name: duration
+    minimize: true
+    query: '{{ duration .StartTime .CompletionTime }}'
+
+
+  - name: error_ratio
+    type: prometheus
+    query: scalar(error_ratio)
+    minimize: true
+    url: http://optimize-default-prometheus.default.svc.cluster.local:9090
+
+  - name: apdex_75
+    type: prometheus
+    query: scalar(apdex_75)
+    minimize: true
+    url: http://optimize-default-prometheus.default.svc.cluster.local:9090
+
+  - name: percentile_99
+    type: prometheus
+    query: scalar(percentile_99)
+    minimize: true
+    url: http://optimize-default-prometheus.default.svc.cluster.local:9090
+
+  patches:
+  - targetRef:
+      name: testapp
+      apiVersion: apps/v1
+      kind: Deployment
+    patch: |
+      spec:
+        template:
+          spec:
+            containers:
+            - name: testapp
+              resources:
+                limits:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}M'
+                requests:
+                  cpu: '{{ .Values.cpu }}m'
+                  memory: '{{ .Values.memory }}M'
+
+  trialTemplate:
+    spec:
+      initialDelaySeconds: 15
+      setupTasks:
+      - name: prometheus
+        helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: stormforge-cli
+                image: registry.stormforge.io/library/stormforge-cli
+                envFrom:
+                - secretRef:
+                    name: stormforge-token
+                args:
+                # NOTE: --metrics-output is automatically activated via ENV variable
+                - create
+                - test-run
+                - "--test-case=testapp_optimize_trial"
+                - "--watch-timeout=1h"
+                - "--watch"
