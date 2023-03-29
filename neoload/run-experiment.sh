@@ -34,4 +34,13 @@ if [ -z "$BUDGET" ]; then
 fi
 
 sed  -e "s/TARGET_SERVER/${INGRESS_IP}/g" -e "s/UUID/${SF_UUID:24}/g" -e "s/BUDGET/${BUDGET}/g" experiment.yaml \
-    | kubectl apply -f -
+    > "neoload-${SF_UUID:24}.yaml"
+
+sed '/End Experiment/q' experiment.yaml | stormforge rbac - > "neoload-${SF_UUID:24}-rbac.yaml"
+
+cat - <<-EOF
+Experiment neoload-${SF_UUID:24} is ready! To create it, run the following command:
+
+    kubectl apply -f neoload-${SF_UUID:24}-rbac.yaml -f neoload-${SF_UUID:24}.yaml
+
+EOF
