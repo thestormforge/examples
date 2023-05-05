@@ -2,7 +2,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: postgres-experiment-230505
+  name: postgres-experiment
   namespace: postgres
   labels:
     stormforge.io/application: 'postgres'
