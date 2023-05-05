@@ -1,7 +1,9 @@
 # Cassandra StormForge Example
+
 Optimizing Cassandra for Cost and Performance using cassandra-stress
 
 ## Overview
+
 As companies start using containerized versions of Cassandra, it can be challenging to tune the environment Cassandra is operating in
 for things like HEAP size, CPU, Memory, etc. Due to this challenge, companies are scaling their infrastucture out to keep up with 
 the demand of Cassandras increasing resource demand in order to remain stable. In this example we show how to use cassandra-stress, the
@@ -9,16 +11,16 @@ apache cassandra load testing utility to run all three stress tests consecutivel
 
 The official documentation for cassandra-stress can be found [here](https://cassandra.apache.org/doc/latest/tools/cassandra_stress.html)
 
-
 ### Technical Process
+
 In order to get the cassandra-stress to run all three load tests under one experiment trial, we needed to create a container for that task.
-You can find the Dockerfile and related artifacts [here](https://www.github.com/thecrudge/cstress) or in the Docker folder. Essentially its 
-an image that runs an entrypoint with a very basic script to run all three load tests consecutively. You can customize your load test parameters 
-here in the entrypoint.sh file. 
+You can find the Dockerfile and related artifacts [here](https://www.github.com/thecrudge/cstress) or in the Docker folder. Essentially its
+an image that runs an entrypoint with a very basic script to run all three load tests consecutively. You can customize your load test parameters
+here in the entrypoint.sh file.
 
 In the experiment spec, you can see the parameters we are using for our experiment, and the experiment budget (or how many trials we want to run) -
 
-```
+```yaml
 spec:
   optimization:
   - name: "experimentBudget"
@@ -34,13 +36,14 @@ spec:
     min: 1000
     max: 8000
 ```
+
 It is important to remember here to leave some headroom for the max config so not to run into OOM or resource issues during the trial. Here
 I am running Cassandra in AWS on ec2, t2.xlarge nodes.
 
 Because we never want our HEAP size to be greater than our memory setting, we can configure this in our experiment file by declaring constraints
 like so -
 
-```
+```yaml
   constraints:
   - order:
       lowerParameter: MAX_HEAP_SIZE
@@ -49,9 +52,9 @@ like so -
 
 You can also see that we did the same thing here, but defined them in a different way so that MAX_HEAP_SIZE remains 1500M below memory.
 
-You can find documentation on constraints [here](https://docs.stormforge.io/experiment/parameters/#parameter-constraints)
+You can find documentation on constraints [here](https://docs.stormforge.io/optimize-pro/reference/parameters/#parameter-constraints)
 
-```
+```yaml
   constraints:
   - name: heap_memory
     isUpperBound: true
@@ -66,7 +69,7 @@ You can find documentation on constraints [here](https://docs.stormforge.io/expe
 
 Next, we need to define our metrics or objectives we are optimizing for -
 
-```
+```yaml
   metrics:
   - name: duration
     minimize: true
@@ -81,7 +84,7 @@ amount of CPU and Memory we are consuming in that trial.
 
 Finally, we define our patches and our trial template
 
-```
+```yaml
     patch: |
       spec:
         template:
@@ -115,7 +118,7 @@ You can see here how we are patching the cassandra containers for limits and env
 using the custom cassandra-stress image we discussed at the beginning of this file. We can validate our trial patch, by descibing a cassandra pod 
 and verifying the trial settings by describing the trial -
 
-```
+```terminal
 kubectl describe pod cassandra-0
 Name:         cassandra-0
 ...
@@ -147,7 +150,8 @@ Containers:
       POD_IP:                   (v1:status.podIP)
 ...
 ```
-```
+
+```terminal
 kubectl get trials -w
 
 NAME                                     STATUS      ASSIGNMENTS                                                     VALUES
@@ -156,6 +160,7 @@ cassandra-write-read-mixed-example-001   Running     MAX_HEAP_SIZE=1413, cpu=618
 ```
 
 ## Results
+
 The image below shows us that the machine learning has recommended trial number #98. With this trial we can see we have a cost savings of 34.29%
 compared to our baseline in Trial #1.
 

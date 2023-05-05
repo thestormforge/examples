@@ -2,7 +2,7 @@
 apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
-  name: postgres-experiment
+  name: postgres-experiment-230505
   namespace: postgres
   labels:
     stormforge.io/application: 'postgres'
@@ -14,11 +14,11 @@ spec:
     value: "100"
   parameters:
   - name: cpu
-    baseline: 4000
-    min: 2000
+    baseline: 2000
+    min: 1000
     max: 4000
   - name: memory
-    baseline: 4096
+    baseline: 2048
     min: 2048
     max: 4295
   metrics:

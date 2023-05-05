@@ -1,6 +1,6 @@
 # StormForge - Examples
 
-This repository contains examples to be used with the [StormForge Optimize Controller](https://docs.stormforge.io/optimize/getting-started/install/).
+This repository contains examples to be used with the [StormForge Optimize Controller](https://docs.stormforge.io/optimize-pro/getting-started/install/).
 
 Each example contains additional documentation for usage and describing how it works.
 
@@ -15,6 +15,7 @@ Each example contains additional documentation for usage and describing how it w
 <!-- tocstop -->
 
 ## Running Experiments
+
 Each example can be run by executing `kubectl apply -k .` from each of the example directories.
 
 ## Issues
@@ -34,7 +35,6 @@ contributors a chance to point you in the right direction, give you feedback on
 your design, and help you find out if someone else is working on the same thing.
 
 [issues]: https://github.com/thestormforge/examples/issues
-[controller]: https://github.com/thestormforge/optimize-controller
 
 ## Optimize Pro Version
 

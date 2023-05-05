@@ -18,7 +18,7 @@ Please read the experiment file itself and familiarize yourself with the topics 
 
 When ready, you can run the experiment using the following command.
 
-```
+```terminal
 kubectl apply -f hello-world-101-experiment.yaml
 ```
 
@@ -35,7 +35,7 @@ Please read the experiment file itself and familiarize yourself with the topics 
 
 When ready, you can run the experiment using the following command.
 
-```
+```terminal
 kubectl apply \
   -f hello-world-102-resources.yaml
   -f hello-world-102-experiment.yaml
@@ -53,7 +53,7 @@ Please read the experiment file itself and familiarize yourself with the topics 
 
 When ready, you can run the experiment using the following command.
 
-```
+```terminal
 kubectl apply \
   -f hello-world-121-resources.yaml
   -f hello-world-121-experiment.yaml

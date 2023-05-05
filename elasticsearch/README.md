@@ -1,16 +1,19 @@
 # Elasticsearch Example
 
 ## Running The experiment
+
 From `examples/elasticsearch` execute:
 
 `kubectl apply -k .`
 
 ## Introduction
+
 [Elasticsearch](https://github.com/elastic/elasticsearch) is a widely used distributed database often used as a search engine or for logging. In this example, we demonstrate how to tune Elasticsearch using the benchmarking tool [Rally](https://esrally.readthedocs.io/en/stable/). Rally provides a variety of datasets, called tracks, that can be used to load test Elasticsearch. For each track there are several challenges, designed to test different workloads. This example shows how to i) use a setupTask to integrate with a Helm chart, ii) tune JVM parameters alongside the Kubernetes resources, and iii) set a maximum length a trial can run before being considered failed.
 
 ## Prerequisites
 
-You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 40vCPUs (10 on each node) and 80GB of memory (20 on each node). Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/getting-started/install/) and run `stormforge init` (while connected to your cluster).
+You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 40vCPUs (10 on each node) and 80GB of memory (20 on each node).
+Additionally, you will need `kubectl` and our `stormforge` CLI. Follow our [installation guide](https://docs.stormforge.io/optimize-pro/getting-started/install/) to get started.
 
 ## Example Resources
 
@@ -33,12 +36,13 @@ To run the experiment use `kubectl` to first create the ConfigMap and ServiceAcc
 ## Experiment Lifecycle
 
 For every trial you will see the following:
+
 1. A setup task pod named similarly to `rally-helm-v2gp8-create-whrfh` that launches the application from the Helm chart.
 2. The Elasticsearch cluster consisting of one Deployment called `elasticsearch-client` and two StatefulSets called `elasticsearch-data` and `elasticsearch-master`
 3. The trial pod named similarly to `rally-helm-v2gp8-lwmmh` that contains Rally and runs the load tests against the Elasticsearch cluster.
 4. A setup task pod named similarly to `rally-helm-v2gp8-delete-whrfh` that cleans up the Helm chart.
 
-For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://docs.stormforge.io/getting-started/quickstart/) and [experiment lifecycle](https://docs.stormforge.io/lifecycle/) documentation.
+For more information on running, monitoring and maintaining experiments, please refer to our [quickstart](https://docs.stormforge.io/optimize-pro/getting-started/quickstart/) and [experiment lifecycle](https://docs.stormforge.io/optimize-pro/concepts/lifecycle/) documentation.
 
 ## Customization
 

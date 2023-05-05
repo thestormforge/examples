@@ -6,8 +6,7 @@ We provide an [example](./hipster-shop/k6/) that optimizes the `frontend` compon
 
 ## Prerequisites
 
-You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 16 vCPUs (4 on each node) and 32GB of memory (8 on each node). Additionally, you will need a local configured copy of `kubectl`.
-
-Additionally, you will need to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](install) and run `stormforge install optimize-pro` (while connected to your cluster).
+You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 16 vCPUs (4 on each node) and 32GB of memory (8 on each node).
+Additionally, you will need `kubectl` and our `stormforge` CLI. Follow our [installation guide](https://docs.stormforge.io/optimize-pro/getting-started/install/) to get started.
 
 [install]: https://docs.stormforge.io/optimize-pro/getting-started/install/

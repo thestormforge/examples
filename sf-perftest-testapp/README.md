@@ -2,7 +2,7 @@
 
 This folder contains simple experiments to optimize the StormForge Performance Testing [Test App](https://github.com/stormforger/testapp/) via Optimize Pro.
 
-NOTE: This is not really useful as an optimization target since the Test App doesn't really have a lot of knobs to tune nor does it need a lot of memory/cpu. 
+NOTE: This is not really useful as an optimization target since the Test App doesn't really have a lot of knobs to tune nor does it need a lot of memory/cpu.
 However, it is useful as a test target for experimenting with Optimize Pro trial pods for various performance testing tools.
 
 ## The Test App

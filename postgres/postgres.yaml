@@ -85,10 +85,10 @@ spec:
               key: PG_PASSWORD
         resources:
           limits:
-            cpu: 4.0
+            cpu: 2.0
             memory: 4096M
           requests:
-            cpu: 4.0
+            cpu: 2.0
             memory: 4096M
         volumeMounts:
         - name: postgres-storage
