@@ -8,29 +8,33 @@ In this experiment, the load test is performed by the SaaS version of [Tricentis
 
 ## Prerequisites
 
-You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 16 vCPUs (4 on each node) and 32GB of memory (8 on each node). Additionally, you will need a local configured copy of `kubectl`.
-
-Additionally, you will need a local configured copy of `kubectl` and to initialize StormForge Optimize in your cluster. You can download a binary for your platform from the [installation guide](https://docs.stormforge.io/optimize/getting-started/install/) and run `stormforge init` (while connected to your cluster).
-
+You must have a Kubernetes cluster. We recommend using a cluster with 4 nodes, 16 vCPUs (4 on each node) and 32GB of memory (8 on each node).
+Additionally, you will need `kubectl` and our `stormforge` CLI. Follow our [installation guide](https://docs.stormforge.io/optimize-pro/getting-started/install/) to get started.
 To use the run-experiment.sh script, you also need the stormforge CLI and the uuidgen package pre-installed.
 
 ## Run the experiment
+
 ### Deploy the voting webapp with ingress
 
 Because the load test resides outside of the cluster, the voting webapp needs to be exposed with a publicly accessible IP address.
 
 Run:
-`kubectl apply -f application.yaml  `
+
+```terminal
+kubectl apply -f application.yaml
+```
 
 ### Set Neoload authentication token
+
 The Neoload authentication token is defined as a kubernetes Secret neoload-token in experiment.yaml.  You need to update it with your own token issued by Tricentis.
 
 ### Launch an experiment
+
 The run-experiment.sh script automates setup of the experiment files. You will need to set your kubernetes context for the namespace you are working in with the voting-webapp. You will then need to specify the number of trials you would like to run when prompted. The default is 20.
 
 Run:
 
-```
+```terminal
 $ ./run-experiment.sh
 
 Voting Service Ingress IP: <ingress-ip-or-domain>
@@ -49,8 +53,8 @@ The best way to monitor the experiment progress is to use the [web based dashboa
 
 You can also access the status of the trials using the `kubectl` command line tool.
 
-```
-❯ kubectl get trials
+```terminal
+$ kubectl get trials
 NAME                       STATUS      ASSIGNMENTS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   VALUES
 neoload-1da099b3e4d7-000   Completed   deployment/db/db/resources/cpu=1000, deployment/db/db/resources/memory=2000, deployment/redis/redis/resources/cpu=1000, deployment/redis/redis/resources/memory=2000, deployment/result-service/result-service/resources/cpu=1000, deployment/result-service/result-service/resources/memory=2000, deployment/voting-service/voting-service/resources/cpu=1000, deployment/voting-service/voting-service/resources/memory=2000, deployment/worker/worker/resources/cpu=1000, deployment/worker/worker/resources/memory=2000   p95-latency=0.46, p99-latency=0.71, cost=236.41456000000002, cost-cpu-requests=10.175, cost-memory-requests=21.14652
 neoload-1da099b3e4d7-001   Completed   deployment/db/db/resources/cpu=1995, deployment/db/db/resources/memory=3008, deployment/redis/redis/resources/cpu=582, deployment/redis/redis/resources/memory=1198, deployment/result-service/result-service/resources/cpu=1052, deployment/result-service/result-service/resources/memory=3533, deployment/voting-service/voting-service/resources/cpu=891, deployment/voting-service/voting-service/resources/memory=1817, deployment/worker/worker/resources/cpu=1296, deployment/worker/worker/resources/memory=1068     p95-latency=0.476, p99-latency=0.797, cost=251.592520832, cost-cpu-requests=11.364999999999998, cost-memory-requests=19.462506944
@@ -58,11 +62,12 @@ neoload-1da099b3e4d7-002   Running     deployment/db/db/resources/cpu=1570, depl
 ```
 
 ## Technical Process
+
 The experiment is fully automated as defined in the experiment.yaml
 
 In the experiment spec, you can see the parameters we are using for our experiment.
 
-```
+```yaml
 spec:
   optimization:
   - name: "experimentBudget"
@@ -110,11 +115,9 @@ spec:
     max: 4000
 ```
 
-
-
 Next, we need to define the metrics or objectives we are optimizing for.
 
-```
+```yaml
   metrics:
   - name: p95-latency
     type: prometheus
@@ -145,7 +148,7 @@ Please note that the cost is calculated based on the CPU and Memory consumed in 
 
 Finally, we define our patches and our trial template.
 
-```
+```yaml
  patches:
   - targetRef:
       name: db
@@ -252,8 +255,8 @@ Finally, we define our patches and our trial template.
 
 You can see here how we are patching the voting-service deployment for CPU and memory allocation. You can also see here that we use the custom neoload-trials container image for load generation. We can validate our trial patch by describing a voting-service pod and verifying the trial settings by describing the trial
 
-```
-kubectl describe pod voting-service-78cfdcbdb6-4qdpx
+```terminal
+$ kubectl describe pod voting-service-78cfdcbdb6-4qdpx
 Name:         voting-service-78cfdcbdb6-4qdpx
 Namespace:    default
 Priority:     0
@@ -306,8 +309,10 @@ Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
                  node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
 ...
 ```
-```
-kubectl describe trial neoload-1da099b3e4d7-001
+
+
+```terminal
+$ kubectl describe trial neoload-1da099b3e4d7-001
 Name:         neoload-1da099b3e4d7-001
 Namespace:    default
 Labels:       stormforge.io/application=default
@@ -460,6 +465,7 @@ Events:             <none>
 ```
 
 ## Results
+
 The image below shows us that the Machine Learning engine has recommended trial number #53. With this trial, we can see we have a p99 latency reduction by 37% and p95 latency reduction reduction by 15%
 compared to our baseline in Trial #0.
 
