@@ -3,9 +3,6 @@ apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: cassandra-rwx
-  labels:
-    stormforge.io/application: 'cassandra-rwx'
-    stormforge.io/scenario: 'cassandra-stress'
   annotations:
     config.kubernetes.io/path: 'cassandra-full-experiment.yaml'
 spec:

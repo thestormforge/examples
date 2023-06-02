@@ -4,9 +4,6 @@ kind: Experiment
 metadata:
   name: testapp-with-neoload-0
   namespace: default
-  labels:
-    stormforge.io/application: 'stormforger-testapp'
-    stormforge.io/scenario: 'scenario1'
 spec:
   optimization:
   - name: experimentBudget

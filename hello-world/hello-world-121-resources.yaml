@@ -14,9 +14,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-world-121-nginx
-  labels:
-    app.kubernetes.io/name: hello-world-121-nginx
-    stormforge.io/application: 'hello-world'
 spec:
   replicas: 1
   selector:
@@ -39,8 +36,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: optimize-pro-setuptask-crb
-  labels:
-    stormforge.io/application: 'hello-world'
 roleRef:
   name: optimize-pro-setuptask-cr
   kind: ClusterRole
@@ -55,15 +50,11 @@ kind: ServiceAccount
 metadata:
   name: optimize-pro-setuptask-sa
   namespace: default # ENSURE SAME VALUE AS CLUSTER_ROLE_BINDING
-  labels:
-    stormforge.io/application: 'hello-world'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: optimize-pro-setuptask-cr
-  labels:
-    stormforge.io/application: 'hello-world'
 rules:
 - resources:
   - clusterroles

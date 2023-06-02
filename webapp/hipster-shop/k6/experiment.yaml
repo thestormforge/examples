@@ -4,10 +4,6 @@ kind: Experiment
 metadata:
   name: k6-hipster-demo-1
   namespace: hipster-demo
-  labels:
-    stormforge.io/application: 'k6-hipster-demo'
-    stormforge.io/objective: 'cost-vs-p95-latency'
-    stormforge.io/scenario: 'constant-arrival-rate'
   annotations:
     config.kubernetes.io/path: 'experiment.yaml'
 
@@ -83,11 +79,6 @@ spec:
         replicas: {{ index .Values "deployment/frontend/replicas" }}
   
   trialTemplate:
-    metadata:
-      labels:
-        stormforge.io/application: 'k6-hipster-demo'
-        stormforge.io/objective: 'cost-vs-p95-latency'
-        stormforge.io/scenario: 'constant-arrival-rate'
     spec:
       initialDelaySeconds: 15
       setupServiceAccountName: optimize-setup-810861
@@ -95,18 +86,8 @@ spec:
       - name: prometheus
         helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
       jobTemplate:
-        metadata:
-          labels:
-            stormforge.io/application: 'k6-hipster-demo'
-            stormforge.io/objective: 'cost-vs-p95-latency'
-            stormforge.io/scenario: 'constant-arrival-rate'
         spec:
           template:
-            metadata:
-              labels:
-                stormforge.io/application: 'k6-hipster-demo'
-                stormforge.io/objective: 'cost-vs-p95-latency'
-                stormforge.io/scenario: 'constant-arrival-rate'
             spec:
               containers:
               - name: constant-arrival-rate
@@ -120,15 +101,11 @@ kind: ServiceAccount
 metadata:
   name: optimize-setup-810861
   namespace: hipster-demo
-  labels:
-    stormforge.io/application: 'k6-hipster-demo'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: optimize-prometheus-810861
-  labels:
-    stormforge.io/application: 'k6-hipster-demo'
 rules:
 - resources:
   - clusterroles
@@ -182,8 +159,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: optimize-setup-prometheus-810861
-  labels:
-    stormforge.io/application: 'k6-hipster-demo'
 roleRef:
   name: optimize-prometheus-810861
   kind: ClusterRole

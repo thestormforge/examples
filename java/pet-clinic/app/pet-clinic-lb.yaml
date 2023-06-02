@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: pet-clinic-lb
+  namespace: pet-clinic
 spec:
   type: LoadBalancer
   selector:

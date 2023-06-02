@@ -4,10 +4,6 @@ kind: Experiment
 metadata:
   name: postgres-experiment
   namespace: postgres
-  labels:
-    stormforge.io/application: 'postgres'
-    stormforge.io/objective: 'duration-vs-cost'
-    stormforge.io/scenario: 'pgbench'
 spec:
   optimization:
   - name: experimentBudget
@@ -54,25 +50,13 @@ spec:
                   memory: '{{ .Values.memory }}M'
   trialTemplate:
     metadata:
-      labels:
-        stormforge.io/application: 'postgres'
-        stormforge.io/objective: 'duration-vs-cost'
-        stormforge.io/scenario: 'pgbench'
     spec:
       initialDelaySeconds: 15
       jobTemplate:
         metadata:
-          labels:
-            stormforge.io/application: 'postgres'
-            stormforge.io/objective: 'duration-vs-cost'
-            stormforge.io/scenario: 'pgbench'
         spec:
           template:
             metadata:
-              labels:
-                stormforge.io/application: 'postgres'
-                stormforge.io/objective: 'duration-vs-cost'
-                stormforge.io/scenario: 'pgbench'
             spec:
               initContainers:
               - name: pgbench-initialize

@@ -3,9 +3,6 @@ apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: hpa-example
-  labels:
-    stormforge.io/application: 'hpa'
-    stormforge.io/scenario: 'locust'
   annotations:
     config.kubernetes.io/path: 'experiment.yaml'
 spec:

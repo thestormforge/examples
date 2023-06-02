@@ -27,9 +27,6 @@ apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: hello-world-102
-  labels:
-    stormforge.io/application: 'hello-world'
-    stormforge.io/scenario: 'example'
   annotations:
     config.kubernetes.io/path: 'hello-world-102-experiment.yaml'
 spec:
@@ -68,10 +65,6 @@ spec:
     query: 'scalar( output{job="trialRun", instance="{{ .Trial.Name }}"} )'
 
   trialTemplate:
-    metadata:
-      labels:
-        stormforge.io/application: 'hello-world'
-        stormforge.io/scenario: 'example'
     spec:
       # setupTasks are builtin helpers which can make trials easier to run.
       #
@@ -85,17 +78,9 @@ spec:
         helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
 
       jobTemplate:
-        metadata:
-          labels:
-            stormforge.io/application: 'hello-world'
-            stormforge.io/scenario: 'example'
         spec:
           backoffLimit: 1
           template:
-            metadata:
-              labels:
-                stormforge.io/application: 'hello-world'
-                stormforge.io/scenario: 'example'
             spec:
               activeDeadlineSeconds: 60
               restartPolicy: Never
