@@ -3,10 +3,6 @@ kind: Experiment
 metadata:
   name: neoload-UUID
   namespace: default
-  labels:
-    stormforge.io/application: 'default'
-    stormforge.io/objective: 'default'
-    stormforge.io/scenario: 'default'
 spec:
   optimization:
   - name: "experimentBudget"
@@ -177,28 +173,13 @@ spec:
                   memory: '{{ index .Values "deployment/worker/worker/resources/memory"
                     }}Mi'
   trialTemplate:
-    metadata:
-      labels:
-        stormforge.io/application: 'default'
-        stormforge.io/objective: 'default'
-        stormforge.io/scenario: 'default'
     spec:
       setupTasks:
       - name: monitoring
         helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
       jobTemplate:
-        metadata:
-          labels:
-            stormforge.io/application: 'default'
-            stormforge.io/objective: 'default'
-            stormforge.io/scenario: 'default'
         spec:
           template:
-            metadata:
-              labels:
-                stormforge.io/application: 'default'
-                stormforge.io/objective: 'default'
-                stormforge.io/scenario: 'default'
             spec:
               containers:
                 - name: neoload
@@ -234,8 +215,6 @@ kind: ConfigMap
 metadata:
   name: default-neoload
   namespace: default
-  labels:
-    stormforge.io/application: 'default'
 data:
   neoload-stormforge.yaml: |
     name: Stormforge Perf Test
@@ -285,7 +264,5 @@ kind: Secret
 metadata:
   name: neoload-token
   namespace: default
-  labels:
-    stormforge.io/application: 'default'
 data:
   token: XXX-XXX-XXX-XXX

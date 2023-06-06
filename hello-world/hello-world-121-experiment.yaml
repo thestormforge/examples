@@ -27,9 +27,6 @@ apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: hello-world-121
-  labels:
-    stormforge.io/application: 'hello-world'
-    stormforge.io/scenario: 'example'
   annotations:
     config.kubernetes.io/path: 'hello-world-121-experiment.yaml'
 
@@ -72,10 +69,6 @@ spec:
                 value: "{{ .Values.trialInput }}"
 
   trialTemplate:
-    metadata:
-      labels:
-        stormforge.io/application: 'hello-world'
-        stormforge.io/scenario: 'example'
     spec:
       readinessGates:
       - apiVersion: apps/v1
@@ -91,16 +84,8 @@ spec:
         helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
 
       jobTemplate:
-        metadata:
-          labels:
-            stormforge.io/application: 'hello-world'
-            stormforge.io/scenario: 'example'
         spec:
           template:
-            metadata:
-              labels:
-                stormforge.io/application: 'hello-world'
-                stormforge.io/scenario: 'example'
             spec:
               activeDeadlineSeconds: 60
               restartPolicy: Never

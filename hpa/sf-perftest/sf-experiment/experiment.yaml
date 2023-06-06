@@ -3,9 +3,6 @@ apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: hpa-sf
-  labels:
-    stormforge.io/application: hpa-sf
-    stormforge.io/scenario: standard
   annotations:
     config.kubernetes.io/path: 'experiment.yaml'
 spec:
@@ -98,25 +95,13 @@ spec:
                   memory: '{{ .Values.memory }}M'
                   cpu: '{{ .Values.cpu }}m'
   trialTemplate:
-    metadata:
-      labels:
-        stormforge.io/application: hpa-sf
-        stormforge.io/scenario: standard
     spec:
       setupTasks:
       - name: prometheus
         helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
       jobTemplate:
-        metadata:
-          labels:
-            stormforge.io/application: hpa-sf
-            stormforge.io/scenario: standard
         spec:
           template:
-            metadata:
-              labels:
-                stormforge.io/application: hpa-sf
-                stormforge.io/scenario: standard
             spec:
               containers:
               - name: stormforger

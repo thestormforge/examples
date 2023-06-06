@@ -4,9 +4,6 @@ kind: Experiment
 metadata:
   name: locust-testapp
   namespace: default
-  labels:
-    stormforge.io/application: 'stormforger-testapp'
-    stormforge.io/scenario: 'scenario1'
 spec:
   optimization:
   - name: experimentBudget

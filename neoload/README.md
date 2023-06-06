@@ -310,15 +310,10 @@ Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
 ...
 ```
 
-
 ```terminal
 $ kubectl describe trial neoload-1da099b3e4d7-001
 Name:         neoload-1da099b3e4d7-001
 Namespace:    default
-Labels:       stormforge.io/application=default
-              stormforge.io/experiment=neoload-1da099b3e4d7
-              stormforge.io/objective=default
-              stormforge.io/scenario=default
 Annotations:  stormforge.io/report-trial-url: https://api.stormforge.dev/v1/experiments/neoload-1da099b3e4d7/trials/1
 API Version:  optimize.stormforge.io/v1beta2
 Kind:         Trial
@@ -357,18 +352,10 @@ Metadata:
   Job Template:
     Metadata:
       Creation Timestamp:  2022-02-25T21:31:57Z
-      Labels:
-        stormforge.io/application:  default
-        stormforge.io/objective:    default
-        stormforge.io/scenario:     default
     Spec:
       Template:
         Metadata:
           Creation Timestamp:  2022-02-25T21:31:57Z
-          Labels:
-            stormforge.io/application:  default
-            stormforge.io/objective:    default
-            stormforge.io/scenario:     default
         Spec:
           Containers:
             Env:

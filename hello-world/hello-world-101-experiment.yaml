@@ -20,11 +20,6 @@ apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: hello-world-101
-  labels:
-    # These labels are required. They help StormForge organize the experiment
-    # in the web UI.
-    stormforge.io/application: 'hello-world'
-    stormforge.io/scenario: 'example'
 
 spec:
   # The optimization section lets you configure optional behavior adjustments
@@ -65,29 +60,13 @@ spec:
   # choosing new parameter values, and before collecting the metric results.
   # The primary component of each trial is a k8s Job.
   trialTemplate:
-    metadata:
-      labels:
-        stormforge.io/application: 'hello-world'
-        stormforge.io/scenario: 'example'
     spec:
       # The jobTemplate is used to create the trial Job. It follows the usual
       # semantics of a k8s Job definition.
       jobTemplate:
-        metadata:
-          labels:
-            # For ease of observation, these labels should match the
-            # experiments own corresponding labels.
-            stormforge.io/application: 'hello-world'
-            stormforge.io/scenario: 'example'
         spec:
           backoffLimit: 1
           template:
-            metadata:
-              labels:
-                # For ease of observation, these labels should match the
-                # experiments own corresponding labels.
-                stormforge.io/application: 'hello-world'
-                stormforge.io/scenario: 'example'
             spec:
               activeDeadlineSeconds: 600 # Running longer than 10min is a failure
               restartPolicy: Never

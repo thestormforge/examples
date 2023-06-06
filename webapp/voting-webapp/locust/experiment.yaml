@@ -4,10 +4,6 @@ kind: Experiment
 metadata:
   name: webapp-locust-metrics-experiment
   namespace: default
-  labels:
-    stormforge.io/application: 'votingapp'
-    stormforge.io/objective: 'default'
-    stormforge.io/scenario: '100-clients'
   annotations:
     config.kubernetes.io/path: 'experiment.yaml'
 spec:
@@ -70,10 +66,6 @@ spec:
                   memory: '{{ .Values.voting_service_memory }}Mi'
   trialTemplate:
     metadata:
-      labels:
-        stormforge.io/application: 'votingapp'
-        stormforge.io/objective: 'default'
-        stormforge.io/scenario: '100-clients'
     spec:
       setupServiceAccountName: optimize-setup-f19e28
       setupTasks:
@@ -81,17 +73,9 @@ spec:
         helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
       jobTemplate:
         metadata:
-          labels:
-            stormforge.io/application: 'votingapp'
-            stormforge.io/objective: 'default'
-            stormforge.io/scenario: '100-clients'
         spec:
           template:
             metadata:
-              labels:
-                stormforge.io/application: 'votingapp'
-                stormforge.io/objective: 'default'
-                stormforge.io/scenario: '100-clients'
             spec:
               containers:
               - name: 100-clients
@@ -117,8 +101,6 @@ kind: ConfigMap
 metadata:
   name: 100-clients-locustfile-f19e28
   namespace: default
-  labels:
-    stormforge.io/application: 'votingapp'
 data:
   locustfile.py: |
     import os
@@ -146,15 +128,11 @@ kind: ServiceAccount
 metadata:
   name: optimize-setup-f19e28
   namespace: default
-  labels:
-    stormforge.io/application: 'votingapp'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: optimize-prometheus-f19e28
-  labels:
-    stormforge.io/application: 'votingapp'
 rules:
 - resources:
   - clusterroles
@@ -208,8 +186,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: optimize-setup-prometheus-f19e28
-  labels:
-    stormforge.io/application: 'votingapp'
 roleRef:
   name: optimize-prometheus-f19e28
   kind: ClusterRole

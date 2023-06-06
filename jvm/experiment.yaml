@@ -3,9 +3,6 @@ apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: jvm-reactors
-  labels:
-    stormforge.io/application: 'jvm-reactors'
-    stormforge.io/scenario: 'renaissance'
 
 spec:
   optimization:

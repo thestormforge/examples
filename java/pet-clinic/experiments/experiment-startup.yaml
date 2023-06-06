@@ -4,15 +4,11 @@ kind: Experiment
 metadata:
   name: pet-clinic-startup
   namespace: pet-clinic
-  labels:
-    stormforge.io/application: 'pet-clinic'
-    stormforge.io/objective: 'cost-vs-startup-time'
-    stormforge.io/scenario: 'pet-clinic-startup-time'
-    stormforge.io/source: 'logs-with-jvm-flags'
 spec:
   optimization:
   - name: "experimentBudget"
     value: "100"
+
   parameters:
   - name: cpu
     baseline: 500
@@ -38,6 +34,7 @@ spec:
     baseline: 500
     max: 1500
     min: 250
+
   metrics:
   - name: startup-time
     minimize: true
@@ -79,36 +76,13 @@ spec:
                 value: '-XX:+PreferContainerQuotaForCPUCount -XX:NewRatio={{ .Values.gc_newRatio }} -XX:SurvivorRatio={{ .Values.gc_survivorRatio }} -Xss{{ .Values.threadStackSize }}k -XX:InitialCodeCacheSize={{ .Values.initialCodeCacheSize }}k'
 
   trialTemplate:
-    metadata:
-      labels:
-        stormforge.io/application: 'pet-clinic'
-        stormforge.io/objective: 'cost-vs-startup-time'
-        stormforge.io/scenario: 'pet-clinic-startup-time'
     spec:
-      readinessGates:
-      - selector:
-          matchLabels:
-            stormforge.io/application: 'pet-clinic'
-            stormforge.io/scenario: 'pet-clinic-startup-time'
-        failureThreshold: 60
-        conditionTypes:
-        - ContainersReady
       setupTasks:
       - name: prometheus
         helmChart: oci://registry.stormforge.io/optimize-pro/prometheus
       jobTemplate:
-        metadata:
-          labels:
-            stormforge.io/application: 'pet-clinic'
-            stormforge.io/objective: 'cost-vs-startup-time'
-            stormforge.io/scenario: 'pet-clinic-startup-time'
         spec:
           template:
-            metadata:
-              labels:
-                stormforge.io/application: 'pet-clinic'
-                stormforge.io/objective: 'cost-vs-startup-time'
-                stormforge.io/scenario: 'pet-clinic-startup-time'
             spec:
               serviceAccountName: pet-clinic-startup-setup
               containers:

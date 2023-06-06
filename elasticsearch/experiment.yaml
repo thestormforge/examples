@@ -3,9 +3,6 @@ apiVersion: optimize.stormforge.io/v1beta2
 kind: Experiment
 metadata:
   name: elasticsearch-example
-  labels:
-    stormforge.io/application: 'elasticsearch'
-    stormforge.io/scenario: 'rally'
   annotations:
     config.kubernetes.io/path: 'experiment.yaml'
 spec:

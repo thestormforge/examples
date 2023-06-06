@@ -4,9 +4,6 @@ kind: Experiment
 metadata:
   name: testapp-with-k6-alpha-2022-0
   namespace: default
-  labels:
-    stormforge.io/application: 'stormforger-testapp'
-    stormforge.io/scenario: 'scenario1'
 spec:
   optimization:
   - name: experimentBudget
